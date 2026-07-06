@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computer Simulation I — ครั้งที่ 2 (Interactive)</title>
+<style>
+  :root{
+    --navy:#0f2c4d; --blue:#1f5f8b; --teal:#2a9d8f; --amber:#e9a93f; --red:#d9534f; --purple:#7b5ea7;
+    --bg:#eef2f6; --card:#fff; --line:#dfe5ec; --ink:#1c2733; --muted:#5b6b7b;
+    --soft:#eef7f5; --warn:#fdecea; --code-bg:#0f2330;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:"Segoe UI","Sarabun",Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;}
+  a{color:var(--blue);}
+  #progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--teal),var(--amber));z-index:200;transition:width .1s;}
+  nav{position:fixed;top:0;left:0;right:0;background:rgba(15,44,77,.97);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;gap:6px;padding:8px 14px;overflow-x:auto;box-shadow:0 2px 10px rgba(0,0,0,.15);}
+  nav .brand{color:#fff;font-weight:800;font-size:.95rem;margin-right:10px;white-space:nowrap;}
+  nav a{color:#cdd9e5;text-decoration:none;font-size:.82rem;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:.15s;}
+  nav a:hover,nav a.active{background:var(--teal);color:#fff;}
+  nav .langbtn{margin-left:auto;background:var(--amber);color:var(--navy);border:none;font-weight:800;border-radius:7px;padding:6px 12px;cursor:pointer;font-size:.82rem;white-space:nowrap;}
+  header.hero{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:80px 24px 46px;text-align:center;}
+  header.hero h1{margin:0 0 8px;font-size:2.1rem;}
+  header.hero .sub{opacity:.92;font-size:1.05rem;margin:2px 0;}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px;}
+  .badge{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 15px;font-size:.86rem;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px;}
+  section{padding:44px 0 20px;border-bottom:1px solid var(--line);}
+  section h2{font-size:1.55rem;color:var(--navy);margin:0 0 4px;display:flex;align-items:center;gap:12px;}
+  section h2 .num{background:var(--teal);color:#fff;width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem;flex:0 0 auto;}
+  section .lead{color:var(--muted);margin:0 0 18px;font-size:1rem;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin:16px 0;box-shadow:0 1px 4px rgba(15,44,77,.04);}
+  h3{color:var(--blue);font-size:1.12rem;margin:20px 0 8px;}
+  .en{color:var(--muted);font-style:italic;font-size:.92em;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr;}}
+  .tag{display:inline-block;font-size:.72rem;background:#eef3f8;color:var(--blue);border-radius:6px;padding:2px 9px;font-weight:700;}
+  .note{border-radius:10px;padding:12px 16px;margin:10px 0;font-size:.95rem;}
+  .note.tip{background:var(--soft);border-left:4px solid var(--teal);}
+  .note.warn{background:var(--warn);border-left:4px solid var(--red);}
+  .note.ask{background:#eef3fb;border-left:4px solid var(--blue);}
+  .note .lb{font-weight:800;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px;}
+  .note.tip .lb{color:var(--teal);}.note.warn .lb{color:var(--red);}.note.ask .lb{color:var(--blue);}
+  button.act{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:.92rem;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;}
+  button.act:hover{background:var(--navy);}
+  button.act.amber{background:var(--amber);color:var(--navy);}button.act.amber:hover{background:#d8963a;}
+  button.act.teal{background:var(--teal);}button.act.teal:hover{background:#218a7d;}
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin:14px 0;}
+  .ctl{display:flex;flex-direction:column;gap:4px;font-size:.85rem;}
+  .ctl label{font-weight:700;color:var(--navy);}
+  .ctl input[type=range]{width:180px;accent-color:var(--teal);}
+  .ctl .val{color:var(--blue);font-weight:800;}
+  .statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:14px 0;}
+  .stat{background:var(--navy);color:#fff;border-radius:12px;padding:14px;text-align:center;}
+  .stat .k{font-size:1.7rem;font-weight:800;line-height:1.1;}
+  .stat .l{font-size:.78rem;opacity:.85;margin-top:3px;}
+  .stat.a{background:var(--teal);}.stat.b{background:var(--amber);color:var(--navy);}
+  canvas{max-width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;}
+  .chartwrap{margin:12px 0;}
+  .legend{font-size:.8rem;color:var(--muted);margin-top:4px;text-align:center;}
+  pre{background:var(--code-bg);color:#e6edf3;border-radius:10px;padding:14px 16px;overflow-x:auto;font-family:Consolas,monospace;font-size:.82rem;line-height:1.55;}
+  pre .c{color:#7fae6b;}pre .k{color:#ff9d6b;}pre .s{color:#9cd6ff;}
+  code{background:#eef3f8;padding:1px 6px;border-radius:4px;font-size:.9em;}
+  table.tbl{width:100%;border-collapse:collapse;font-size:.9rem;margin:12px 0;background:#fff;}
+  table.tbl th,table.tbl td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{background:var(--navy);color:#fff;font-weight:600;font-size:.85rem;}
+  table.tbl tr:nth-child(even) td{background:#f7f9fb;}
+  .distbtns{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .distbtns button{background:#f0f4f8;border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.88rem;color:var(--navy);}
+  .distbtns button.on{background:var(--purple);color:#fff;border-color:var(--purple);}
+  .en-block{display:none;}
+  body.en .th-block{display:none;}
+  body.en .en-block{display:block;}
+  .quiz .q{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;}
+  .quiz .q .qh{font-weight:700;margin-bottom:10px;}
+  .quiz .opt{display:block;width:100%;text-align:left;background:#f7f9fb;border:1.5px solid var(--line);border-radius:9px;padding:10px 14px;margin:6px 0;cursor:pointer;font-size:.92rem;font-family:inherit;transition:.12s;}
+  .quiz .opt:hover{border-color:var(--blue);}
+  .quiz .opt.correct{background:#e6f6ee;border-color:var(--teal);color:#166b56;font-weight:700;}
+  .quiz .opt.wrong{background:#fdeaea;border-color:var(--red);color:#a23;}
+  .quiz .fb{font-size:.88rem;margin-top:8px;padding:8px 12px;border-radius:8px;background:var(--soft);display:none;}
+  .quiz .fb.show{display:block;}
+  .scoreband{background:var(--navy);color:#fff;border-radius:12px;padding:16px;text-align:center;font-weight:700;margin-top:10px;display:none;}
+  footer{background:var(--navy);color:#cdd9e5;padding:30px 24px;font-size:.9rem;text-align:center;}
+  .notebox{background:#fffdf6;border:1.5px dashed var(--amber);border-radius:12px;padding:14px 16px;margin:18px 0 4px;}
+  .notebox .nhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .notebox label{font-weight:800;color:#9a6b14;font-size:.92rem;}
+  .notebox .savemark{font-size:.76rem;color:var(--muted);font-weight:700;transition:.2s;}
+  .notebox .savemark.ok{color:var(--teal);}
+  .notebox textarea{width:100%;min-height:80px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:.95rem;line-height:1.6;color:var(--ink);background:#fff;}
+  .notebox textarea:focus{outline:2px solid var(--amber);border-color:var(--amber);}
+  .notetools{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 4px;}
+  .notetools button{background:rgba(255,255,255,.13);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:8px 16px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  .notetools button:hover{background:rgba(255,255,255,.25);}
+</style>
+</head>
+<body class="th">
+<div id="progress"></div>
+<nav id="nav">
+  <span class="brand">🖥️ Com Sim I · ครั้งที่ 2</span>
+  <a href="#s1">เชื่อมโยง</a>
+  <a href="#s2">Flaw of Averages</a>
+  <a href="#s3">คุณภาพ 3V</a>
+  <a href="#s4">Histogram</a>
+  <a href="#s5">การแจกแจง</a>
+  <a href="#s6">Fit</a>
+  <a href="#s7">Lab Excel</a>
+  <a href="#s8">Quiz</a>
+  <button class="langbtn" onclick="toggleLang()" id="langbtn">EN</button>
+</nav>
+
+<header class="hero">
+  <h1>Input Analysis</h1>
+  <p class="sub th-block">ครั้งที่ 2 — การวิเคราะห์ข้อมูลนำเข้า &amp; การแจกแจงความน่าจะเป็น</p>
+  <p class="sub en-block">Session 2 — Input Analysis &amp; Probability Distributions</p>
+  <p class="sub" style="font-size:.95rem;opacity:.9">💡 หัวใจ: input ที่ดี = การแจกแจง ไม่ใช่ค่าเฉลี่ย</p>
+  <div class="badges">
+    <span class="badge">⏱️ 4 ชม.</span>
+    <span class="badge">🧰 Excel (Workshop Class 2)</span>
+    <span class="badge">🎲 กดเล่นได้ทุกส่วน</span>
+    <span class="badge">🌐 TH / EN</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ===================== S1 ===================== -->
+<section id="s1">
+  <h2><span class="num">1</span> เชื่อมจากครั้งที่แล้ว &amp; ภาพรวม</h2>
+  <p class="lead th-block">ครั้งที่ 1 จบด้วย “ผลของ simulation เป็นตัวแปรสุ่ม” — วันนี้ตอบว่า <strong>ความสุ่มนั้นมาจากไหน</strong> และจะใส่เข้าโมเดลให้ถูกต้องได้อย่างไร</p>
+  <p class="lead en-block">Session 1 ended with “a simulation output is a random variable.” Today: <strong>where does that randomness come from</strong>, and how do we put it into the model correctly?</p>
+
+  <div class="card">
+    <div class="note tip" style="font-size:1.05rem;text-align:center">
+      <span class="lb">🎯 ประโยคเดียวของทั้งคาบ / The one line</span>
+      <strong>Garbage in, garbage out</strong> — <span class="th-block">ถ้าข้อมูลนำเข้าไม่ดี ผลลัพธ์สวยแค่ไหนก็เชื่อไม่ได้</span><span class="en-block">if the input is bad, no matter how pretty the output, it can't be trusted.</span>
+    </div>
+    <h3>เราอยู่ตรงไหนของวงจร? <span class="en">/ Where are we?</span></h3>
+    <p class="th-block">ครั้งนี้อยู่ที่ขั้น <strong>“เก็บข้อมูล + สร้างแบบจำลองตัวแปรนำเข้า (input model)”</strong> — ก่อนเขียนโค้ดจริงในครั้งที่ 3</p>
+    <p class="en-block">This session sits at <strong>“collect data + build the input model”</strong> — before coding the real model in Session 3.</p>
+    <div style="overflow-x:auto"><table class="tbl" style="font-size:.82rem;white-space:nowrap;text-align:center">
+      <tr>
+        <td>ตั้งปัญหา</td><td>→</td><td style="background:#fff5e0;font-weight:800;color:#9a6b14">เก็บข้อมูล + Input Analysis<br><span style="font-size:.75rem">📍 เราอยู่ที่นี่ (ครั้ง 2)</span></td><td>→</td>
+        <td>สร้างโมเดล<br>(ครั้ง 3)</td><td>→</td><td>Verify<br>(ครั้ง 4)</td><td>→</td><td>Validate<br>(ครั้ง 5)</td><td>→</td><td>วิเคราะห์<br>(ครั้ง 6)</td>
+      </tr>
+    </table></div>
+  </div>
+  <div class="card">
+    <h3>Input model ที่ดีต้องมี 3 อย่าง <span class="en">/ A good input model</span></h3>
+    <div class="grid2">
+      <div class="note tip" style="margin:0"><span class="th-block">① <strong>แทนความจริงได้</strong> — สะท้อนความแปรผันของระบบจริง</span><span class="en-block">① <strong>Represents reality</strong> — reflects the real system's variability.</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">② <strong>ปรับใช้ง่าย</strong> — แก้พารามิเตอร์ได้สะดวก</span><span class="en-block">② <strong>Easy to adjust</strong> — parameters are convenient to tune.</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">③ <strong>สุ่มค่าได้</strong> — สร้างตัวเลขด้วยคณิตศาสตร์ได้</span><span class="en-block">③ <strong>Can generate values</strong> — samples numbers mathematically.</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">🔗 ครั้ง 3 จะเอาการแจกแจงวันนี้ไปป้อน SimPy จริง</span><span class="en-block">🔗 Session 3 feeds today's distributions into real SimPy.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S2 ===================== -->
+<section id="s2">
+  <h2><span class="num">2</span> Flaw of Averages — ทำไม input ต้องเป็น "การแจกแจง"</h2>
+  <p class="lead th-block">ร้าน A และ B บริการ <strong>เฉลี่ยเท่ากันคือ 4 นาที</strong> ต่างกันแค่ <strong>ความแปรผัน</strong> ลองปรับความแปรผันของร้าน B แล้วรันดูว่าคิวใครยาวกว่า</p>
+  <p class="lead en-block">Shops A and B have the <strong>same mean service time (4 min)</strong> — they differ only in <strong>variability</strong>. Tune shop B's variability and see whose queue is longer.</p>
+
+  <div class="card">
+    <div class="note warn">
+      <span class="lb">🌊 อุปมา / Analogy</span>
+      <span class="th-block">แม่น้ำ “ลึกเฉลี่ย 1 เมตร” — เดินข้ามได้ไหม? ตรงกลางอาจลึก 3 เมตร! ค่าเฉลี่ยไม่บอกความเสี่ยงจากความแปรผัน</span>
+      <span class="en-block">A river “averaging 1 m deep” — safe to cross? The middle may be 3 m! The mean hides the risk from variability.</span>
+    </div>
+    <div class="controls">
+      <div class="ctl"><label>🚶 ลูกค้า/ชม. (ทั้งสองร้าน) / Arrivals/h: <span class="val" id="vFA">13</span></label><input type="range" id="rFA" min="8" max="16" value="13" oninput="vFA.textContent=this.value"></div>
+      <div class="ctl"><label>📊 ความแปรผันร้าน B (SD นาที) / Shop B variability: <span class="val" id="vFB">4.0</span></label><input type="range" id="rFB" min="0.5" max="6" step="0.5" value="4" oninput="vFB.textContent=(+this.value).toFixed(1)"></div>
+      <button class="act amber" onclick="runFlaw()">▶ รันเปรียบเทียบ / Run</button>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="stat a"><div class="k" id="faWaitA">–</div><div class="l th-block">ร้าน A — รอเฉลี่ย (นาที) · SD บริการ 0.5</div><div class="l en-block">Shop A — avg wait (min) · service SD 0.5</div></div>
+        <div class="chartwrap"><canvas id="faCanvasA" width="410" height="180"></canvas><div class="legend th-block">ร้าน A · บริการนิ่ง (แปรผันต่ำ)</div><div class="legend en-block">Shop A · steady service (low variability)</div></div>
+      </div>
+      <div>
+        <div class="stat b"><div class="k" id="faWaitB">–</div><div class="l th-block">ร้าน B — รอเฉลี่ย (นาที) · แปรผันสูง</div><div class="l en-block">Shop B — avg wait (min) · high variability</div></div>
+        <div class="chartwrap"><canvas id="faCanvasB" width="410" height="180"></canvas><div class="legend th-block">ร้าน B · บริการแกว่ง (แปรผันสูง)</div><div class="legend en-block">Shop B · swinging service (high variability)</div></div>
+      </div>
+    </div>
+    <div class="note tip" id="faMsg" style="display:none"></div>
+    <div class="note ask">
+      <span class="lb">❓ ชวนคิด / Think</span>
+      <span class="th-block">ค่าเฉลี่ยบริการเท่ากันทั้งสองร้าน แต่ทำไมคิวถึงต่างกัน? แล้ว “ความแปรผัน” ส่งผลต่อคิวอย่างไร?</span>
+      <span class="en-block">Both shops have the same mean service — why do the queues differ? How does variability drive the queue?</span>
+    </div>
+    <div class="note warn">
+      <span class="lb">⚠️ ข้อผิดพลาดอันดับ 1 / #1 data mistake</span>
+      <span class="th-block">“ใส่ค่าเฉลี่ยก็พอ” เป็นข้อผิดพลาดด้านข้อมูลที่พบบ่อยที่สุดในงานจริง — ลบความแปรผันทิ้ง = โมเดลบอกว่าไม่มีคิว ทั้งที่จริงคิวยาว</span>
+      <span class="en-block">“Just use the average” is the most common real-world data mistake — dropping variability makes the model say there's no queue, when in reality it's long.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S3 ===================== -->
+<section id="s3">
+  <h2><span class="num">3</span> คุณภาพข้อมูล 3V + Noise</h2>
+  <p class="lead th-block">เก็บข้อมูลอย่างไรให้ใช้ได้ และระวังกับดักอะไรบ้าง</p>
+  <p class="lead en-block">How to collect usable data, and which traps to avoid.</p>
+  <div class="grid2">
+    <div class="card" style="border-top:4px solid var(--teal)">
+      <h3 style="color:var(--teal)">3V ของข้อมูลดี</h3>
+      <p class="th-block"><strong>Quality</strong> — ความถูกต้อง/แม่นยำ (วัดด้วยเครื่องมือเชื่อถือได้ ไม่กะเอา)</p>
+      <p class="en-block"><strong>Quality</strong> — accuracy (reliable instruments, not guesses).</p>
+      <p class="th-block"><strong>Quantity</strong> — มากพอต่อการวิเคราะห์ (แนะนำ 100–200 ตัวอย่าง)</p>
+      <p class="en-block"><strong>Quantity</strong> — enough to analyze (~100–200 samples).</p>
+      <p class="th-block"><strong>Variety</strong> — ครอบคลุมหลายสถานการณ์ (peak / off-peak / หลายวัน)</p>
+      <p class="en-block"><strong>Variety</strong> — covers many situations (peak / off-peak / many days).</p>
+    </div>
+    <div class="card" style="border-top:4px solid var(--red)">
+      <h3 style="color:var(--red)">🔊 Noise ที่พบบ่อย</h3>
+      <ul>
+        <li class="th-block">ข้อมูลถูก <strong>ปัดเศษ</strong> (จด "5" ทั้งที่จริง 5.3) → histogram หลอก</li>
+        <li class="en-block"><strong>Rounded</strong> data ("5" when it's 5.3) → fake histogram bars.</li>
+        <li class="th-block">บันทึกไม่เรียงลำดับที่สังเกตจริง</li>
+        <li class="en-block">Recorded out of observed order.</li>
+        <li class="th-block">ขาด <strong>metadata</strong> (ไม่รู้ช่วงไหน/เครื่องไหน)</li>
+        <li class="en-block">Missing <strong>metadata</strong> (which period / machine?).</li>
+        <li class="th-block"><strong>Outlier</strong> ชัดเจน (เวลาบริการ 0 หรือ 999)</li>
+        <li class="en-block">Obvious <strong>outliers</strong> (service time 0 or 999).</li>
+        <li class="th-block">ถูกจัดกลุ่มเป็นช่วงมาแล้ว (ไม่มีค่าดิบ) → เสียรายละเอียด</li>
+        <li class="en-block">Pre-binned (no raw values) → detail lost.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h3>คำแนะนำเชิงปฏิบัติ <span class="en">/ Practical tips</span></h3>
+    <div class="grid2">
+      <div class="note tip" style="margin:0"><span class="th-block">⏱️ บันทึก <strong>เวลาที่เกิดเหตุการณ์</strong> แล้วค่อยลบกันเป็น interval — แม่นกว่าจับเวลาช่วงตรงๆ</span><span class="en-block">⏱️ Record <strong>event times</strong> then subtract to get intervals — more accurate than timing gaps directly.</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">🔬 บันทึกค่าจริง <strong>ละเอียดสูง</strong> อย่าปัดตั้งแต่ต้น</span><span class="en-block">🔬 Record at <strong>high precision</strong>; don't round early.</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">🕐 ระบบขึ้นกับช่วงเวลา → เก็บหลายช่วง หลายวัน แยกวิเคราะห์</span><span class="en-block">🕐 Time-dependent system → collect many periods/days, analyze separately.</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">🔗 ค่าแต่ละตัวควร <strong>เป็นอิสระ</strong> — ค่าหนึ่งไม่ควรทำนายค่าถัดไป</span><span class="en-block">🔗 Values should be <strong>independent</strong> — one shouldn't predict the next.</span></div>
+    </div>
+    <div class="note ask">
+      <span class="lb">❓ ชวนคิด / Think</span>
+      <span class="th-block">จะวัด “เวลาระหว่างลูกค้ามาถึง” ให้แม่น ควรจับเวลาช่วงตรงๆ หรือจดเวลาที่แต่ละคนเดินเข้าแล้วลบกัน? เพราะอะไร?</span>
+      <span class="en-block">To measure “time between arrivals” accurately — time each gap directly, or record each entry time and subtract? Why?</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S4 ===================== -->
+<section id="s4">
+  <h2><span class="num">4</span> สถิติที่ต้องใช้ + Histogram</h2>
+  <p class="lead th-block">ฮิสโทแกรมคือเครื่องมือ “เดารูปร่าง” การแจกแจง — แต่ <strong>จำนวนช่วง (bin)</strong> สำคัญมาก ลองเลื่อนดู</p>
+  <p class="lead en-block">A histogram is a tool to “guess the shape” — but the <strong>number of bins</strong> matters a lot. Try the slider.</p>
+
+  <div class="card">
+    <h3>ดัชนีที่ต้องรู้จัก <span class="en">/ Key stats</span></h3>
+    <table class="tbl">
+      <tr><th>ดัชนี</th><th>ความหมาย</th><th>Excel</th></tr>
+      <tr><td>ค่าเฉลี่ย (mean, μ)</td><td class="th-block">ตำแหน่งกลาง</td><td><code>AVERAGE</code></td></tr>
+      <tr><td>ส่วนเบี่ยงเบนมาตรฐาน (SD, σ)</td><td class="th-block">การกระจายรอบค่าเฉลี่ย</td><td><code>STDEV.S</code></td></tr>
+      <tr><td>สัมประสิทธิ์การแปรผัน (CV = σ/μ)</td><td class="th-block">การกระจายแบบไม่มีหน่วย · <strong>Exponential มี CV ≈ 1</strong></td><td><code>=STDEV.S/AVERAGE</code></td></tr>
+      <tr><td>ควอร์ไทล์/เปอร์เซ็นไทล์</td><td class="th-block">ดูค่าสุดขั้ว/ความเบ้</td><td><code>QUARTILE, PERCENTILE</code></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>🎚️ ทดลอง: จำนวน bin ของฮิสโทแกรม <span class="en">/ Histogram bins</span></h3>
+    <p class="th-block" style="font-size:.9rem">ข้อมูลชุดเดียวกัน (เวลาบริการ 150 ค่า แบบ Exponential) กฎง่ายๆ: bin ≈ √n ≈ <strong>12</strong> ช่อง</p>
+    <p class="en-block" style="font-size:.9rem">Same dataset (150 Exponential service times). Rule of thumb: bins ≈ √n ≈ <strong>12</strong>.</p>
+    <div class="controls">
+      <div class="ctl"><label>จำนวน bin / Bins: <span class="val" id="vBin">12</span></label><input type="range" id="rBin" min="3" max="40" value="12" oninput="drawBinHist()"></div>
+      <button class="act" onclick="newBinData()">🎲 สุ่มข้อมูลชุดใหม่ / New data</button>
+    </div>
+    <div class="chartwrap"><canvas id="binCanvas" width="860" height="260"></canvas></div>
+    <div class="note tip" id="binMsg"></div>
+  </div>
+</section>
+
+<!-- ===================== S5 ===================== -->
+<section id="s5">
+  <h2><span class="num">5</span> การแจกแจงมาตรฐานที่ใช้บ่อย</h2>
+  <p class="lead th-block">เลือกจาก <strong>พื้นฐานทางกายภาพ</strong> ก่อน (ตัวแปรนี้เกิดจากกลไกอะไร) แล้วค่อยดูข้อมูล — คลิกเลือกการแจกแจงแล้วปรับพารามิเตอร์เพื่อดูรูปร่างสด</p>
+  <p class="lead en-block">Choose by <strong>physical basis</strong> first (what mechanism creates this variable), then look at the data. Click a distribution and tune its parameters.</p>
+
+  <div class="card">
+    <div class="distbtns" id="distBtns">
+      <button data-d="uniform" class="on">Uniform</button>
+      <button data-d="triangular">Triangular</button>
+      <button data-d="normal">Normal</button>
+      <button data-d="exponential">Exponential</button>
+      <button data-d="poisson">Poisson</button>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="chartwrap"><canvas id="distCanvas" width="410" height="240"></canvas><div class="legend">1,000 samples</div></div>
+        <div class="controls" id="distControls"></div>
+        <button class="act teal" onclick="sampleDist()">🎲 สุ่มใหม่ / Re-sample</button>
+      </div>
+      <div>
+        <div class="note tip" id="distInfo" style="min-height:200px"></div>
+      </div>
+    </div>
+    <div class="note warn" style="margin-top:14px">
+      <span class="lb">👯 คู่แฝดสำคัญ / The key twin</span>
+      <span class="th-block">ถ้า <strong>จำนวนการมาถึงต่อชั่วโมง</strong> เป็น <strong>Poisson</strong> แล้ว <strong>เวลาระหว่างการมาถึง</strong> จะเป็น <strong>Exponential</strong> โดยอัตโนมัติ — เหรียญคนละด้านของเรื่องเดียวกัน และเป็นหัวใจของแบบจำลองแถวคอย</span>
+      <span class="en-block">If the <strong>number of arrivals per hour</strong> is <strong>Poisson</strong>, then the <strong>time between arrivals</strong> is automatically <strong>Exponential</strong> — two sides of the same coin, the heart of queueing models.</span>
+    </div>
+    <div class="note warn">
+      <span class="lb">⚠️ เข้าใจผิด / Myth</span>
+      <span class="th-block">“ข้อมูลทุกอย่างเป็น Normal” — ไม่จริง! เวลาบริการ/เวลาระหว่างมาถึงมัก <strong>เบ้ขวา</strong> ใช้ Exponential เหมาะกว่า และ Normal ให้ค่าติดลบได้ ซึ่งเป็นไปไม่ได้สำหรับ “เวลา”</span>
+      <span class="en-block">“Everything is Normal” — false! Service/inter-arrival times are usually <strong>right-skewed</strong>; Exponential fits better, and Normal can give negatives, impossible for “time.”</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S6 ===================== -->
+<section id="s6">
+  <h2><span class="num">6</span> เลือก / Fit การแจกแจง + Goodness-of-fit</h2>
+  <p class="lead th-block">3 ขั้น: (1) เดารูปร่างจากฮิสโทแกรม + พื้นฐานกายภาพ → (2) ประมาณพารามิเตอร์จากข้อมูล → (3) ตรวจความสอดคล้อง ลองปรับ mean ให้เส้นทฤษฎีทับฮิสโทแกรมให้ดีที่สุด</p>
+  <p class="lead en-block">3 steps: (1) guess the shape → (2) estimate parameters → (3) check fit. Tune the mean to overlay the theoretical curve onto the histogram.</p>
+
+  <div class="card">
+    <h3>🎯 ทดลอง fit เส้น Exponential <span class="en">/ Fit an Exponential</span></h3>
+    <p class="th-block" style="font-size:.9rem">ข้อมูลจริงถูกสร้างจาก Exponential ที่ mean ซ่อนอยู่ — เลื่อน mean จนเส้นสีแดงทับฮิสโทแกรมพอดี แล้วดูค่า “ความต่าง” ให้น้อยที่สุด</p>
+    <p class="en-block" style="font-size:.9rem">The data comes from an Exponential with a hidden mean — slide the mean until the red curve matches, minimizing the “misfit” score.</p>
+    <div class="controls">
+      <div class="ctl"><label>mean ที่เดา / Guessed mean: <span class="val" id="vFit">4.0</span></label><input type="range" id="rFit" min="1" max="10" step="0.2" value="4" oninput="drawFit()"></div>
+      <button class="act amber" onclick="revealFit()">👁️ เฉลย mean จริง / Reveal</button>
+      <button class="act" onclick="newFitData()">🎲 ข้อมูลใหม่ / New data</button>
+    </div>
+    <div class="chartwrap"><canvas id="fitCanvas" width="860" height="280"></canvas></div>
+    <div class="statgrid" style="grid-template-columns:1fr 1fr">
+      <div class="stat"><div class="k" id="fitScore">–</div><div class="l th-block">ความต่าง (ยิ่งน้อยยิ่ง fit ดี)</div><div class="l en-block">Misfit (lower = better)</div></div>
+      <div class="stat"><div class="k" id="fitReveal">?</div><div class="l th-block">mean จริงของข้อมูล</div><div class="l en-block">True data mean</div></div>
+    </div>
+    <div class="note tip">
+      <span class="lb">📏 Goodness-of-fit แบบเข้าใจง่าย</span>
+      <span class="th-block">การทดสอบพวกนี้ตอบคำถามเดียว: “ความต่างระหว่างข้อมูลจริงกับการแจกแจงที่เลือก มากเกินกว่าจะเป็นเรื่องบังเอิญไหม” ถ้าไม่มาก = เข้ากันได้ ตัวที่ใช้บ่อย: <strong>Chi-square</strong> <code>=CHISQ.TEST()</code> และ <strong>K–S test</strong> (p สูง = เข้ากันดี)</span>
+      <span class="en-block">These tests answer one question: “is the gap between the data and the chosen distribution too large to be chance?” If not → good fit. Common: <strong>Chi-square</strong> <code>=CHISQ.TEST()</code> and <strong>K–S test</strong> (high p = good fit).</span>
+    </div>
+    <div class="note warn">
+      <span class="lb">⚠️ อย่าเชื่อซอฟต์แวร์อย่างเดียว / Don't trust software blindly</span>
+      <span class="th-block">Arena Input Analyzer / EasyFit / Python <code>scipy.stats</code> แนะนำการแจกแจงให้ได้ แต่บางทีมัน fit ตัวเลขดีแต่ไม่สมเหตุสมผลทางกายภาพ (เช่น แนะ Normal ให้ “เวลา” ที่ห้ามติดลบ) — คนต้องใช้วิจารณญาณเสมอ</span>
+      <span class="en-block">Arena Input Analyzer / EasyFit / Python <code>scipy.stats</code> suggest distributions, but sometimes they fit the numbers yet make no physical sense (e.g. Normal for “time” that can't be negative) — human judgment is always required.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S7 ===================== -->
+<section id="s7">
+  <h2><span class="num">7</span> Lab: ลงมือใน Excel (Workshop Class 2)</h2>
+  <p class="lead th-block">ฝึกสร้าง ดูรูปร่าง และ <strong>สุ่มค่าจากการแจกแจง</strong> ทั้งแบบมาตรฐานและเชิงประสบการณ์ ในไฟล์ Excel ของตัวเอง</p>
+  <p class="lead en-block">Practice building, viewing shapes, and <strong>sampling from distributions</strong> — both standard and empirical — in your own Excel file.</p>
+
+  <div class="note ask" style="font-size:1.02rem">
+    <span class="lb">📂 ไฟล์ที่ต้องเปิด / Open this file</span>
+    <span class="th-block"><code>Workshop / โซ่ฯ Class 2.xlsx</code> — ชีตสำคัญ: <strong>Dice Rolling 1</strong> (สร้างการแจกแจงเชิงประสบการณ์), <strong>Dice Rolling 2</strong> (สุ่มค่าด้วยความน่าจะเป็นสะสม), <strong>Newsvendor</strong> (โจทย์ตัดสินใจ) · กด <strong>F9</strong> เพื่อสุ่มใหม่</span>
+    <span class="en-block"><code>Workshop / โซ่ฯ Class 2.xlsx</code> — key sheets: <strong>Dice Rolling 1</strong> (build empirical distribution), <strong>Dice Rolling 2</strong> (sample via cumulative probability), <strong>Newsvendor</strong> (decision problem) · press <strong>F9</strong> to re-randomize.</span>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Lab 1 — Histogram + สุ่มจากการแจกแจงมาตรฐาน</h3>
+      <p class="th-block" style="font-size:.9rem"><strong>ขั้น 1:</strong> สร้างข้อมูล Exponential แล้วดูทรงเบ้ขวา</p>
+      <pre>=-4*LN(RAND())     <span class="c">' ลากลง 150 แถว, mean≈4</span>
+=AVERAGE(A2:A151)  <span class="c">' ≈ 4</span>
+=STDEV.S(A2:A151)  <span class="c">' ≈ 4 → CV≈1 = ลายเซ็น Exponential</span></pre>
+      <p class="th-block" style="font-size:.9rem"><strong>ขั้น 2:</strong> เทียบ 3 ทรง — กด F9 พร้อมกัน สังเกตทรงคงเดิม</p>
+      <pre>=RANDBETWEEN(1,6)          <span class="c">' Uniform → แบน</span>
+=NORM.INV(RAND(),120,20)   <span class="c">' Normal → ระฆัง</span>
+<span class="c">' Triangular: min/mode/max เช่น 2/4/12</span></pre>
+      <p class="th-block" style="font-size:.86rem;color:var(--muted)">⚠️ <code>NORM.INV</code> ให้ค่าติดลบได้ — ไม่เหมาะกับ “เวลา/จำนวน”</p>
+      <p class="en-block" style="font-size:.86rem;color:var(--muted)">⚠️ <code>NORM.INV</code> can go negative — bad for “time/count.”</p>
+    </div>
+    <div class="card">
+      <h3>Lab 2 — Empirical + สุ่มด้วยความน่าจะเป็นสะสม</h3>
+      <p class="th-block" style="font-size:.9rem"><strong>Dice Rolling 1:</strong> นับความถี่ด้วย <code>COUNTIF</code> ÷ ทั้งหมด → ได้ความน่าจะเป็นจริง (ไม่เท่ากันเป๊ะ 1/6 เพราะมี noise)</p>
+      <p class="en-block" style="font-size:.9rem"><strong>Dice Rolling 1:</strong> count with <code>COUNTIF</code> ÷ total → real probabilities (not exactly 1/6, due to noise).</p>
+      <p class="th-block" style="font-size:.9rem"><strong>Dice Rolling 2:</strong> ตารางความน่าจะเป็นสะสม + สุ่มด้วย</p>
+      <pre>=VLOOKUP(RAND(), ตารางสะสม, 2, 1)
+<span class="c">' เลข 1 ท้าย = approximate match</span>
+<span class="c">' = หาช่วงที่ค่าตกลงไป (Inverse Transform)</span></pre>
+      <p class="th-block" style="font-size:.86rem;color:var(--muted)">4 วิธีทำสิ่งเดียวกัน: Nested-IF · IFS · VLOOKUP(,1) · XLOOKUP</p>
+      <p class="en-block" style="font-size:.86rem;color:var(--muted)">4 ways, same result: Nested-IF · IFS · VLOOKUP(,1) · XLOOKUP</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="note tip">
+      <span class="lb">🔑 กุญแจสำคัญ / The key idea</span>
+      <span class="th-block"><code>NORM.INV(RAND(),...)</code>, <code>-mean*LN(RAND())</code>, และ <code>VLOOKUP(RAND(),สะสม,,1)</code> ล้วนเป็นเทคนิคเดียวกันชื่อ <strong>Inverse Transform</strong> — ใส่ <code>RAND()</code> เข้าฟังก์ชันผกผันของ CDF แล้วได้ค่าสุ่มตามการแจกแจง (จะเรียนลึกในบทการสร้างค่าสุ่ม)</span>
+      <span class="en-block"><code>NORM.INV(RAND(),...)</code>, <code>-mean*LN(RAND())</code>, and <code>VLOOKUP(RAND(),cumulative,,1)</code> are all the same technique — <strong>Inverse Transform</strong>: feed <code>RAND()</code> into the inverse CDF to get a sample (studied deeply in the random-variate chapter).</span>
+    </div>
+    <div class="note ask">
+      <span class="lb">📝 การบ้าน / Homework</span>
+      <span class="th-block">เก็บข้อมูลจริง 30–50 ค่า จากระบบรอคิวที่เลือก (เวลาบริการ หรือเวลาระหว่างลูกค้ามาถึง) → ทำฮิสโทแกรม + คำนวณ mean/SD/CV + เดาว่าเป็นการแจกแจงอะไรพร้อมเหตุผล (ส่งต้นครั้งหน้า · ใช้ป้อนโมเดล SimPy ครั้งที่ 3)</span>
+      <span class="en-block">Collect 30–50 real values from your chosen queue system (service or inter-arrival times) → histogram + mean/SD/CV + guess the distribution with reasoning (due next session · feeds the SimPy model in Session 3).</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S8 QUIZ ===================== -->
+<section id="s8">
+  <h2><span class="num">8</span> Quiz ทบทวน <span class="en" style="font-size:.9rem">/ Review</span></h2>
+  <p class="lead th-block">เลือกคำตอบแล้วดูเฉลยทันที</p>
+  <p class="lead en-block">Pick an answer and see instant feedback.</p>
+  <div class="quiz" id="quiz"></div>
+  <div class="scoreband" id="scoreband"></div>
+</section>
+
+</div>
+
+<footer>
+  <div class="notetools">
+    <button onclick="downloadNotes()">⬇️ ดาวน์โหลดโน้ตทั้งหมด (.txt) / Download notes</button>
+    <button onclick="clearNotes()">🗑️ ล้างโน้ตทั้งหมด / Clear all notes</button>
+  </div>
+  <p style="opacity:.7;font-size:.82rem;margin-top:4px">📝 โน้ตบันทึกอัตโนมัติในเบราว์เซอร์เครื่องนี้ (localStorage) · เปิดไฟล์เดิมครั้งหน้าโน้ตยังอยู่ · Notes auto-save in this browser</p>
+  <p class="th-block">สื่อประกอบการบรรยาย — Computer Simulation I ครั้งที่ 2 · Input Analysis · คณะโลจิสติกส์</p>
+  <p class="en-block">Lecture companion — Computer Simulation I, Session 2 · Input Analysis · Faculty of Logistics</p>
+  <p style="opacity:.7;font-size:.82rem">อ้างอิง: simMainBook บทที่ 2 &amp; 4 · คู่มืออาจารย์ครั้งที่ 2 · ทุกส่วนโต้ตอบได้ ทบทวนเองที่บ้านได้</p>
+</footer>
+
+<script>
+/* ============ LANGUAGE ============ */
+function toggleLang(){
+  document.body.classList.toggle('en');
+  var en=document.body.classList.contains('en');
+  document.getElementById('langbtn').textContent=en?'TH':'EN';
+}
+/* ============ PROGRESS + NAV ============ */
+window.addEventListener('scroll',function(){
+  var h=document.documentElement, st=h.scrollTop, sh=h.scrollHeight-h.clientHeight;
+  document.getElementById('progress').style.width=(st/sh*100)+'%';
+  var secs=document.querySelectorAll('section'), cur='';
+  secs.forEach(function(s){ if(window.scrollY>=s.offsetTop-120) cur=s.id; });
+  document.querySelectorAll('#nav a').forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+cur); });
+});
+
+/* ============ RANDOM HELPERS ============ */
+function rand(){return Math.random();}
+function expo(mean){ return -mean*Math.log(1-rand()); }
+function normal(m,s){ var u=rand(),v=rand(); return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+function uniform(a,b){ return a+(b-a)*rand(); }
+function triangular(a,c,b){ var u=rand(),F=(c-a)/(b-a);
+  return u<F ? a+Math.sqrt(u*(b-a)*(c-a)) : b-Math.sqrt((1-u)*(b-a)*(b-c)); }
+function poisson(lam){ var L=Math.exp(-lam),k=0,p=1; do{k++;p*=rand();}while(p>L); return k-1; }
+function mean(a){return a.reduce(function(x,y){return x+y;},0)/a.length;}
+function sd(a){var m=mean(a);return Math.sqrt(a.reduce(function(x,y){return x+(y-m)*(y-m);},0)/a.length);}
+
+/* generic histogram: data, canvas id, color, bins, optional overlayFn(x)->density, optional integerMode */
+function histogram(id,data,color,bins,opts){
+  opts=opts||{};
+  var cv=document.getElementById(id),cx=cv.getContext('2d');
+  var W=cv.width,H=cv.height,padL=38,padB=26,padT=14;cx.clearRect(0,0,W,H);
+  if(!data.length)return;
+  var mn=opts.min!=null?opts.min:Math.min.apply(null,data);
+  var mx=opts.max!=null?opts.max:Math.max.apply(null,data);
+  if(mx===mn)mx=mn+1;
+  var bw=(mx-mn)/bins, counts=new Array(bins).fill(0);
+  data.forEach(function(v){var b=Math.floor((v-mn)/bw);if(b>=bins)b=bins-1;if(b<0)b=0;counts[b]++;});
+  var mxc=Math.max.apply(null,counts);
+  var plotW=W-padL-12, plotH=H-padB-padT, x0=padL, y0=H-padB;
+  cx.strokeStyle='#c8d2dc';cx.lineWidth=1;
+  cx.beginPath();cx.moveTo(x0,y0);cx.lineTo(W-8,y0);cx.stroke();
+  cx.beginPath();cx.moveTo(x0,padT);cx.lineTo(x0,y0);cx.stroke();
+  var barW=plotW/bins;
+  for(var i=0;i<bins;i++){
+    var h=counts[i]/mxc*plotH;
+    cx.fillStyle=color;
+    cx.fillRect(x0+i*barW+1, y0-h, Math.max(1,barW-2), h);
+  }
+  // overlay theoretical density (scaled to counts)
+  if(opts.overlay){
+    cx.strokeStyle=opts.overlayColor||'#d9534f';cx.lineWidth=2.5;cx.beginPath();
+    var started=false;
+    for(var px=0;px<=plotW;px++){
+      var xval=mn+(px/plotW)*(mx-mn);
+      var dens=opts.overlay(xval); // density
+      var expCount=dens*bw*data.length; // expected count in a bin of width bw
+      var yy=y0-Math.min(expCount/mxc*plotH,plotH);
+      if(!started){cx.moveTo(x0+px,yy);started=true;}else cx.lineTo(x0+px,yy);
+    }
+    cx.stroke();
+  }
+  cx.fillStyle='#5b6b7b';cx.font='11px Segoe UI';
+  cx.fillText((mn).toFixed(mn%1?1:0),x0,y0+14);
+  cx.fillText((mx).toFixed(mx%1?1:0),W-34,y0+14);
+  return counts;
+}
+
+/* ============ S2: FLAW OF AVERAGES ============ */
+function bankSim(arrPerH, svcFn){
+  var SIM=480, iat=60/arrPerH, t=0, arr=[];
+  while(true){t+=expo(iat);if(t>SIM)break;arr.push(t);}
+  var free=0, waits=[]; // single server each shop for clear contrast
+  arr.forEach(function(a){
+    var start=Math.max(a,free);
+    var svc=Math.max(0.1,svcFn());
+    free=start+svc; waits.push(start-a);
+  });
+  return waits;
+}
+function runFlaw(){
+  var arr=+document.getElementById('rFA').value;
+  var sdB=+document.getElementById('rFB').value;
+  var wA=bankSim(arr, function(){return normal(4,0.5);});
+  var wB=bankSim(arr, function(){return normal(4,sdB);});
+  var mA=mean(wA), mB=mean(wB);
+  document.getElementById('faWaitA').textContent=mA.toFixed(1);
+  document.getElementById('faWaitB').textContent=mB.toFixed(1);
+  histogram('faCanvasA',wA,'#2a9d8f',12,{min:0});
+  histogram('faCanvasB',wB,'#e9a93f',12,{min:0});
+  var msg=document.getElementById('faMsg');msg.style.display='block';
+  var en=document.body.classList.contains('en');
+  var ratio=mA>0?(mB/mA):0;
+  msg.innerHTML=en
+    ? '📊 Same mean service (4 min), but shop B waits <strong>'+mB.toFixed(1)+' min</strong> vs A <strong>'+mA.toFixed(1)+' min</strong> ('+ratio.toFixed(1)+'× longer). Variability alone creates the queue.'
+    : '📊 บริการเฉลี่ยเท่ากัน (4 นาที) แต่ร้าน B รอ <strong>'+mB.toFixed(1)+' นาที</strong> เทียบกับ A <strong>'+mA.toFixed(1)+' นาที</strong> (ยาวกว่า '+ratio.toFixed(1)+' เท่า) ความแปรผันล้วนๆ ทำให้เกิดคิว';
+}
+
+/* ============ S4: HISTOGRAM BINS ============ */
+var binData=[];
+function newBinData(){ binData=[]; for(var i=0;i<150;i++)binData.push(expo(4)); drawBinHist(); }
+function drawBinHist(){
+  var bins=+document.getElementById('rBin').value;
+  document.getElementById('vBin').textContent=bins;
+  histogram('binCanvas',binData,'#1f5f8b',bins,{min:0});
+  var en=document.body.classList.contains('en');
+  var m=document.getElementById('binMsg');
+  var note='';
+  if(bins<7) note=en?'Too few bins — shape looks blocky, detail is hidden.':'น้อยเกินไป — เห็นหยาบ รายละเอียดหาย';
+  else if(bins>22) note=en?'Too many bins — you start seeing random noise, not the true shape.':'มากเกินไป — เริ่มเห็น noise ไม่ใช่รูปร่างจริง';
+  else note=en?'👍 Good range (≈√150≈12). The right-skewed Exponential shape is clear.':'👍 กำลังดี (≈√150≈12) เห็นทรงเบ้ขวาของ Exponential ชัด';
+  m.textContent=note;
+}
+
+/* ============ S5: DISTRIBUTION PLAYGROUND ============ */
+var distDefs={
+  uniform:{name:'Uniform',color:'#2a9d8f',params:[{k:'a',label:'ต่ำสุด min',min:0,max:10,step:1,val:2},{k:'b',label:'สูงสุด max',min:0,max:20,step:1,val:10}],
+    sample:function(p){return uniform(p.a,p.b);},
+    info:{th:'<strong>Uniform</strong> — ทุกค่าในช่วงมีโอกาสเท่ากัน ใช้เมื่อรู้แค่ min–max<br>📦 โลจิสติกส์: ค่าประมาณคร่าวๆ ตอนไม่มีข้อมูล',
+          en:'<strong>Uniform</strong> — every value in the range is equally likely; use when you only know min–max.<br>📦 Logistics: rough estimate when no data.'}},
+  triangular:{name:'Triangular',color:'#7b5ea7',params:[{k:'a',label:'min',min:0,max:8,step:1,val:2},{k:'c',label:'mode (พบบ่อยสุด)',min:0,max:14,step:1,val:4},{k:'b',label:'max',min:2,max:20,step:1,val:12}],
+    sample:function(p){var a=p.a,c=Math.min(Math.max(p.c,p.a),p.b),b=Math.max(p.b,p.a+1);return triangular(a,c,b);},
+    info:{th:'<strong>Triangular</strong> — รู้ค่า min, max และค่าที่พบบ่อยสุด (mode)<br>📦 โลจิสติกส์: ประมาณเวลางานจากความเห็นผู้เชี่ยวชาญ',
+          en:'<strong>Triangular</strong> — you know min, max, and the most likely value (mode).<br>📦 Logistics: estimate task time from expert opinion.'}},
+  normal:{name:'Normal',color:'#1f5f8b',params:[{k:'m',label:'ค่าเฉลี่ย mean',min:20,max:200,step:5,val:120},{k:'s',label:'SD',min:5,max:60,step:5,val:20}],
+    sample:function(p){return normal(p.m,p.s);},
+    info:{th:'<strong>Normal</strong> — ค่าลอยรอบค่าเฉลี่ย สมมาตร เกิดจากหลายปัจจัยรวมกัน<br>📦 โลจิสติกส์: น้ำหนัก/ขนาดสินค้า, ยอดรวมต่อวัน<br>⚠️ ให้ค่าติดลบได้ — ไม่เหมาะกับ “เวลา”',
+          en:'<strong>Normal</strong> — symmetric around the mean, arises from many factors combined.<br>📦 Logistics: product weight/size, daily totals.<br>⚠️ Can be negative — bad for “time.”'}},
+  exponential:{name:'Exponential',color:'#e9a93f',params:[{k:'mean',label:'ค่าเฉลี่ย mean',min:1,max:12,step:0.5,val:4}],
+    sample:function(p){return expo(p.mean);},
+    info:{th:'<strong>Exponential</strong> — เวลาระหว่างเหตุการณ์ที่เกิด “สุ่มไร้ความจำ” เบ้ขวา หางยาว (CV≈1)<br>📦 โลจิสติกส์: เวลาระหว่างลูกค้ามาถึง',
+          en:'<strong>Exponential</strong> — time between “memoryless” random events; right-skewed, long tail (CV≈1).<br>📦 Logistics: time between customer arrivals.'}},
+  poisson:{name:'Poisson',color:'#d9534f',params:[{k:'lam',label:'λ (เฉลี่ยต่อช่วง)',min:1,max:30,step:1,val:8}],
+    sample:function(p){return poisson(p.lam);},integer:true,
+    info:{th:'<strong>Poisson</strong> — จำนวนเหตุการณ์ต่อช่วงเวลา (นับเป็นจำนวนเต็ม)<br>📦 โลจิสติกส์: จำนวนลูกค้าที่มาต่อชั่วโมง, จำนวนออเดอร์/วัน',
+          en:'<strong>Poisson</strong> — number of events per time interval (integer count).<br>📦 Logistics: customers per hour, orders per day.'}}
+};
+var curDist='uniform', curParams={};
+function selectDist(d){
+  curDist=d;
+  document.querySelectorAll('#distBtns button').forEach(function(b){b.classList.toggle('on',b.dataset.d===d);});
+  var def=distDefs[d];
+  curParams={};
+  var box=document.getElementById('distControls');box.innerHTML='';
+  def.params.forEach(function(p){
+    curParams[p.k]=p.val;
+    var div=document.createElement('div');div.className='ctl';
+    div.innerHTML='<label>'+p.label+': <span class="val" id="dp_'+p.k+'">'+p.val+'</span></label>';
+    var inp=document.createElement('input');inp.type='range';inp.min=p.min;inp.max=p.max;inp.step=p.step;inp.value=p.val;
+    inp.oninput=function(){curParams[p.k]=+inp.value;document.getElementById('dp_'+p.k).textContent=inp.value;sampleDist();};
+    div.appendChild(inp);box.appendChild(div);
+  });
+  document.getElementById('distInfo').innerHTML='<span class="th-block">'+def.info.th+'</span><span class="en-block">'+def.info.en+'</span>';
+  sampleDist();
+}
+function sampleDist(){
+  var def=distDefs[curDist];
+  var data=[];for(var i=0;i<1000;i++)data.push(def.sample(curParams));
+  var bins=def.integer? (Math.max.apply(null,data)+1) : 24;
+  if(def.integer){ histogram('distCanvas',data,def.color,Math.min(bins,30),{min:0}); }
+  else histogram('distCanvas',data,def.color,24);
+}
+document.querySelectorAll('#distBtns button').forEach(function(b){ b.onclick=function(){selectDist(b.dataset.d);}; });
+
+/* ============ S6: FIT OVERLAY ============ */
+var fitData=[], fitTrueMean=4;
+function newFitData(){
+  fitTrueMean=Math.round(uniform(2.5,7.5)*2)/2;
+  fitData=[];for(var i=0;i<200;i++)fitData.push(expo(fitTrueMean));
+  document.getElementById('fitReveal').textContent='?';
+  drawFit();
+}
+function drawFit(){
+  var g=+document.getElementById('rFit').value;
+  document.getElementById('vFit').textContent=g.toFixed(1);
+  var mx=Math.max.apply(null,fitData);
+  var bins=16, bw=mx/bins;
+  var counts=histogram('fitCanvas',fitData,'#1f5f8b',bins,{min:0,max:mx,
+    overlay:function(x){return (1/g)*Math.exp(-x/g);}, overlayColor:'#d9534f'});
+  // misfit = sum squared diff between observed counts and expected counts
+  var score=0;
+  for(var i=0;i<bins;i++){
+    var xmid=(i+0.5)*bw;
+    var dens=(1/g)*Math.exp(-xmid/g);
+    var exp=dens*bw*fitData.length;
+    score+=(counts[i]-exp)*(counts[i]-exp);
+  }
+  document.getElementById('fitScore').textContent=Math.round(score);
+}
+function revealFit(){ document.getElementById('fitReveal').textContent=fitTrueMean.toFixed(1); }
+
+/* ============ PER-SECTION NOTES ============ */
+var NOTE_PREFIX='comsim2_note_';
+(function(){
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    var id=sec.id;
+    var h=sec.querySelector('h2');
+    var title=h?h.textContent.trim():id;
+    var box=document.createElement('div');box.className='notebox';
+    box.innerHTML='<div class="nhead"><label>📝 โน้ตของฉัน / My notes — <span style="font-weight:600;color:#5b6b7b">'+title+'</span></label>'+
+      '<span class="savemark">บันทึกอัตโนมัติ / auto-save</span></div>'+
+      '<textarea placeholder="พิมพ์สิ่งที่เข้าใจ ข้อสงสัย หรือสิ่งที่อาจารย์เน้น... / Type what you learned, questions, or key points..."></textarea>';
+    sec.appendChild(box);
+    var ta=box.querySelector('textarea'),mark=box.querySelector('.savemark'),key=NOTE_PREFIX+id;
+    try{ta.value=localStorage.getItem(key)||'';}catch(e){}
+    ta.addEventListener('input',function(){
+      try{localStorage.setItem(key,ta.value);}catch(e){}
+      mark.textContent='✓ บันทึกแล้ว / saved';mark.classList.add('ok');
+      clearTimeout(ta._t);ta._t=setTimeout(function(){mark.textContent='บันทึกอัตโนมัติ / auto-save';mark.classList.remove('ok');},1400);
+    });
+  });
+})();
+function downloadNotes(){
+  var lines=['โน้ต — Computer Simulation I (ครั้งที่ 2 · Input Analysis)','ดาวน์โหลดเมื่อ: '+new Date().toLocaleString('th-TH'),''];
+  var any=false;
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    var ta=sec.querySelector('textarea');var title=(sec.querySelector('h2')||{}).textContent||sec.id;
+    var v=ta?ta.value.trim():'';
+    if(v){any=true;lines.push('■ '+title.trim());lines.push(v);lines.push('');}
+  });
+  if(!any){alert('ยังไม่มีโน้ต / No notes yet');return;}
+  var blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='โน้ต_ComSim2_'+new Date().toISOString().slice(0,10)+'.txt';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+function clearNotes(){
+  if(!confirm('ลบโน้ตทั้งหมดในเครื่องนี้? / Delete ALL notes on this browser?'))return;
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    try{localStorage.removeItem(NOTE_PREFIX+sec.id);}catch(e){}
+    var ta=sec.querySelector('textarea');if(ta)ta.value='';
+  });
+}
+
+/* ============ QUIZ ============ */
+var quizData=[
+  {q:{th:'“Flaw of Averages” สอนอะไรเกี่ยวกับ input?',en:'What does the “Flaw of Averages” teach about inputs?'},
+   opts:[{th:'ใช้ค่าเฉลี่ยแทนได้เสมอ ง่ายกว่า',en:'Always replace with the average; it\'s simpler'},
+         {th:'ต้องใช้การแจกแจง เพราะความแปรผันสร้างคิว',en:'Use a distribution — variability creates queues'},
+         {th:'ค่าเฉลี่ยกับการแจกแจงให้ผลเหมือนกัน',en:'Mean and distribution give the same result'},
+         {th:'ยิ่งข้อมูลน้อยยิ่งดี',en:'Less data is better'}],
+   ans:1,fb:{th:'ถูก! ค่าเฉลี่ยเท่ากันแต่ความแปรผันต่างกัน คิวต่างกันมาก',en:'Right! Same mean, different variability → very different queues.'}},
+  {q:{th:'3V ของคุณภาพข้อมูลคือ?',en:'The 3V of data quality are?'},
+   opts:[{th:'Volume, Velocity, Value',en:'Volume, Velocity, Value'},
+         {th:'Quality, Quantity, Variety',en:'Quality, Quantity, Variety'},
+         {th:'Verify, Validate, Value',en:'Verify, Validate, Value'},
+         {th:'Vision, Voice, Volume',en:'Vision, Voice, Volume'}],
+   ans:1,fb:{th:'ถูก! Quality (ถูกต้อง), Quantity (100–200 ตัวอย่าง), Variety (หลายช่วง)',en:'Right! Quality, Quantity (~100–200), Variety (many situations).'}},
+  {q:{th:'ทำไม “เวลาบริการ” มักไม่ควรใช้การแจกแจง Normal?',en:'Why is Normal usually wrong for “service time”?'},
+   opts:[{th:'เพราะ Normal คำนวณยาก',en:'Because Normal is hard to compute'},
+         {th:'เพราะเวลามักเบ้ขวา และ Normal ให้ค่าติดลบได้',en:'Time is right-skewed, and Normal can give negatives'},
+         {th:'เพราะ Normal ใช้ได้กับจำนวนเต็มเท่านั้น',en:'Because Normal only works for integers'},
+         {th:'เพราะเวลาไม่มีความแปรผัน',en:'Because time has no variability'}],
+   ans:1,fb:{th:'ถูก! เวลาเบ้ขวา (Exponential เหมาะกว่า) และเวลาติดลบไม่ได้',en:'Right! Time is right-skewed (Exponential fits) and can\'t be negative.'}},
+  {q:{th:'คู่แฝด Poisson–Exponential หมายความว่าอย่างไร?',en:'What is the Poisson–Exponential twin?'},
+   opts:[{th:'เป็นการแจกแจงเดียวกันชื่อต่างกัน',en:'They are the same distribution, renamed'},
+         {th:'ถ้าจำนวนมาถึง/ชม.เป็น Poisson เวลาระหว่างมาถึงจะเป็น Exponential',en:'If arrivals/hour are Poisson, inter-arrival times are Exponential'},
+         {th:'ทั้งคู่ใช้กับน้ำหนักสินค้า',en:'Both are for product weights'},
+         {th:'ทั้งคู่ให้ค่าติดลบ',en:'Both give negative values'}],
+   ans:1,fb:{th:'ถูก! เหรียญคนละด้านของเรื่องเดียวกัน หัวใจของแบบจำลองแถวคอย',en:'Right! Two sides of the same coin — the heart of queueing.'}},
+  {q:{th:'เทคนิค Inverse Transform (เช่น VLOOKUP(RAND(),สะสม,,1)) ทำอะไร?',en:'What does Inverse Transform (e.g. VLOOKUP(RAND(),cumulative,,1)) do?'},
+   opts:[{th:'เรียงข้อมูลจากน้อยไปมาก',en:'Sorts data ascending'},
+         {th:'ใส่ RAND() เข้าฟังก์ชันผกผันของ CDF เพื่อสุ่มค่าตามการแจกแจง',en:'Feeds RAND() into the inverse CDF to sample from a distribution'},
+         {th:'คำนวณค่าเฉลี่ย',en:'Computes the average'},
+         {th:'ลบ outlier ออก',en:'Removes outliers'}],
+   ans:1,fb:{th:'ถูก! เลข 1 ท้าย VLOOKUP = approximate match หาช่วงที่ค่าตกลงไป',en:'Right! The trailing 1 = approximate match, finds the bracket.'}},
+  {q:{th:'goodness-of-fit (Chi-square/K–S) ตอบคำถามอะไร?',en:'What question does goodness-of-fit (Chi-square/K–S) answer?'},
+   opts:[{th:'ข้อมูลมีกี่ตัว',en:'How many data points there are'},
+         {th:'ความต่างระหว่างข้อมูลกับการแจกแจงที่เลือก มากเกินกว่าจะเป็นเรื่องบังเอิญไหม',en:'Is the gap between data and chosen distribution too large to be chance?'},
+         {th:'ค่าเฉลี่ยเท่าไร',en:'What the mean is'},
+         {th:'ควรเก็บข้อมูลกี่วัน',en:'How many days to collect'}],
+   ans:1,fb:{th:'ถูก! p สูง = เข้ากันดี แต่ต้องเช็กพื้นฐานกายภาพด้วยเสมอ',en:'Right! High p = good fit, but always sanity-check the physical basis.'}}
+];
+(function(){
+  var box=document.getElementById('quiz');
+  quizData.forEach(function(item,qi){
+    var d=document.createElement('div');d.className='q';
+    var h='<div class="qh"><span class="th-block">'+(qi+1)+'. '+item.q.th+'</span><span class="en-block">'+(qi+1)+'. '+item.q.en+'</span></div>';
+    item.opts.forEach(function(o,oi){ h+='<button class="opt" data-q="'+qi+'" data-o="'+oi+'"><span class="th-block">'+o.th+'</span><span class="en-block">'+o.en+'</span></button>'; });
+    h+='<div class="fb" id="fb'+qi+'"></div>';
+    d.innerHTML=h;box.appendChild(d);
+  });
+  var answered={};
+  box.addEventListener('click',function(e){
+    var btn=e.target.closest('.opt');if(!btn)return;
+    var qi=+btn.dataset.q, oi=+btn.dataset.o;
+    if(answered[qi])return; answered[qi]=true;
+    var item=quizData[qi];
+    box.querySelectorAll('.opt[data-q="'+qi+'"]').forEach(function(b){ b.disabled=true; if(+b.dataset.o===item.ans)b.classList.add('correct'); });
+    if(oi!==item.ans)btn.classList.add('wrong');
+    var fb=document.getElementById('fb'+qi);fb.classList.add('show');
+    fb.innerHTML=(oi===item.ans?'✅ ':'❌ ')+'<span class="th-block">'+item.fb.th+'</span><span class="en-block">'+item.fb.en+'</span>';
+    if(Object.keys(answered).length===quizData.length){
+      var correct=0;
+      quizData.forEach(function(it,i){ if(!box.querySelector('.opt[data-q="'+i+'"].wrong'))correct++; });
+      var band=document.getElementById('scoreband');band.style.display='block';
+      var en=document.body.classList.contains('en');
+      band.textContent=(en?'Score: ':'คะแนน: ')+correct+' / '+quizData.length+(correct===quizData.length?' 🎉':'');
+    }
+  });
+})();
+
+/* ============ INIT ============ */
+runFlaw();
+newBinData();
+selectDist('uniform');
+newFitData();
+</script>
+</body>
+</html>
