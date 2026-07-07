@@ -395,26 +395,7 @@
   </div>
 
   <div class="card">
-    <h3>แล้ว DES กับ DESS คืออะไร? <span class="en">/ What are DES &amp; DESS?</span></h3>
-    <p class="th-block">สองคำนี้เจอบ่อยมากในวิชานี้ (ชื่อตำราหลักก็คือ <em>Discrete-Event System Simulation</em>) — ต่างกันนิดเดียวแต่สำคัญ</p>
-    <p class="en-block">You'll see these two terms a lot (the main textbook is literally <em>Discrete-Event System Simulation</em>) — a small but important difference.</p>
-    <div class="grid2">
-      <div class="note tip" style="margin:0;border-left-color:var(--teal)">
-        <span class="lb" style="color:var(--teal)">DES · Discrete Event Simulation</span>
-        <span class="th-block"><strong>“เทคนิค/วิธีรัน”</strong> — คอมพิวเตอร์ <strong>กระโดดจากเหตุการณ์หนึ่งไปเหตุการณ์ถัดไป</strong> (event-to-event) ไม่เดินเวลาทีละวินาทีเท่าๆ กัน เพราะระหว่างสองเหตุการณ์สถานะไม่เปลี่ยน จึงข้ามได้เลย → รันเร็ว<br><br>🏦 <strong>ตัวอย่าง:</strong> โมเดลธนาคาร นาฬิกาจำลองกระโดดไปที่เวลา “ลูกค้ามาถึง → เริ่มบริการ → บริการเสร็จ” เท่านั้น ไม่สนใจช่วงว่างระหว่างนั้น</span>
-        <span class="en-block"><strong>“The technique / engine”</strong> — the computer <strong>jumps from one event to the next</strong> (event-to-event) instead of ticking every second. Between two events the state doesn't change, so it skips ahead → fast.<br><br>🏦 <strong>Example:</strong> a bank model — the simulation clock only jumps to “customer arrives → service starts → service ends,” ignoring the idle gaps in between.</span>
-      </div>
-      <div class="note tip" style="margin:0;border-left-color:var(--blue)">
-        <span class="lb" style="color:var(--blue)">DESS · Discrete Event System Simulation</span>
-        <span class="th-block"><strong>“ระบบ + การจำลอง”</strong> — การจำลอง <strong>ระบบที่ตัวแปรสถานะเปลี่ยนเฉพาะ ณ จุดเวลาที่นับได้</strong> (เมื่อเกิดเหตุการณ์) เป็นกรอบ/หัวข้อของทั้งวิชา ครอบคลุมทั้งการสร้างแบบจำลองและการวิเคราะห์<br><br>📦 <strong>ตัวอย่าง:</strong> จำลองทั้ง “ระบบคลังสินค้า” — สินค้าเข้า/จัดเก็บ/หยิบ/ส่งออก แต่ละอย่างเป็นเหตุการณ์ที่เปลี่ยนสถานะ (จำนวนสินค้า, คิวงาน, รถยกว่าง/ไม่ว่าง)</span>
-        <span class="en-block"><strong>“The system + its simulation”</strong> — simulating a <strong>system whose state variables change only at countable points in time</strong> (when events occur). It's the framing of the whole course, covering both modeling and analysis.<br><br>📦 <strong>Example:</strong> modeling an entire “warehouse system” — receive/store/pick/ship, each an event that changes state (stock count, job queue, forklift free/busy).</span>
-      </div>
-    </div>
-    <div class="note ask" style="text-align:center">
-      <span class="th-block">พูดง่ายๆ: <strong>DESS = ระบบที่เราศึกษา</strong> (สถานะเปลี่ยนเป็นจุดๆ) · <strong>DES = เครื่องยนต์ที่ใช้ขับ</strong> (รันแบบกระโดดตามเหตุการณ์)</span>
-      <span class="en-block">In short: <strong>DESS = the system we study</strong> (state changes at discrete points) · <strong>DES = the engine that runs it</strong> (jumps event to event).</span>
-    </div>
-    <h3 style="margin-top:18px">ตัวอย่างเทียบกัน <span class="en">/ Side-by-side examples</span></h3>
+    <h3>ตัวอย่างเทียบกัน <span class="en">/ Side-by-side examples</span></h3>
     <div class="grid2">
       <div class="note tip" style="margin:0">
         <span class="lb" style="color:var(--teal)">🟢 Discrete Event (เน้นในวิชานี้)</span>
@@ -426,11 +407,6 @@
         <span class="th-block">ระดับน้ำในถัง · อุณหภูมิเตาเผา · ความเร็ว/ตำแหน่งของรถ · การไหลของของเหลวในท่อ · ปฏิกิริยาเคมี · การเติบโตของประชากรแบบต่อเนื่อง</span>
         <span class="en-block">Water tank level · furnace temperature · vehicle speed/position · fluid flow in pipes · chemical reactions · continuous population growth</span>
       </div>
-    </div>
-    <div class="note warn">
-      <span class="lb">💡 เชื่อมกับภาพเคลื่อนไหวด้านบน / Link to the animation</span>
-      <span class="th-block">เส้นขั้นบันไดสีเขียว = DESS: สถานะกระโดดเป็นขั้นเฉพาะตอนเกิดเหตุการณ์ (จุดสีน้ำเงิน) ส่วน DES คือกลไกที่ทำให้นาฬิกาจำลอง “กระโดด” ไปทีละจุดเหล่านั้น</span>
-      <span class="en-block">The green staircase = DESS: state jumps only at events (blue dots). DES is the mechanism that makes the simulation clock “jump” from one of those points to the next.</span>
     </div>
   </div>
 </section>
@@ -453,10 +429,10 @@
         <th class="th-block">ลูกค้า</th><th class="en-block" style="display:none">Cust</th>
         <th class="th-block">มาถึง</th><th class="en-block" style="display:none">Arrive</th>
         <th class="th-block">เริ่มบริการ</th><th class="en-block" style="display:none">Start</th>
-        <th class="th-block">ใช้เวลา</th><th class="en-block" style="display:none">Service</th>
+        <th class="th-block">ใช้เวลา (นาที)</th><th class="en-block" style="display:none">Service (min)</th>
         <th class="th-block">เสร็จ</th><th class="en-block" style="display:none">Finish</th>
-        <th class="th-block">รอในแถว</th><th class="en-block" style="display:none">Wait</th>
-        <th class="th-block">อยู่ในระบบ</th><th class="en-block" style="display:none">In system</th>
+        <th class="th-block">รอในแถว (นาที)</th><th class="en-block" style="display:none">Wait (min)</th>
+        <th class="th-block">อยู่ในระบบ (นาที)</th><th class="en-block" style="display:none">In system (min)</th>
       </tr></thead>
       <tbody id="queueBody"></tbody>
     </table>
@@ -470,7 +446,7 @@
       <div class="stat"><div class="k" id="qAvgSys">–</div><div class="l th-block">เวลาในระบบเฉลี่ย</div><div class="l en-block" style="display:none">Avg time in system</div></div>
       <div class="stat"><div class="k" id="qMaxWait">–</div><div class="l th-block">รอนานสุด</div><div class="l en-block" style="display:none">Max wait</div></div>
     </div>
-    <div class="note tip" id="qMsg"><span class="th-block">👀 ดูลูกค้าคนที่ 4: มาถึงเวลา 7 แต่คนที่ 3 เพิ่งเสร็จตอน 9 → ต้องรอ! นี่คือ "ตรรกะคิว" ที่คอมพิวเตอร์ทำซ้ำเป็นพันครั้ง</span><span class="en-block">👀 Customer 4 arrives at t=7 but customer 3 finishes at t=9 → must wait! This is the queue logic a computer repeats thousands of times.</span></div>
+    <div class="note tip" id="qMsg"><span class="th-block">👀 ดูลูกค้าคนที่ 4: มาถึง 10:07 แต่คนที่ 3 เพิ่งเสร็จตอน 10:09 → ต้องรอ! นี่คือ "ตรรกะคิว" ที่คอมพิวเตอร์ทำซ้ำเป็นพันครั้ง</span><span class="en-block">👀 Customer 4 arrives at 10:07 but customer 3 finishes at 10:09 → must wait! This is the queue logic a computer repeats thousands of times.</span></div>
   </div>
 </section>
 
@@ -812,12 +788,13 @@ var qData=[ // customer, arrival, service
   {c:4,arr:7,srv:2},{c:5,arr:9,srv:1},{c:6,arr:15,srv:4}
 ];
 var qStepI=0, qRows=[];
+function qClk(m){var t=600+m,h=Math.floor(t/60),mm=t%60;return (h<10?'0':'')+h+':'+(mm<10?'0':'')+mm;} // 600 = 10:00
 function qReset(){
   qStepI=0;qRows=[];
   var b=document.getElementById('queueBody');b.innerHTML='';
   qData.forEach(function(d,i){
     var tr=document.createElement('tr');tr.className='dim';tr.id='qr'+i;
-    tr.innerHTML='<td>'+d.c+'</td><td>'+d.arr+'</td><td>–</td><td>'+d.srv+'</td><td>–</td><td>–</td><td>–</td>';
+    tr.innerHTML='<td>'+d.c+'</td><td>'+qClk(d.arr)+'</td><td>–</td><td>'+d.srv+'</td><td>–</td><td>–</td><td>–</td>';
     b.appendChild(tr);
   });
   document.getElementById('qNext').disabled=false;
@@ -834,9 +811,9 @@ function qStep(){
   qRows.push({start:start,fin:fin,wait:wait,sys:sys});
   var tr=document.getElementById('qr'+i);
   tr.className='cur';
-  var startCell = (wait>0) ? '<td class="hl">max('+d.arr+','+prevFin+')='+start+'</td>' : '<td>'+start+'</td>';
+  var startCell = (wait>0) ? '<td class="hl">max('+qClk(d.arr)+','+qClk(prevFin)+')='+qClk(start)+'</td>' : '<td>'+qClk(start)+'</td>';
   var waitCell = (wait>0) ? '<td class="hl">'+wait+'</td>' : '<td>'+wait+'</td>';
-  tr.innerHTML='<td>'+d.c+'</td><td>'+d.arr+'</td>'+startCell+'<td>'+d.srv+'</td><td>'+fin+'</td>'+waitCell+'<td>'+sys+'</td>';
+  tr.innerHTML='<td>'+d.c+'</td><td>'+qClk(d.arr)+'</td>'+startCell+'<td>'+d.srv+'</td><td>'+qClk(fin)+'</td>'+waitCell+'<td>'+sys+'</td>';
   // un-highlight previous cur
   for(var k=0;k<i;k++){document.getElementById('qr'+k).className='';}
   qStepI++;
@@ -928,25 +905,49 @@ function runBank(){
 /* generic histogram */
 function drawHist(id,data,color,bins){
   var cv=document.getElementById(id),cx=cv.getContext('2d');
-  var W=cv.width,H=cv.height,pad=34;cx.clearRect(0,0,W,H);
+  var W=cv.width,H=cv.height;cx.clearRect(0,0,W,H);
   if(!data.length)return;
+  var en=document.body.classList.contains('en');
+  var padL=48,padR=16,padT=14,padB=46;
   var mn=Math.min.apply(null,data), mx=Math.max.apply(null,data);
   if(mx===mn)mx=mn+1;
   var bw=(mx-mn)/bins, counts=new Array(bins).fill(0);
   data.forEach(function(v){var b=Math.floor((v-mn)/bw);if(b>=bins)b=bins-1;if(b<0)b=0;counts[b]++;});
-  var mxc=Math.max.apply(null,counts);
-  var plotW=W-pad-14, plotH=H-pad-24, x0=pad, y0=H-24;
-  cx.strokeStyle='#c8d2dc';cx.beginPath();cx.moveTo(x0,y0);cx.lineTo(W-8,y0);cx.stroke();
-  cx.beginPath();cx.moveTo(x0,10);cx.lineTo(x0,y0);cx.stroke();
+  var mxc=Math.max.apply(null,counts)||1;
+  // round the y-axis max up to a "nice" number
+  var step=Math.pow(10,Math.floor(Math.log10(mxc)));
+  var yMax=Math.ceil(mxc/step)*step; if(yMax<mxc)yMax=mxc; if(yMax<5)yMax=Math.max(mxc,5);
+  var plotW=W-padL-padR, plotH=H-padT-padB, x0=padL, y0=H-padB;
+  // Y gridlines + value labels
+  cx.font='11px Segoe UI';cx.textBaseline='middle';
+  var ySteps=5;
+  for(var g=0; g<=ySteps; g++){
+    var yval=Math.round(yMax*g/ySteps);
+    var yy=y0-(yval/yMax)*plotH;
+    cx.strokeStyle=(g===0)?'#c8d2dc':'#eef2f6';cx.lineWidth=1;
+    cx.beginPath();cx.moveTo(x0,yy);cx.lineTo(W-padR,yy);cx.stroke();
+    cx.fillStyle='#5b6b7b';cx.textAlign='right';cx.fillText(yval,x0-6,yy);
+  }
+  cx.strokeStyle='#c8d2dc';cx.beginPath();cx.moveTo(x0,padT);cx.lineTo(x0,y0);cx.stroke();
+  // bars
   var barW=plotW/bins;
   for(var i=0;i<bins;i++){
-    var h=counts[i]/mxc*plotH;
-    cx.fillStyle=color;
-    cx.fillRect(x0+i*barW+2, y0-h, barW-3, h);
+    var h=counts[i]/yMax*plotH;
+    cx.fillStyle=color;cx.fillRect(x0+i*barW+2, y0-h, Math.max(1,barW-3), h);
   }
-  cx.fillStyle='#5b6b7b';cx.font='11px Segoe UI';
-  cx.fillText(mn.toFixed(0),x0,y0+14);
-  cx.fillText(mx.toFixed(0),W-30,y0+14);
+  // X ticks + value labels (waiting time in minutes)
+  cx.textAlign='center';cx.textBaseline='top';
+  var xTicks=Math.min(bins,8), dec=(mx-mn)<8?1:0;
+  for(var t=0;t<=xTicks;t++){
+    var frac=t/xTicks, xval=mn+frac*(mx-mn), px=x0+frac*plotW;
+    cx.strokeStyle='#c8d2dc';cx.beginPath();cx.moveTo(px,y0);cx.lineTo(px,y0+4);cx.stroke();
+    cx.fillStyle='#5b6b7b';cx.fillText(xval.toFixed(dec),px,y0+7);
+  }
+  // axis titles
+  cx.fillStyle='#0f2c4d';cx.font='bold 11px Segoe UI';cx.textAlign='center';cx.textBaseline='alphabetic';
+  cx.fillText(en?'Waiting time (min)':'เวลารอ (นาที)', x0+plotW/2, H-6);
+  cx.save();cx.translate(11,padT+plotH/2);cx.rotate(-Math.PI/2);
+  cx.fillText(en?'Customers (freq.)':'จำนวนลูกค้า (คน)',0,0);cx.restore();
 }
 runBank();
 
