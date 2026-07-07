@@ -112,6 +112,10 @@
   .ov-hero .th-title{font-size:1.15rem;opacity:.95;margin:2px 0;}
   .ov-hero .desc{max-width:760px;margin:14px auto 0;opacity:.9;font-size:.95rem;line-height:1.7;}
   .ov-lang{position:absolute;top:16px;right:18px;background:var(--amber);color:var(--navy);border:none;font-weight:800;border-radius:7px;padding:7px 13px;cursor:pointer;font-size:.82rem;}
+  .ov-qr{position:absolute;top:14px;left:16px;background:#fff;border-radius:10px;padding:7px 7px 4px;box-shadow:0 4px 14px rgba(0,0,0,.22);text-align:center;line-height:1;text-decoration:none;}
+  .ov-qr img{width:78px;height:78px;display:block;image-rendering:pixelated;border-radius:4px;}
+  .ov-qr small{display:block;color:var(--navy);font-size:.6rem;font-weight:800;margin-top:3px;letter-spacing:.2px;}
+  @media(max-width:560px){.ov-qr img{width:56px;height:56px;}.ov-qr small{font-size:.52rem;}}
   .ov-wrap{max-width:960px;margin:0 auto;padding:0 20px 50px;}
   .ov-sec{margin:34px 0;}
   .ov-sec h2{font-size:1.4rem;color:var(--navy);border-left:5px solid var(--teal);padding-left:12px;margin:0 0 16px;}
@@ -154,6 +158,27 @@
   .enter-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(31,95,139,.4);}
   .enter-btn small{display:block;font-weight:500;opacity:.9;font-size:.82rem;margin-top:4px;}
   .backbtn{background:rgba(255,255,255,.13)!important;border:1px solid rgba(255,255,255,.3)!important;}
+  /* check-in */
+  .checkin{background:linear-gradient(135deg,#f0fbf8,#eef3fb);border:2px solid var(--teal);border-radius:16px;padding:22px 24px;margin-top:22px;}
+  .checkin h3{margin:0 0 4px;color:var(--navy);font-size:1.2rem;}
+  .checkin .ci-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;}
+  .checkin .ci-field{flex:1 1 240px;display:flex;flex-direction:column;gap:5px;}
+  .checkin label{font-weight:700;font-size:.85rem;color:var(--navy);}
+  .checkin input,.checkin select{padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:.95rem;background:#fff;width:100%;}
+  .checkin input:focus,.checkin select:focus{outline:2px solid var(--teal);border-color:var(--teal);}
+  .checkin .ci-submit{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:13px 26px;font-weight:800;font-size:1rem;cursor:pointer;font-family:inherit;margin-top:14px;}
+  .checkin .ci-submit:hover{background:#218a7d;}
+  .checkin .ci-submit:disabled{opacity:.5;cursor:not-allowed;}
+  .checkin .ci-msg{margin-top:10px;font-weight:700;font-size:.92rem;min-height:20px;}
+  .checkin .ci-msg.ok{color:#166b56;}.checkin .ci-msg.err{color:var(--red);}
+  /* group worksheet */
+  .wt-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;}
+  @media(max-width:680px){.wt-grid{grid-template-columns:1fr;}}
+  .wt-f{display:flex;flex-direction:column;gap:5px;}
+  .wt-f.full{grid-column:1/-1;}
+  .wt-f label{font-weight:700;font-size:.85rem;color:var(--navy);}
+  .wt-f textarea{border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-family:inherit;font-size:.92rem;resize:vertical;min-height:46px;background:#fff;color:var(--ink);}
+  .wt-f textarea:focus{outline:2px solid var(--amber);border-color:var(--amber);}
 </style>
 </head>
 <body class="th landing">
@@ -162,12 +187,16 @@
 <div id="overview">
   <div class="ov-hero">
     <button class="ov-lang" onclick="toggleLang()" id="ovlang">EN</button>
+    <a class="ov-qr" href="https://namchai48.github.io/ComSim/class1" target="_blank" rel="noopener" title="เปิดบทเรียนครั้งที่ 1 / Open Session 1">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAACECAIAAADeJhTwAAADK0lEQVR4nO2dwXHcMAwA40wKSCNpJcW6lTSSDs7P8IMxMACklbP7NUXRtwNCJEXq7fV6fRMG3+9ugPxDGSCUAUIZIJQBQhkglAHiR/SHn79+j9/s75/3T+ufKhOVr7L9O5wYGSCUAUIZIMKccbLR50Z1nuWj3BCVydy307bt3GNkgFAGCGWASOWMk+3n+o06q7mhU2enfiMDhDJAKANEOWdMEY0VqvNOGTrjlSsxMkAoA4QyQNyWMyKm1jAyEPLEiZEBQhkglAGinDM2+tmp9YnMeCJTZ+Z/3PgdjAwQygChDBCpnLHx7tBJ1Ndn1qI7uaRaz/bvYGSAUAYIZYAIc8aV8zadfjyimocy9WxjZIBQBghlgEjtz8j0m1f2+5ky1TmujTZH93V/xgNQBghlgBh717Y6j9R53p9632lq7uukk2+MDBDKAKEMEOW5qeo6c4aNMcpJps6pvYcR7ul7GMoAoQwQrbmp6jP+lTkguu9ULpxaVz8xMkAoA4QyQKzsA6/W0+lnp8Yl2+/dZsoYGSCUAUIZIN6is9Cn1pMjOnNBUflOvonwjML/FGWAUAaI1HpGZ835rnWOqfepojoz11bbbGSAUAYIZYBIjTMyTO1j2FhbrlJdq5gahxkZIJQBQhkgwpxxQpuDqpafGq9UqeY/IwOEMkAoA0R5nLF9Jnm1f6etZ1TbfGJkgFAGCGWAKO/PmBoHRGW231PaaE/mWtczHoYyQCgDRGpu6qQ6j7+x5py515VnlmTalrnWyAChDBDKANFaAyecK9Vpz5Xf5PC8qYehDBDKADF2rm1nDqczdrlrH9/GN/6MDBDKAKEMEKmzQ6aonkFSPRtqak5sqk6/B/5glAFCGSBSZ4dc+a5Upg3VMcfUfFembR2MDBDKAKEMECvnTV25byPD1DgmYmqeysgAoQwQygBRzhlTTOWV6jzV9j6+DkYGCGWAUAaI23JGRKav75znsTGOmVr7MTJAKAOEMkCUc8bGM/jUsz8hH/j9jC+CMkAoA0QqZ2y8Q7V9FuHUd1uvPLfKyAChDBDKAFHeBy57GBkglAFCGSCUAUIZIJQBQhkgPgDW3gV3KjiERAAAAABJRU5ErkJggg==" alt="QR: namchai48.github.io/ComSim/class1">
+      <small class="th-block">สแกนเปิด<br>บนมือถือ</small><small class="en-block">Scan on<br>mobile</small>
+    </a>
     <div class="kicker">Computer Simulation I · Faculty of Logistics</div>
     <h1>การจำลองสถานการณ์ทางคอมพิวเตอร์</h1>
     <p class="th-title th-block">ภาพรวมรายวิชา · 6 ครั้งเรียน · เครื่องมือ Excel + Python (SimPy)</p>
     <p class="th-title en-block">Course Overview · 6 sessions · Tools: Excel + Python (SimPy)</p>
-    <p class="desc th-block">การประยุกต์ใช้เทคนิคทางด้านการวิเคราะห์ข้อมูลทางธุรกิจ เพื่อเพิ่มประสิทธิภาพในการจัดการโลจิสติกส์ ให้เกิดความได้เปรียบเชิงแข่งขัน และวิเคราะห์ธุรกิจที่ประสบความสำเร็จจากการนำกลยุทธ์ที่ได้จากข้อมูลมาปฏิบัติจริง</p>
-    <p class="desc en-block">Structures and concepts of simulation, components of simulation, basic simulation modeling, modeling complex systems; input analysis, output analysis, experimental design and optimization; building and analyzing simulation for the real world; improving performance of a supply-chain system using the developed simulation.</p>
+    <p class="desc th-block">โครงสร้างและแนวคิดการจำลองสถานการณ์ องค์ประกอบการจำลองสถานการณ์ การสร้างแบบจำลองพื้นฐาน การสร้างแบบจำลองที่ซับซ้อน การวิเคราะห์ปัจจัยที่เกี่ยวข้อง การวิเคราะห์ผลการจำลอง การออกแบบการทดลองและการเพิ่มประสิทธิภาพ การสร้างและการจำลองเพื่อวิเคราะห์กรณีศึกษา การปรับปรุงประสิทธิภาพระบบโซ่อุปทานโดยการจำลองสถานการณ์</p>
+    <p class="desc en-block">Structures and concepts of simulation, component of simulation, basic simulation modeling, modeling complex systems; input analysis, output analysis, experimental design and optimization; building and analyzing simulation for real world; improving performance of supply chain system using the developed simulation</p>
   </div>
 
   <div class="ov-wrap">
@@ -188,10 +217,35 @@
         </div>
         <div class="inst-box desc-box">
           <b class="th-block">คำอธิบายรายวิชา</b><b class="en-block">Course Description</b>
-          <span class="th-block">การประยุกต์ใช้เทคนิคทางด้านการวิเคราะห์ข้อมูลทางธุรกิจ เพื่อเพิ่มประสิทธิภาพในการจัดการโลจิสติกส์ ให้เกิดความได้เปรียบเชิงแข่งขัน และวิเคราะห์ธุรกิจที่ประสบความสำเร็จจากการนำกลยุทธ์ที่ได้จากข้อมูลมาปฏิบัติจริง</span>
-          <span class="en-block">Applying business data-analysis techniques to improve logistics management, create competitive advantage, and analyze successful businesses that put data-driven strategies into real practice.</span>
+          <span class="th-block">โครงสร้างและแนวคิดการจำลองสถานการณ์ องค์ประกอบการจำลองสถานการณ์ การสร้างแบบจำลองพื้นฐาน การสร้างแบบจำลองที่ซับซ้อน การวิเคราะห์ปัจจัยที่เกี่ยวข้อง การวิเคราะห์ผลการจำลอง การออกแบบการทดลองและการเพิ่มประสิทธิภาพ การสร้างและการจำลองเพื่อวิเคราะห์กรณีศึกษา การปรับปรุงประสิทธิภาพระบบโซ่อุปทานโดยการจำลองสถานการณ์</span>
+          <span class="en-block">Structures and concepts of simulation, component of simulation, basic simulation modeling, modeling complex systems; input analysis, output analysis, experimental design and optimization; building and analyzing simulation for real world; improving performance of supply chain system using the developed simulation</span>
         </div>
       </div>
+    </div>
+
+    <!-- Check-in -->
+    <div class="checkin">
+      <h3 class="th-block">✅ เช็คชื่อเข้าเรียน</h3><h3 class="en-block">✅ Class Check-in</h3>
+      <p style="margin:2px 0 0;color:var(--muted);font-size:.9rem"><span class="th-block">กรอกอีเมลและเลือกชื่อของคุณ แล้วกดส่ง — ข้อมูลจะถูกส่งเข้า Google Form ของอาจารย์ทันที</span><span class="en-block">Enter your email, pick your name, and submit — it goes straight to the instructor's Google Form.</span></p>
+      <div class="ci-row">
+        <div class="ci-field">
+          <label class="th-block">อีเมล / Email *</label><label class="en-block">Email *</label>
+          <input type="email" id="ci_email" placeholder="you@go.buu.ac.th" autocomplete="email">
+        </div>
+        <div class="ci-field">
+          <label class="th-block">เลือกชื่อ–รหัสนิสิต / Your name *</label><label class="en-block">Select your name *</label>
+          <select id="ci_student"><option value="">— เลือก / select —</option></select>
+        </div>
+      </div>
+      <button class="ci-submit" id="ci_btn" onclick="submitCheckin()"><span class="th-block">📩 ส่งเช็คชื่อ</span><span class="en-block">📩 Submit check-in</span></button>
+      <div class="ci-msg" id="ci_msg"></div>
+      <iframe name="ci_target" id="ci_target" style="display:none" title="hidden"></iframe>
+      <form id="ci_form" action="https://docs.google.com/forms/d/e/1FAIpQLSceC4QmsVvK1Byo5gIoKycy4ZE6n1tYtIIbnSgEWm102DrJoQ/formResponse" method="POST" target="ci_target" style="display:none">
+        <input type="hidden" name="emailAddress" id="ci_f_email">
+        <input type="hidden" name="entry.2045911396" id="ci_f_student">
+        <input type="hidden" name="fvv" value="1">
+        <input type="hidden" name="pageHistory" value="0">
+      </form>
     </div>
 
     <!-- Roadmap -->
@@ -224,7 +278,8 @@
   <a href="#s5">วงจร</a>
   <a href="#s6">ธนาคาร</a>
   <a href="#s7">Monte Carlo</a>
-  <a href="#s8">Quiz</a>
+  <a href="#s8">Walk-through</a>
+  <a href="#s9">Quiz</a>
   <button class="langbtn" onclick="toggleLang()" id="langbtn">EN</button>
 </nav>
 
@@ -463,6 +518,11 @@
       <span class="th-block">ก่อนปรับ ลองเดา: ถ้าลูกค้าเพิ่ม 10% (30→33) เวลารอจะเพิ่มกี่ %? แล้วรันดู — มักเพิ่ม <strong>มากกว่า 10%</strong> เพราะระบบใกล้เต็มกำลัง ผลไม่เป็นเส้นตรง นี่คือเหตุผลที่ต้องใช้ simulation ไม่ใช่บัญญัติไตรยางศ์!</span>
       <span class="en-block">Guess first: if arrivals rise 10% (30→33), how much does waiting rise? Then run it — usually <strong>more than 10%</strong> because the system nears capacity (nonlinear). That's why we need simulation, not simple proportion!</span>
     </div>
+    <div class="note tip">
+      <span class="lb">💬 คำถามชวนคิด / Discussion</span>
+      <span class="th-block">ดูจาก histogram ของเวลารอ — ทำไมลูกค้าแต่ละคนถึงใช้เวลาไม่เท่ากัน ทั้งที่ตั้งค่าเฉลี่ยบริการไว้ 4 นาทีเหมือนกันทุกคน? ลองช่วยกันเดาว่ามีปัจจัยอะไรบ้างที่ทำให้เวลาให้บริการจริงของแต่ละคนแตกต่างกัน</span>
+      <span class="en-block">Look at the wait-time histogram — why does each customer take a different amount of time, even though the average service time is set to the same 4 minutes for everyone? Brainstorm what makes real service times vary (number/complexity of transactions, how fast each teller/customer is, whether arrival timing lines up with a free teller) — this is exactly why we model service time as a <em>probability distribution</em>, not a single fixed number.</span>
+    </div>
   </div>
 </section>
 
@@ -472,10 +532,17 @@
   <p class="lead th-block">แนวคิดสำคัญที่สุดของคาบ: <strong>“ผลของ simulation คือตัวแปรสุ่ม”</strong> — ผลเปลี่ยนทุกครั้งที่สุ่มใหม่ แต่ <strong>ค่าเฉลี่ยค่อนข้างคงที่</strong> ส่วนนี้ให้ลงมือทำใน Excel เอง เพื่อฝึกใช้งานฟังก์ชันจริง</p>
   <p class="lead en-block">The big idea: <strong>“a simulation's output is a random variable”</strong> — it changes each re-roll, but the <strong>average stays fairly stable</strong>. Do this hands-on in Excel to build real spreadsheet skills.</p>
 
-  <div class="note ask" style="font-size:1.02rem">
-    <span class="lb">📂 ไฟล์ที่ต้องเปิด / Open this file</span>
-    <span class="th-block"><code>Lab1_MonteCarlo_ยอดลูกค้าร้านกาแฟ.xlsx</code> — เปิดใน Excel แล้วกด <strong>F9</strong> (หรือ Shift+F9) เพื่อสุ่มค่าใหม่ทั้งไฟล์ สังเกตตัวเลขและกราฟเปลี่ยน แต่ค่าเฉลี่ยขยับเล็กน้อย</span>
-    <span class="en-block"><code>Lab1_MonteCarlo_ยอดลูกค้าร้านกาแฟ.xlsx</code> — open in Excel and press <strong>F9</strong> (or Shift+F9) to re-randomize. Numbers and charts change, but the mean barely moves.</span>
+  <div class="card">
+    <h3>Monte Carlo คืออะไร &amp; มาจากไหน? <span class="en">/ What is Monte Carlo &amp; where it came from</span></h3>
+    <p class="th-block"><strong>Monte Carlo</strong> คือวิธีหาคำตอบของปัญหาด้วยการ <strong>สุ่มตัวเลขซ้ำจำนวนมาก</strong> แล้วดูค่าเฉลี่ย/สัดส่วนของผล — ใช้เมื่อคำนวณตรงๆ ด้วยสูตรทำได้ยากหรือทำไม่ได้ · ยิ่งสุ่มมาก ค่าประมาณยิ่งนิ่ง (กฎจำนวนมาก / Law of Large Numbers)</p>
+    <p class="en-block"><strong>Monte Carlo</strong> solves a problem by <strong>drawing many random samples</strong> and reading the average/proportion of the results — used when a direct formula is hard or impossible. The more samples, the more stable the estimate (Law of Large Numbers).</p>
+    <div class="note tip">
+      <span class="lb">📜 ที่มาของชื่อ / Origin of the name</span>
+      <span class="th-block">ตั้งชื่อตาม <strong>คาสิโนเมืองมอนติคาร์โล (โมนาโก)</strong> เพราะอาศัย “ความสุ่ม” เหมือนเกมพนัน · คิดค้นราวคริสต์ทศวรรษ 1940 โดย <strong>Stanisław Ulam</strong> และ <strong>John von Neumann</strong> ที่ห้องปฏิบัติการ Los Alamos เพื่อแก้ปัญหาการแพร่ของนิวตรอนที่ซับซ้อนเกินกว่าจะแก้ด้วยสูตรตรงๆ</span>
+      <span class="en-block">Named after the <strong>Monte Carlo casino (Monaco)</strong> for its reliance on “chance” like gambling · developed in the 1940s by <strong>Stanisław Ulam</strong> and <strong>John von Neumann</strong> at Los Alamos to solve neutron-diffusion problems too complex for direct formulas.</span>
+    </div>
+    <p class="th-block" style="font-size:.9rem;margin-bottom:0">ในบทนี้เราจะทำ Monte Carlo ง่ายๆ ใน Excel (ทอยลูกเต๋า &amp; ยอดลูกค้าร้านกาแฟ) — กด <strong>F9</strong> (หรือ Shift+F9) เพื่อสุ่มใหม่ สังเกตว่าตัวเลขเปลี่ยนทุกครั้ง แต่ค่าเฉลี่ยขยับเล็กน้อย</p>
+    <p class="en-block" style="font-size:.9rem;margin-bottom:0">Here we'll do simple Monte Carlo in Excel (dice &amp; cafe customers) — press <strong>F9</strong> (or Shift+F9) to re-randomize. Numbers change every time, but the mean barely moves.</p>
   </div>
 
   <div class="grid2">
@@ -526,11 +593,69 @@
   </div>
 </section>
 
-<!-- ===================== S8 QUIZ ===================== -->
+<!-- ===================== S8 WALK-THROUGH ===================== -->
 <section id="s8">
-  <h2><span class="num">8</span> Quiz ทบทวน <span class="en" style="font-size:.9rem">/ Review</span></h2>
-  <p class="lead th-block">ลองตอบเพื่อเช็กความเข้าใจ — เลือกคำตอบแล้วดูเฉลยทันที</p>
-  <p class="lead en-block">Answer to check your understanding — pick and see instant feedback.</p>
+  <h2><span class="num">8</span> กิจกรรมกลุ่ม: Walk-through ระบบจริง <span class="en" style="font-size:.9rem">/ Group activity</span></h2>
+  <p class="lead th-block">แบ่งกลุ่ม 3–4 คน เลือก <strong>ระบบรอคิวในมหาวิทยาลัย</strong> (โรงอาหาร / ธนาคาร / เคาน์เตอร์บริการ / ร้านกาแฟ) แล้วร่าง <strong>แบบจำลองแนวคิด (conceptual model)</strong> ร่วมกัน — ทักษะนี้ใช้ทั้งวิชาและต่อยอดเป็นโปรเจกต์กลุ่มได้</p>
+  <p class="lead en-block">In groups of 3–4, pick a <strong>real campus queueing system</strong> (canteen / bank / service counter / café) and sketch a <strong>conceptual model</strong> together — a skill you'll use all course and in the final project.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>1️⃣ Entity</h3>
+      <p class="th-block" style="font-size:.93rem"><strong>สิ่งที่ไหลผ่านระบบ</strong> — ใคร/อะไรที่เข้ามา รอ รับบริการ แล้วออกไป<br><span style="color:var(--muted)">เช่น ลูกค้า / งาน / เอกสาร</span></p>
+      <p class="en-block" style="font-size:.93rem"><strong>What flows through the system</strong> — who/what arrives, waits, gets served, leaves.<br><span style="color:var(--muted)">e.g. customers / jobs / documents</span></p>
+    </div>
+    <div class="card">
+      <h3>2️⃣ คิว &amp; ทรัพยากร <span class="en">/ Queue &amp; Resource</span></h3>
+      <p class="th-block" style="font-size:.93rem"><strong>จุดที่เกิดการรอ</strong> และ <strong>ใคร/อะไรให้บริการ</strong><br><span style="color:var(--muted)">เช่น แถวหน้าเคาน์เตอร์ / พนักงาน 2 คน</span></p>
+      <p class="en-block" style="font-size:.93rem"><strong>Where waiting happens</strong> and <strong>who/what serves</strong>.<br><span style="color:var(--muted)">e.g. the line at the counter / 2 staff</span></p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>3️⃣ KPI — ตัวชี้วัดที่อยากปรับปรุง <span class="en">/ KPI to improve</span></h3>
+    <p class="th-block" style="font-size:.93rem;margin-bottom:0">เช่น เวลารอเฉลี่ย · ความยาวคิว · utilization ของพนักงาน — เลือกให้ชัดว่ากลุ่มอยากตอบคำถามอะไร</p>
+    <p class="en-block" style="font-size:.93rem;margin-bottom:0">e.g. average wait · queue length · staff utilization — be explicit about the question your group wants answered.</p>
+  </div>
+
+  <div class="card">
+    <h3>📝 ใบงานกลุ่ม (พิมพ์ได้เลย บันทึกอัตโนมัติ) <span class="en">/ Group worksheet — auto-saves</span></h3>
+    <div class="wt-grid">
+      <div class="wt-f full">
+        <label class="th-block">ระบบที่กลุ่มเลือก + ช่วงเวลาที่สังเกต</label><label class="en-block">Chosen system + observation window</label>
+        <textarea class="wtsave" data-wt="system" placeholder="เช่น โรงอาหารตึก A ช่วงพัก 12:00–13:00 / e.g. Building A canteen, 12:00–13:00"></textarea>
+      </div>
+      <div class="wt-f">
+        <label class="th-block">Entity — สิ่งที่ไหลผ่านระบบ</label><label class="en-block">Entity — what flows through</label>
+        <textarea class="wtsave" data-wt="entity" placeholder="ใคร/อะไรเข้ามาในระบบ..."></textarea>
+      </div>
+      <div class="wt-f">
+        <label class="th-block">คิวเกิดตรงไหน &amp; ทรัพยากรคืออะไร</label><label class="en-block">Where queues form &amp; the resources</label>
+        <textarea class="wtsave" data-wt="queue" placeholder="จุดรอ / ผู้ให้บริการ กี่คน..."></textarea>
+      </div>
+      <div class="wt-f full">
+        <label class="th-block">KPI ที่อยากปรับปรุง + เป้าหมาย</label><label class="en-block">KPI to improve + target</label>
+        <textarea class="wtsave" data-wt="kpi" placeholder="เช่น เวลารอเฉลี่ย < 5 นาที..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="note warn">
+    <span class="lb">⚠️ กับดักที่พบบ่อย / Common trap</span>
+    <span class="th-block">กลุ่มมักใส่รายละเอียดเยอะเกินไป — ยึดหลัก <strong>"เรียบง่ายพอที่จะตอบคำถาม KPI ได้"</strong> อย่าเพิ่งจำลองทุกอย่าง สิ่งที่ไม่กระทบ KPI ให้ตัดออก</span>
+    <span class="en-block">Groups over-detail their models — keep it <strong>"simple enough to answer the KPI question"</strong>. Cut anything that doesn't affect the KPI.</span>
+  </div>
+  <div class="note tip">
+    <span class="lb">🏠 การบ้าน / Homework</span>
+    <span class="th-block">เลือกระบบรอคิวรอบตัว 1 ระบบ (คนละระบบกับกลุ่มก็ได้) เขียนสั้นๆ: entity คืออะไร · ทรัพยากรคืออะไร · KPI ที่อยากปรับปรุง — ส่งต้นครั้งหน้า ปูทางสู่ Input Analysis</span>
+    <span class="en-block">Pick one queueing system around you and briefly write: the entity · the resource · the KPI to improve — due at the start of Session 2 (leads into Input Analysis).</span>
+  </div>
+</section>
+
+<!-- ===================== S9 QUIZ ===================== -->
+<section id="s9">
+  <h2><span class="num">9</span> Quiz ทบทวน 10 ข้อ <span class="en" style="font-size:.9rem">/ Review — 10 questions</span></h2>
+  <p class="lead th-block">ครอบคลุมทุกหัวข้อของวันนี้ — เลือกคำตอบแล้วดูเฉลยทันที ตอบครบ 10 ข้อจะเห็นคะแนนรวม</p>
+  <p class="lead en-block">Covers everything from today — pick an answer for instant feedback; finish all 10 to see your score.</p>
   <div class="quiz" id="quiz"></div>
   <div class="scoreband" id="scoreband"></div>
 </section>
@@ -539,13 +664,13 @@
 
 <footer>
   <div class="notetools">
-    <button onclick="downloadNotes()">⬇️ ดาวน์โหลดโน้ตทั้งหมด (.txt) / Download notes</button>
+    <button onclick="downloadNotes()">⬇️ ดาวน์โหลดโน้ต + ใบงาน (.txt) / Download notes</button>
     <button onclick="clearNotes()">🗑️ ล้างโน้ตทั้งหมด / Clear all notes</button>
   </div>
-  <p style="opacity:.7;font-size:.82rem;margin-top:4px">📝 โน้ตบันทึกอัตโนมัติในเบราว์เซอร์เครื่องนี้ (localStorage) · เปิดไฟล์เดิมครั้งหน้าโน้ตยังอยู่ · Notes auto-save in this browser</p>
+  <p style="opacity:.7;font-size:.82rem;margin-top:4px">📝 โน้ตและใบงานบันทึกอัตโนมัติในเบราว์เซอร์เครื่องนี้ (localStorage) · เปิดไฟล์เดิมครั้งหน้ายังอยู่ · Notes &amp; worksheet auto-save in this browser</p>
   <p class="th-block">สื่อประกอบการบรรยาย — Computer Simulation I ครั้งที่ 1 · จัดทำเพื่อการเรียนการสอน คณะโลจิสติกส์</p>
   <p class="en-block">Lecture companion — Computer Simulation I, Session 1 · For teaching, Faculty of Logistics</p>
-  <p style="opacity:.7;font-size:.82rem">อ้างอิงเนื้อหา: simMainBook บทที่ 1 · Robinson (2014) · ทุกส่วนโต้ตอบได้ ทบทวนเองที่บ้านได้</p>
+  <p style="opacity:.7;font-size:.82rem">อ้างอิงเนื้อหา: simMainBook บทที่ 1 · Robinson (2014) · Banks et al. (2005) · ทุกส่วนโต้ตอบได้ ทบทวนเองที่บ้านได้</p>
 </footer>
 
 <script>
@@ -855,11 +980,17 @@ function downloadNotes(){
   var lines=['โน้ต — Computer Simulation I (ครั้งที่ 1)','ดาวน์โหลดเมื่อ: '+new Date().toLocaleString('th-TH'),''];
   var any=false;
   document.querySelectorAll('.wrap > section').forEach(function(sec){
-    var ta=sec.querySelector('textarea');
+    var ta=sec.querySelector('.notebox textarea');
     var title=(sec.querySelector('h2')||{}).textContent||sec.id;
     var v=ta?ta.value.trim():'';
     if(v){any=true;lines.push('■ '+title.trim());lines.push(v);lines.push('');}
   });
+  var wtLabels={system:'ระบบที่เลือก',entity:'Entity',queue:'คิว & ทรัพยากร',kpi:'KPI'};
+  var wtAny=false, wtLines=['■ ใบงานกลุ่ม Walk-through'];
+  document.querySelectorAll('textarea.wtsave').forEach(function(ta){
+    var v=ta.value.trim(); if(v){wtAny=true;wtLines.push('- '+(wtLabels[ta.dataset.wt]||ta.dataset.wt)+': '+v);}
+  });
+  if(wtAny){any=true;lines=lines.concat(wtLines).concat(['']);}
   if(!any){alert('ยังไม่มีโน้ต / No notes yet');return;}
   var blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
   var a=document.createElement('a');
@@ -871,53 +1002,136 @@ function clearNotes(){
   if(!confirm('ลบโน้ตทั้งหมดในเครื่องนี้? / Delete ALL notes on this browser?'))return;
   document.querySelectorAll('.wrap > section').forEach(function(sec){
     try{ localStorage.removeItem(NOTE_PREFIX+sec.id); }catch(e){}
-    var ta=sec.querySelector('textarea');if(ta)ta.value='';
+    var ta=sec.querySelector('.notebox textarea');if(ta)ta.value='';
   });
 }
 
-/* ================= S8: QUIZ ================= */
+
+/* ================= CHECK-IN (Google Form) ================= */
+var ROSTER=["67090002 นายอภิวิชญ์ เฉลิมวงศ์", "67090003 นายนำแสง แก้วบางพูด", "67090004 นายภาณุวิทย์ วัณโณภาศ", "67090005 นางสาววิภาดา แสงศิลา", "67090006 นางสาวอัจฉริยา แพงไทย", "67090007 นางสาวฉันท์สินี ปาวารี", "67090008 นางสาวฐิติมา ไร่วิวัฒน์", "67090009 นางสาวกรกนก สร่างทุกข์", "67090010 นางสาวสุนันทา พรมพานิช", "67090012 นางสาวศศิพร สิมพา", "67090014 นางสาวอาทิตติยา เพ็ชรวิลัย", "67090063 นายเกรียงไกร ศักดาเพชรศิริ", "67090064 นางสาวเกษญาดา คนธรรมศาสตร์", "67090065 นางสาวชนากานต์ ยงยืน", "67090066 นางสาวชนิตา ฮั่นกูล", "67090067 นางสาวชนิษฐา นิลวดี", "67090068 นายชลาธิป อ้นถาวร", "67090069 นางสาวโชติรส แสวงผล", "67090070 นางสาวณัฏฐณิชา บุญสวนสุขฤดี", "67090071 นางสาวณัฐกานต์ กมลเนตร์", "67090072 นางสาวณัฐกานต์ สิงเหาะ", "67090073 นางสาวณัฐญาดา นิยมทอง", "67090074 นางสาวณัฐธยาน์ วงศ์คำ", "67090075 นายธนกฤต มหกิจขจร", "67090076 นางสาวธนภรณ์ แซ่เตียว", "67090077 นางสาวธวัลฤทัย ขำเชย", "67090078 นางสาวธัญชนก วึบชัยภูมิ", "67090079 นายธีรภัทร เหล่าทวีสุข", "67090080 นางสาวนงนภัส กระดุมเงิน", "67090081 นางสาวนะฮ์ดา มหาประทุม", "67090082 นายปฏิพล เจโคกกรวด", "67090083 นางสาวพรนภัส ศิริชัยวัฒนา", "67090084 นางสาวพรปวีณ์ น้อมสมทรัพย์", "67090085 นางสาวพรรณมัย แก้วกุ่ม", "67090086 นางสาวพลอยจันทร์ เรืองจรูญวัฒนา", "67090087 นางสาวเพ็ญนภา ทองยา", "67090088 นางสาวภาคินี สระศิริ", "67090089 นายภาณุวัฒน์ เทียนชัย", "67090090 นางสาวเยาวเรศ จันทฤทธิ์", "67090091 นางสาวรัชตา ชลวิริยะกุล", "67090092 นายศรณ์พงศ์ ปิ่นอนงค์", "67090093 นางสาวศิริลักษณ์ ปานสอน", "67090094 นายศิวัช สุทธิแพทย์", "67090095 นายสินมหัต กลีบมาลี", "67090096 นางสาวสุนิตา แซ่เติ๋น", "67090097 นางสาวสุพิชญา ใจเพียร", "67090098 นางสาวสุภัทชพร สามเตี้ย", "67090230 นายกฤษนัย เติมสุข", "67090232 นายกูฟิตรี เงาะมะเจะ", "67090233 นางสาวจริยา โกมลศรี", "67090234 นายเจษฎา ทองดอนสา", "67090235 นายชุติภาส ทวีคูณ", "67090236 นางสาวณัฐกฤตา โนราช", "67090237 นางสาวณัฐธยาน์ บุญมี", "67090238 นางสาวณัฐธิดา ทรงศิริ", "67090239 นางสาวทอขวัญ เกื้อน้อย", "67090240 นายธนบดี ตรัยวรัญญู", "67090241 นายธนาวิชส์ กาอ่วน", "67090242 นางสาวธัญญรัตน์ แตงชัยภูมิ", "67090243 นายบวรรักษ์ ยอดประทุม", "67090244 นางสาวปนัสยา เพาะนิยม", "67090245 นางสาวปรางค์วลี สีดำ", "67090246 นายปวเรศ แคล่วคล่อง", "67090247 นางสาวพรลภัส เกิดศักดิ์สิทธิ์", "67090248 นายพลช อุบล", "67090249 นางสาวพัชรินทร์ นันธิ", "67090250 นางสาวเพ็ญพิชา แสงประสิทธิ์", "67090251 นางสาวแพรวา นามไพร", "67090252 นางสาวภัทรธิดา จันทชิต", "67090253 นายภูมิพัฒน์ จันทร์วิไชย", "67090254 นางสาวมนณกร อภิธารภูวดล", "67090255 นางสาวรดามณี ประศรีพัฒน์", "67090256 นางสาววรรณพร จินดาธนาคม", "67090257 นางสาววรัชยา บุษบา", "67090258 นางสาววรินทร ดาปาน", "67090259 นายศุภสัณฑ์ ขันสันเทียะ", "67090260 นายสมยศ การเจริญ", "67090261 นางสาวสุรัสวดี ฤทธิ์ชัยภูมิ", "67090262 นางสาวอนุดา เตียวทองธนา"];
+(function(){
+  var sel=document.getElementById('ci_student'); if(!sel)return;
+  ROSTER.forEach(function(name){
+    var o=document.createElement('option'); o.value=name; o.textContent=name; sel.appendChild(o);
+  });
+})();
+function submitCheckin(){
+  var email=(document.getElementById('ci_email').value||'').trim();
+  var student=document.getElementById('ci_student').value;
+  var msg=document.getElementById('ci_msg');
+  var en=document.body.classList.contains('en');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    msg.className='ci-msg err';
+    msg.textContent=en?'⚠️ Please enter a valid email.':'⚠️ กรุณากรอกอีเมลให้ถูกต้อง';
+    return;
+  }
+  if(!student){
+    msg.className='ci-msg err';
+    msg.textContent=en?'⚠️ Please select your name.':'⚠️ กรุณาเลือกชื่อ–รหัสนิสิตของคุณ';
+    return;
+  }
+  document.getElementById('ci_f_email').value=email;
+  document.getElementById('ci_f_student').value=student;
+  document.getElementById('ci_form').submit();
+  var btn=document.getElementById('ci_btn');
+  btn.disabled=true;
+  msg.className='ci-msg ok';
+  msg.textContent=en?'✅ Check-in sent: '+student:'✅ ส่งเช็คชื่อแล้ว: '+student;
+  try{ localStorage.setItem('comsim1_checkin', student+' @ '+new Date().toLocaleString('th-TH')); }catch(e){}
+}
+(function(){
+  try{
+    var prev=localStorage.getItem('comsim1_checkin');
+    if(prev){
+      var msg=document.getElementById('ci_msg');
+      if(msg){ msg.className='ci-msg ok'; msg.textContent='ℹ️ เคยเช็คชื่อจากเครื่องนี้: '+prev; }
+    }
+  }catch(e){}
+})();
+
+/* ================= S8: GROUP WORKSHEET (auto-save) ================= */
+(function(){
+  document.querySelectorAll('textarea.wtsave').forEach(function(ta){
+    var key='comsim1_wt_'+ta.dataset.wt;
+    try{ ta.value=localStorage.getItem(key)||''; }catch(e){}
+    ta.addEventListener('input',function(){
+      try{ localStorage.setItem(key,ta.value); }catch(e){}
+    });
+  });
+})();
+
+/* ================= S9: QUIZ (10 ข้อ ครอบคลุม s1–s8) ================= */
 var quizData=[
-  {q:{th:'ข้อใดอธิบาย "หัวใจจริง" ของ simulation ได้ถูกต้อง?',en:'What is the real "core" of a simulation?'},
-   opts:[{th:'แอนิเมชัน 3 มิติที่สวยงาม',en:'A beautiful 3D animation'},
-         {th:'ตรรกะและสถิติที่อยู่ข้างใน',en:'The logic and statistics inside'},
-         {th:'สีสันของกราฟ',en:'The chart colors'},
-         {th:'ความเร็วของคอมพิวเตอร์',en:'The computer speed'}],
-   ans:1,fb:{th:'ถูก! แอนิเมชันเป็นแค่เปลือก หัวใจคือตรรกะ+สถิติ',en:'Right! Animation is the shell; logic + statistics is the core.'}},
+  {q:{th:'ข้อใดตรงกับนิยามของ simulation (Robinson, 2014) และ "หัวใจจริง" ของมัน?',en:'Which best matches the definition of simulation (Robinson, 2014) and its real "core"?'},
+   opts:[{th:'แอนิเมชัน 3 มิติสวยๆ ของระบบจริง',en:'A beautiful 3D animation of the real system'},
+         {th:'การทดลองกับแบบจำลองของระบบจริงบนคอมพิวเตอร์ โดยหัวใจคือตรรกะและสถิติข้างใน',en:'Experimenting with a model of a real system on a computer — the core is the logic & statistics inside'},
+         {th:'การถ่ายวิดีโอระบบจริงมาเปิดดูซ้ำ',en:'Recording the real system and replaying it'},
+         {th:'การคำนวณด้วยสูตรทางคณิตศาสตร์ให้ได้คำตอบเดียว',en:'Computing one exact answer with a formula'}],
+   ans:1,fb:{th:'ถูก! Simulation = ทดลองกับแบบจำลองบนคอมพิวเตอร์โดยปล่อยให้เวลาเดิน — แอนิเมชันเป็นแค่เปลือก หัวใจคือตรรกะ+สถิติ',en:'Right! Simulation = experimenting with a model as time advances — animation is just the shell; logic + statistics is the core.'}},
   {q:{th:'สถานการณ์ใด "ไม่ควร" ใช้ simulation?',en:'When should you NOT use simulation?'},
-   opts:[{th:'ออกแบบคลังสินค้าที่มีความสุ่มซับซ้อน',en:'Designing a warehouse with complex randomness'},
-         {th:'หาว่าเหรียญออกหัวกี่ % (รู้ทฤษฎี 50% แล้ว)',en:'Finding a coin\'s heads % (theory already says 50%)'},
-         {th:'หาคอขวดในสายการผลิต',en:'Finding a production-line bottleneck'},
-         {th:'ทดสอบเลย์เอาต์ใหม่ก่อนลงทุน',en:'Testing a new layout before investing'}],
-   ans:1,fb:{th:'ถูก! ถ้ามีสูตร/คำตอบทฤษฎีอยู่แล้ว ไม่ต้อง simulate',en:'Right! If a formula/theory already answers it, no need to simulate.'}},
-  {q:{th:'ระบบ "แถวคอยธนาคาร" (ลูกค้ามาถึง/บริการ/ออก) จัดเป็นแบบใด?',en:'A bank queue (arrive/serve/leave) is which type?'},
-   opts:[{th:'Continuous',en:'Continuous'},{th:'Discrete Event',en:'Discrete Event'},
-         {th:'ไม่มีความสุ่ม',en:'Deterministic (no randomness)'},{th:'Continuous + ไม่มีเวลา',en:'Continuous & timeless'}],
-   ans:1,fb:{th:'ถูก! สถานะเปลี่ยนเป็นเหตุการณ์ทีละจุด = Discrete Event',en:'Right! State changes at discrete events = Discrete Event.'}},
-  {q:{th:'กฎการหา "เวลาเริ่มบริการ" ของลูกค้าในคิวเคาน์เตอร์เดียวคือ?',en:'Rule for a customer\'s service start time (single server)?'},
-   opts:[{th:'เวลาที่มาถึงเสมอ',en:'Always the arrival time'},
-         {th:'max(เวลาที่มาถึง, เวลาที่คนก่อนหน้าเสร็จ)',en:'max(arrival, previous finish)'},
-         {th:'min(เวลาที่มาถึง, เวลาที่คนก่อนหน้าเสร็จ)',en:'min(arrival, previous finish)'},
-         {th:'เวลาที่คนก่อนหน้ามาถึง',en:'Previous customer\'s arrival'}],
-   ans:1,fb:{th:'ถูก! ต้องรอให้ทั้งตัวเองมาถึง และเคาน์เตอร์ว่าง',en:'Right! Must wait until both arrived AND server is free.'}},
-  {q:{th:'Verify ต่างจาก Validate อย่างไร?',en:'Verify vs Validate?'},
-   opts:[{th:'เหมือนกันทุกอย่าง',en:'They are identical'},
-         {th:'Verify = สร้างถูกไหม (โค้ดตรงแบบ), Validate = สร้างถูกตัวไหม (ตรงโลกจริง)',en:'Verify = built it right (code matches design); Validate = built the right thing (matches reality)'},
-         {th:'Verify = ตรงโลกจริง, Validate = โค้ดตรงแบบ',en:'Verify = matches reality; Validate = code matches design'},
-         {th:'ทั้งคู่ทำหลังรายงานผล',en:'Both happen after reporting'}],
-   ans:1,fb:{th:'ถูก! Verify=สร้างถูกไหม, Validate=สร้างถูกตัวไหม',en:'Right! Verify = right build; Validate = right model.'}},
-  {q:{th:'ทำไม "ผลของ simulation คือตัวแปรสุ่ม" จึงสำคัญ?',en:'Why does "a simulation output is a random variable" matter?'},
-   opts:[{th:'เพราะผลไม่มีความหมาย',en:'Because results are meaningless'},
-         {th:'เพราะผลเปลี่ยนทุกครั้งที่รัน ต้องรันหลายรอบแล้วดูค่าเฉลี่ย',en:'Because it changes each run — we need many runs and look at the average'},
-         {th:'เพราะต้องใช้ค่าเฉลี่ยเป็น input เท่านั้น',en:'Because only the mean can be an input'},
-         {th:'เพราะคอมพิวเตอร์ผิดพลาด',en:'Because the computer errs'}],
-   ans:1,fb:{th:'ถูก! กด F9 หลายครั้งค่าเฉลี่ยนิ่ง แต่ผลรอบเดียวเชื่อไม่ได้',en:'Right! Re-rolling stabilizes the mean; one run alone is unreliable.'}}
+   opts:[{th:'ออกแบบคลังสินค้าที่มีความสุ่มและความสัมพันธ์ซับซ้อน',en:'Designing a warehouse with complex randomness'},
+         {th:'อยากรู้ว่าเหรียญออกหัวกี่ % (ทฤษฎีตอบได้แล้วว่า 50%)',en:'Finding a coin\'s heads % (theory already says 50%)'},
+         {th:'หาคอขวดในสายการผลิตที่มีหลายสถานี',en:'Finding a bottleneck in a multi-station line'},
+         {th:'ทดสอบนโยบายใหม่โดยไม่กระทบระบบจริง',en:'Testing a new policy without disrupting the real system'}],
+   ans:1,fb:{th:'ถูก! ถ้าสูตร/สามัญสำนึกตอบได้อยู่แล้ว การ simulate คือใช้ค้อนทุบมด',en:'Right! If a formula or common sense already answers it, simulation is overkill.'}},
+  {q:{th:'ระบบ "แถวคอยธนาคาร" (ลูกค้ามาถึง → เริ่มบริการ → ออก) จัดเป็นระบบแบบใด เพราะอะไร?',en:'A bank queue (arrive → serve → leave) is which type of system, and why?'},
+   opts:[{th:'Continuous — เพราะเวลาเดินต่อเนื่อง',en:'Continuous — because time flows continuously'},
+         {th:'Discrete event — เพราะสถานะระบบเปลี่ยนเป็นเหตุการณ์ทีละจุดเวลา',en:'Discrete event — because the system state changes at discrete points'},
+         {th:'Continuous — เพราะลูกค้าเดินอย่างต่อเนื่อง',en:'Continuous — because customers walk continuously'},
+         {th:'ไม่ใช่ทั้งสองแบบ',en:'Neither type'}],
+   ans:1,fb:{th:'ถูก! ดูที่ "สถานะระบบ" ไม่ใช่ตัวเวลา — แม้เวลาไหลต่อเนื่อง แต่สถานะ (จำนวนคนในระบบ) กระโดดเป็นจุดๆ เมื่อเกิดเหตุการณ์',en:'Right! Look at the system STATE, not the clock — the state (people in system) jumps at events.'}},
+  {q:{th:'DES กับ DESS ต่างกันอย่างไร?',en:'What is the difference between DES and DESS?'},
+   opts:[{th:'เหมือนกันทุกอย่าง เขียนต่างกันเฉยๆ',en:'Identical — just different spellings'},
+         {th:'DESS = ระบบที่เราศึกษา (สถานะเปลี่ยนเป็นจุดๆ) · DES = เครื่องยนต์/เทคนิคที่รันแบบกระโดดตามเหตุการณ์',en:'DESS = the system we study (state changes at points) · DES = the engine/technique that jumps event-to-event'},
+         {th:'DES ใช้กับระบบ continuous เท่านั้น',en:'DES is only for continuous systems'},
+         {th:'DESS คือซอฟต์แวร์ ส่วน DES คือฮาร์ดแวร์',en:'DESS is software; DES is hardware'}],
+   ans:1,fb:{th:'ถูก! DESS = ระบบที่ศึกษา, DES = เครื่องยนต์ที่ใช้ขับ (กระโดด event-to-event จึงรันเร็ว)',en:'Right! DESS = the system studied; DES = the engine driving it (event-to-event jumps, hence fast).'}},
+  {q:{th:'กฎทองของการหา "เวลาเริ่มบริการ" ในคิวเคาน์เตอร์เดียวคือข้อใด?',en:'The golden rule for a customer\'s service START time (single server)?'},
+   opts:[{th:'เริ่ม = เวลาที่มาถึงเสมอ',en:'Start = arrival time, always'},
+         {th:'เริ่ม = max(เวลาที่มาถึง, เวลาที่คนก่อนหน้าเสร็จ)',en:'Start = max(arrival, previous finish)'},
+         {th:'เริ่ม = min(เวลาที่มาถึง, เวลาที่คนก่อนหน้าเสร็จ)',en:'Start = min(arrival, previous finish)'},
+         {th:'เริ่ม = เวลาที่คนก่อนหน้ามาถึง + เวลาบริการ',en:'Start = previous arrival + service time'}],
+   ans:1,fb:{th:'ถูก! ต้องครบ 2 เงื่อนไข: ตัวเองมาถึงแล้ว และเคาน์เตอร์ว่างแล้ว — เหมือนลูกค้าคนที่ 4 ในตาราง (มาถึง 7 แต่ต้องรอถึง 9)',en:'Right! Both must hold: you have arrived AND the server is free — like customer 4 in the table (arrives at 7, waits until 9).'}},
+  {q:{th:'Verify ต่างจาก Validate อย่างไร ในวงจรการทำ simulation?',en:'In the simulation lifecycle, Verify vs Validate?'},
+   opts:[{th:'เหมือนกัน ใช้แทนกันได้',en:'The same — interchangeable'},
+         {th:'Verify = "สร้างถูกไหม" (โค้ดตรงแบบที่ออกแบบ) · Validate = "สร้างถูกตัวไหม" (โมเดลตรงโลกจริง)',en:'Verify = "built it right?" (code matches design) · Validate = "built the right thing?" (model matches reality)'},
+         {th:'Verify = โมเดลตรงโลกจริง · Validate = โค้ดตรงแบบ',en:'Verify = matches reality · Validate = code matches design'},
+         {th:'ทั้งสองทำครั้งเดียวตอนจบโครงการ',en:'Both are done once, at project end'}],
+   ans:1,fb:{th:'ถูก! และถ้าไม่ผ่าน ต้อง "วนกลับ" ไปแก้โมเดล — วงจรนี้ iterative ไม่ใช่เส้นตรง (ครั้งที่ 4 และ 5 ของวิชา)',en:'Right! And on failure you LOOP BACK to fix the model — the cycle is iterative, not linear (Sessions 4 & 5).'}},
+  {q:{th:'จากกรณี Baily\'s Bank ถ้าลูกค้าเพิ่มขึ้น 10% (30→33 คน/ชม.) เวลารอโดยเฉลี่ยมักจะเป็นอย่างไร?',en:'In Baily\'s Bank, if arrivals rise 10% (30→33/h), average waiting usually...?'},
+   opts:[{th:'เพิ่มขึ้นประมาณ 10% ตามสัดส่วน',en:'Rises about 10%, proportionally'},
+         {th:'เพิ่มขึ้น "มากกว่า" 10% เพราะระบบใกล้เต็มกำลัง ผลไม่เป็นเส้นตรง',en:'Rises MORE than 10% — the system nears capacity; the effect is nonlinear'},
+         {th:'เท่าเดิม เพราะพนักงานเท่าเดิม',en:'Unchanged — same number of tellers'},
+         {th:'ลดลง เพราะพนักงานทำงานเร็วขึ้น',en:'Falls — tellers speed up'}],
+   ans:1,fb:{th:'ถูก! นี่คือเหตุผลที่ต้องใช้ simulation ไม่ใช่บัญญัติไตรยางศ์ — ยิ่งใกล้เต็มกำลัง เวลารอยิ่งพุ่งแบบไม่เป็นเส้นตรง',en:'Right! This is why we simulate instead of using simple proportion — near capacity, waiting explodes nonlinearly.'}},
+  {q:{th:'Monte Carlo simulation คืออะไร และชื่อนี้มาจากไหน?',en:'What is Monte Carlo simulation, and where does the name come from?'},
+   opts:[{th:'วิธีแก้สมการแบบแม่นตรง ตั้งชื่อตามนักคณิตศาสตร์ชาวฝรั่งเศส',en:'An exact equation-solving method, named after a French mathematician'},
+         {th:'การหาคำตอบด้วยการสุ่มตัวเลขซ้ำจำนวนมากแล้วดูค่าเฉลี่ย/สัดส่วน ตั้งชื่อตามคาสิโนเมืองมอนติคาร์โล',en:'Solving by drawing many random samples and reading the average/proportion — named after the Monte Carlo casino'},
+         {th:'โปรแกรม Excel รุ่นแรกที่ใช้สุ่มตัวเลข',en:'The first Excel version with random numbers'},
+         {th:'เทคนิคการเดินสำรวจระบบจริง (walk-through)',en:'A technique for walking through real systems'}],
+   ans:1,fb:{th:'ถูก! อาศัย "ความสุ่ม" เหมือนเกมพนัน จึงตั้งชื่อตามคาสิโนโมนาโก — ใน Lab เราใช้ RANDBETWEEN และ NORM.INV(RAND(),...)',en:'Right! It relies on "chance" like gambling, hence the Monaco casino name — in the lab we used RANDBETWEEN and NORM.INV(RAND(),...).'}},
+  {q:{th:'"ผลของ simulation คือตัวแปรสุ่ม" — ประโยคนี้มีความหมายเชิงปฏิบัติว่าอย่างไร?',en:'"A simulation\'s output is a random variable" — what does this mean in practice?'},
+   opts:[{th:'ผลรันครั้งเดียวเชื่อถือได้เลย',en:'One run is trustworthy enough'},
+         {th:'ผลเปลี่ยนทุกครั้งที่รัน (กด F9) จึงต้องรันหลายรอบแล้วสรุปจากค่าเฉลี่ย/การกระจาย',en:'Results change every run (press F9) — so run many replications and summarize with the mean/distribution'},
+         {th:'ต้องใช้ค่าเฉลี่ยเป็น input เพียงค่าเดียว',en:'Inputs must be a single average value'},
+         {th:'คอมพิวเตอร์คำนวณผิดพลาดเสมอ',en:'Computers always miscalculate'}],
+   ans:1,fb:{th:'ถูก! กด F9 ใน Lab — ตัวเลขเปลี่ยนทุกครั้ง แต่ค่าเฉลี่ย 1,000 วันค่อนข้างนิ่ง และ input ก็ต้องเป็น "การแจกแจง" ไม่ใช่แค่ค่าเฉลี่ย (ต่อครั้งที่ 2)',en:'Right! Press F9 — numbers change, but the 1,000-day mean stays stable; inputs must be DISTRIBUTIONS, not just averages (see Session 2).'}},
+  {q:{th:'กลุ่มของคุณ walk-through โรงอาหาร: นักศึกษามาต่อคิวซื้อข้าว มีแม่ครัว 2 คนตักอาหาร — ข้อใดจับคู่องค์ประกอบของแบบจำลองแนวคิดได้ถูกต้อง?',en:'Your group walks through a canteen: students queue for food, 2 cooks serve — which mapping of conceptual-model components is correct?'},
+   opts:[{th:'Entity = แม่ครัว · ทรัพยากร = นักศึกษา · KPI = จำนวนเมนู',en:'Entity = cooks · Resource = students · KPI = number of menu items'},
+         {th:'Entity = นักศึกษาที่มาต่อคิว · ทรัพยากร = แม่ครัว 2 คน · KPI = เวลารอเฉลี่ย',en:'Entity = queueing students · Resource = the 2 cooks · KPI = average waiting time'},
+         {th:'Entity = โต๊ะอาหาร · ทรัพยากร = ข้าว · KPI = ราคาอาหาร',en:'Entity = tables · Resource = rice · KPI = food price'},
+         {th:'Entity = เวลารอ · ทรัพยากร = คิว · KPI = แม่ครัว',en:'Entity = waiting time · Resource = the queue · KPI = cooks'}],
+   ans:1,fb:{th:'ถูก! Entity = สิ่งที่ไหลผ่านระบบ (นักศึกษา) · ทรัพยากร = ผู้ให้บริการ (แม่ครัว) · KPI = ตัวชี้วัดที่อยากปรับปรุง (เวลารอ) — และจำไว้: โมเดลควร "เรียบง่ายพอที่จะตอบคำถาม KPI ได้"',en:'Right! Entity = what flows (students) · Resource = who serves (cooks) · KPI = what to improve (waiting time) — and keep the model "simple enough to answer the KPI question".'}}
 ];
 (function(){
   var box=document.getElementById('quiz');
   quizData.forEach(function(item,qi){
     var d=document.createElement('div');d.className='q';
     var h='<div class="qh"><span class="th-block">'+(qi+1)+'. '+item.q.th+'</span><span class="en-block">'+(qi+1)+'. '+item.q.en+'</span></div>';
-    item.opts.forEach(function(o,oi){
+    var order=item.opts.map(function(_,oi){return oi;});
+    for(var k=order.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1));var t=order[k];order[k]=order[j];order[j]=t;}
+    order.forEach(function(oi){
+      var o=item.opts[oi];
       h+='<button class="opt" data-q="'+qi+'" data-o="'+oi+'"><span class="th-block">'+o.th+'</span><span class="en-block">'+o.en+'</span></button>';
     });
     h+='<div class="fb" id="fb'+qi+'"></div>';
