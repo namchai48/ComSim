@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computer Simulation I — ครั้งที่ 1 (Interactive)</title>
+<style>
+  :root{
+    --navy:#0f2c4d; --blue:#1f5f8b; --teal:#2a9d8f; --amber:#e9a93f; --red:#d9534f;
+    --bg:#eef2f6; --card:#fff; --line:#dfe5ec; --ink:#1c2733; --muted:#5b6b7b;
+    --soft:#eef7f5; --warn:#fdecea; --code-bg:#0f2330;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:"Segoe UI","Sarabun",Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;}
+  a{color:var(--blue);}
+  /* progress bar */
+  #progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--teal),var(--amber));z-index:200;transition:width .1s;}
+  /* nav */
+  nav{position:fixed;top:0;left:0;right:0;background:rgba(15,44,77,.97);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;gap:6px;padding:8px 14px;overflow-x:auto;box-shadow:0 2px 10px rgba(0,0,0,.15);}
+  nav .brand{color:#fff;font-weight:800;font-size:.95rem;margin-right:10px;white-space:nowrap;}
+  nav a{color:#cdd9e5;text-decoration:none;font-size:.82rem;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:.15s;}
+  nav a:hover,nav a.active{background:var(--teal);color:#fff;}
+  nav .langbtn{margin-left:auto;background:var(--amber);color:var(--navy);border:none;font-weight:800;border-radius:7px;padding:6px 12px;cursor:pointer;font-size:.82rem;white-space:nowrap;}
+  header.hero{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:80px 24px 46px;text-align:center;}
+  header.hero h1{margin:0 0 8px;font-size:2.1rem;}
+  header.hero .sub{opacity:.92;font-size:1.05rem;margin:2px 0;}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px;}
+  .badge{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 15px;font-size:.86rem;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px;}
+  section{padding:44px 0 20px;border-bottom:1px solid var(--line);}
+  section h2{font-size:1.55rem;color:var(--navy);margin:0 0 4px;display:flex;align-items:center;gap:12px;}
+  section h2 .num{background:var(--teal);color:#fff;width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem;flex:0 0 auto;}
+  section .lead{color:var(--muted);margin:0 0 18px;font-size:1rem;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin:16px 0;box-shadow:0 1px 4px rgba(15,44,77,.04);}
+  h3{color:var(--blue);font-size:1.12rem;margin:20px 0 8px;}
+  .en{color:var(--muted);font-style:italic;font-size:.92em;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr;}}
+  .tag{display:inline-block;font-size:.72rem;background:#eef3f8;color:var(--blue);border-radius:6px;padding:2px 9px;font-weight:700;}
+  .pillrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .note{border-radius:10px;padding:12px 16px;margin:10px 0;font-size:.95rem;}
+  .note.tip{background:var(--soft);border-left:4px solid var(--teal);}
+  .note.warn{background:var(--warn);border-left:4px solid var(--red);}
+  .note.ask{background:#eef3fb;border-left:4px solid var(--blue);}
+  .note .lb{font-weight:800;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px;}
+  .note.tip .lb{color:var(--teal);}.note.warn .lb{color:var(--red);}.note.ask .lb{color:var(--blue);}
+  button.act{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:.92rem;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;}
+  button.act:hover{background:var(--navy);}
+  button.act.amber{background:var(--amber);color:var(--navy);}
+  button.act.amber:hover{background:#d8963a;}
+  button.act.teal{background:var(--teal);}button.act.teal:hover{background:#218a7d;}
+  button.act:disabled{opacity:.45;cursor:not-allowed;}
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin:14px 0;}
+  .ctl{display:flex;flex-direction:column;gap:4px;font-size:.85rem;}
+  .ctl label{font-weight:700;color:var(--navy);}
+  .ctl input[type=range]{width:170px;accent-color:var(--teal);}
+  .ctl .val{color:var(--blue);font-weight:800;}
+  table.sim{width:100%;border-collapse:collapse;font-size:.86rem;margin:12px 0;background:#fff;}
+  table.sim th,table.sim td{border:1px solid var(--line);padding:7px 8px;text-align:center;}
+  table.sim th{background:var(--navy);color:#fff;font-weight:600;font-size:.8rem;}
+  table.sim td.hl{background:#fff5e0;font-weight:800;color:#9a6b14;}
+  table.sim tr.dim td{opacity:.28;}
+  table.sim tr.cur td{background:#e7f5f2;}
+  .statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:14px 0;}
+  .stat{background:var(--navy);color:#fff;border-radius:12px;padding:14px;text-align:center;}
+  .stat .k{font-size:1.7rem;font-weight:800;line-height:1.1;}
+  .stat .l{font-size:.78rem;opacity:.85;margin-top:3px;}
+  canvas{max-width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;}
+  .chartwrap{margin:12px 0;}
+  .figrow{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:16px 0 4px;}
+  @media(max-width:640px){.figrow{grid-template-columns:1fr;}}
+  .figrow figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(15,44,77,.05);transition:.15s;}
+  .figrow figure:hover{border-color:var(--teal);box-shadow:0 6px 18px rgba(42,157,143,.15);transform:translateY(-2px);}
+  .figrow img{display:block;width:100%;height:170px;object-fit:cover;background:#eef2f6;}
+  .figrow figcaption{padding:9px 13px;font-size:.82rem;line-height:1.45;color:var(--muted);border-top:1px solid var(--line);}
+  .figrow figcaption strong{color:var(--navy);}
+  pre{background:var(--code-bg);color:#e6edf3;border-radius:10px;padding:14px 16px;overflow-x:auto;font-family:Consolas,monospace;font-size:.82rem;line-height:1.55;}
+  pre .c{color:#7fae6b;}pre .k{color:#ff9d6b;}pre .s{color:#9cd6ff;}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:14px 0;}
+  .flow .step{background:#fff;border:2px solid var(--line);border-radius:10px;padding:8px 12px;font-size:.82rem;font-weight:600;position:relative;flex:1 1 120px;text-align:center;cursor:default;transition:.2s;}
+  .flow .step.q{border-color:var(--amber);background:#fff8ec;}
+  .flow .step:hover{border-color:var(--teal);transform:translateY(-2px);box-shadow:0 4px 12px rgba(42,157,143,.2);}
+  .flow .arrow{align-self:center;color:var(--muted);font-weight:800;}
+  .en-block{display:none;}
+  body.en .th-block{display:none;}
+  body.en .en-block{display:block;}
+  body.en .en-inline{display:inline;}
+  /* quiz */
+  .quiz .q{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;}
+  .quiz .q .qh{font-weight:700;margin-bottom:10px;}
+  .quiz .opt{display:block;width:100%;text-align:left;background:#f7f9fb;border:1.5px solid var(--line);border-radius:9px;padding:10px 14px;margin:6px 0;cursor:pointer;font-size:.92rem;font-family:inherit;transition:.12s;}
+  .quiz .opt:hover{border-color:var(--blue);}
+  .quiz .opt.correct{background:#e6f6ee;border-color:var(--teal);color:#166b56;font-weight:700;}
+  .quiz .opt.wrong{background:#fdeaea;border-color:var(--red);color:#a23;}
+  .quiz .fb{font-size:.88rem;margin-top:8px;padding:8px 12px;border-radius:8px;background:var(--soft);display:none;}
+  .quiz .fb.show{display:block;}
+  .scoreband{background:var(--navy);color:#fff;border-radius:12px;padding:16px;text-align:center;font-weight:700;margin-top:10px;display:none;}
+  .qz-submit-wrap{margin-top:14px;text-align:center;display:none;}
+  .qz-msg{margin-top:10px;font-weight:700;font-size:.88rem;min-height:20px;}
+  .qz-msg.ok{color:#166b56;}
+  .qz-msg.err{color:var(--red);}
+  footer{background:var(--navy);color:#cdd9e5;padding:30px 24px;font-size:.9rem;text-align:center;}
+  .legend{font-size:.8rem;color:var(--muted);margin-top:4px;}
+  /* note box */
+  .notebox{background:#fffdf6;border:1.5px dashed var(--amber);border-radius:12px;padding:14px 16px;margin:18px 0 4px;}
+  .notebox .nhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .notebox label{font-weight:800;color:#9a6b14;font-size:.92rem;}
+  .notebox .savemark{font-size:.76rem;color:var(--muted);font-weight:700;transition:.2s;}
+  .notebox .savemark.ok{color:var(--teal);}
+  .notebox textarea{width:100%;min-height:80px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:.95rem;line-height:1.6;color:var(--ink);background:#fff;}
+  .notebox textarea:focus{outline:2px solid var(--amber);border-color:var(--amber);}
+  .notetools{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 4px;}
+  .notetools button{background:rgba(255,255,255,.13);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:8px 16px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  .notetools button:hover{background:rgba(255,255,255,.25);}
+  /* ===== OVERVIEW / LANDING PAGE ===== */
+  #overview{display:none;}
+  body.landing #overview{display:block;}
+  body.landing nav,body.landing #progress,body.landing header.hero,body.landing .wrap,body.landing footer{display:none;}
+  .ov-hero{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:54px 24px 46px;text-align:center;position:relative;}
+  .ov-hero .kicker{text-transform:uppercase;letter-spacing:2px;font-size:.8rem;opacity:.85;font-weight:700;}
+  .ov-hero h1{margin:8px 0 4px;font-size:2.3rem;}
+  .ov-hero .th-title{font-size:1.15rem;opacity:.95;margin:2px 0;}
+  .ov-hero .desc{max-width:760px;margin:14px auto 0;opacity:.9;font-size:.95rem;line-height:1.7;}
+  .ov-lang{position:absolute;top:16px;right:18px;background:var(--amber);color:var(--navy);border:none;font-weight:800;border-radius:7px;padding:7px 13px;cursor:pointer;font-size:.82rem;}
+  .ov-qr{position:absolute;top:14px;left:16px;background:#fff;border-radius:10px;padding:7px 7px 4px;box-shadow:0 4px 14px rgba(0,0,0,.22);text-align:center;line-height:1;text-decoration:none;}
+  .ov-qr img{width:78px;height:78px;display:block;image-rendering:pixelated;border-radius:4px;}
+  .ov-qr small{display:block;color:var(--navy);font-size:.6rem;font-weight:800;margin-top:3px;letter-spacing:.2px;}
+  @media(max-width:560px){.ov-qr img{width:56px;height:56px;}.ov-qr small{font-size:.52rem;}}
+  .ov-wrap{max-width:960px;margin:0 auto;padding:0 20px 50px;}
+  .ov-sec{margin:34px 0;}
+  .ov-sec h2{font-size:1.4rem;color:var(--navy);border-left:5px solid var(--teal);padding-left:12px;margin:0 0 16px;}
+  /* instructor card */
+  .instructor{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px 28px;margin-top:-40px;position:relative;box-shadow:0 8px 30px rgba(15,44,77,.12);}
+  .instructor .role{color:var(--teal);font-weight:800;font-size:.82rem;text-transform:uppercase;letter-spacing:1px;}
+  .instructor .who{display:flex;align-items:center;gap:14px;margin:6px 0 2px;}
+  .instructor .who .av{font-size:2.4rem;line-height:1;}
+  .instructor .who h3{margin:0;font-size:1.7rem;color:var(--navy);}
+  .instructor .aff{color:var(--muted);font-size:1rem;margin:2px 0 18px;}
+  .instructor .aff a{color:var(--blue);font-weight:600;}
+  .inst-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:680px){.inst-grid{grid-template-columns:1fr;}}
+  .inst-box{background:#f7faf9;border:1px solid var(--line);border-radius:12px;padding:15px 18px;}
+  .inst-box b{display:block;color:var(--navy);font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+  .inst-box.desc-box{grid-column:1/-1;background:#eef3fb;}
+  /* roadmap timeline */
+  .roadmap{display:flex;flex-direction:column;gap:12px;}
+  .rm-item{display:flex;gap:16px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;align-items:flex-start;transition:.15s;}
+  .rm-item:hover{border-color:var(--teal);box-shadow:0 4px 14px rgba(42,157,143,.12);}
+  .rm-item.current{border:2px solid var(--amber);background:#fffdf5;}
+  .rm-num{flex:0 0 auto;width:46px;height:46px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;font-size:1.15rem;display:flex;align-items:center;justify-content:center;}
+  .rm-item.current .rm-num{background:var(--amber);color:var(--navy);}
+  .rm-body{flex:1;}
+  .rm-body h4{margin:0 0 3px;color:var(--navy);font-size:1.02rem;}
+  .rm-body .rm-meta{font-size:.82rem;color:var(--muted);}
+  .rm-tool{display:inline-block;font-size:.72rem;font-weight:700;color:#fff;border-radius:20px;padding:2px 10px;margin-left:6px;background:var(--blue);}
+  .rm-tool.excel{background:#217346;}.rm-tool.py{background:#3776ab;}.rm-tool.simio{background:#b3531d;}
+  .rm-badge{flex:0 0 auto;align-self:center;font-size:.72rem;font-weight:800;color:var(--navy);background:var(--amber);border-radius:20px;padding:3px 11px;}
+  /* grading */
+  .grade-wrap{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 24px;}
+  .grade-row{display:flex;align-items:center;gap:14px;margin:12px 0;}
+  .grade-row .glabel{flex:0 0 210px;font-weight:600;font-size:.92rem;}
+  @media(max-width:560px){.grade-row .glabel{flex:0 0 130px;font-size:.82rem;}}
+  .grade-bar{flex:1;background:#eef2f6;border-radius:20px;height:26px;overflow:hidden;position:relative;}
+  .grade-bar span{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,var(--teal),var(--blue));display:flex;align-items:center;justify-content:flex-end;color:#fff;font-weight:800;font-size:.8rem;padding-right:10px;min-width:34px;}
+  .grade-row:nth-child(2) .grade-bar span{background:linear-gradient(90deg,var(--amber),#d8963a);color:var(--navy);}
+  .grade-row:nth-child(5) .grade-bar span{background:linear-gradient(90deg,#7b5ea7,var(--blue));}
+  .enter-btn{display:block;width:100%;max-width:460px;margin:36px auto 0;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff;border:none;border-radius:14px;padding:20px;font-size:1.15rem;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 6px 22px rgba(31,95,139,.3);transition:.18s;}
+  .enter-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(31,95,139,.4);}
+  .enter-btn small{display:block;font-weight:500;opacity:.9;font-size:.82rem;margin-top:4px;}
+  .backbtn{background:rgba(255,255,255,.13)!important;border:1px solid rgba(255,255,255,.3)!important;}
+  /* check-in */
+  .checkin{background:linear-gradient(135deg,#f0fbf8,#eef3fb);border:2px solid var(--teal);border-radius:16px;padding:22px 24px;margin-top:22px;}
+  .checkin h3{margin:0 0 4px;color:var(--navy);font-size:1.2rem;}
+  .checkin .ci-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;}
+  .checkin .ci-field{flex:1 1 240px;display:flex;flex-direction:column;gap:5px;}
+  .checkin label{font-weight:700;font-size:.85rem;color:var(--navy);}
+  .checkin input,.checkin select{padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:.95rem;background:#fff;width:100%;}
+  .checkin input:focus,.checkin select:focus{outline:2px solid var(--teal);border-color:var(--teal);}
+  .checkin .ci-submit{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:13px 26px;font-weight:800;font-size:1rem;cursor:pointer;font-family:inherit;margin-top:14px;}
+  .checkin .ci-submit:hover{background:#218a7d;}
+  .checkin .ci-submit:disabled{opacity:.5;cursor:not-allowed;}
+  .checkin .ci-msg{margin-top:10px;font-weight:700;font-size:.92rem;min-height:20px;}
+  .checkin .ci-msg.ok{color:#166b56;}.checkin .ci-msg.err{color:var(--red);}
+  /* group worksheet */
+  .wt-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;}
+  @media(max-width:680px){.wt-grid{grid-template-columns:1fr;}}
+  .wt-f{display:flex;flex-direction:column;gap:5px;}
+  .wt-f.full{grid-column:1/-1;}
+  .wt-f label{font-weight:700;font-size:.85rem;color:var(--navy);}
+  .wt-f textarea{border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-family:inherit;font-size:.92rem;resize:vertical;min-height:46px;background:#fff;color:var(--ink);}
+  .wt-f textarea:focus{outline:2px solid var(--amber);border-color:var(--amber);}
+  /* ===== PAGED / SLIDE MODE (หัวข้อละหน้า) ===== */
+  body.paged header.hero{display:none;}
+  body.paged .wrap{max-width:960px;padding-top:64px;padding-bottom:104px;min-height:100vh;}
+  body.paged .wrap > section{display:none;border-bottom:none;padding:26px 0 24px;}
+  body.paged .wrap > section.active{display:block;animation:slideIn .34s ease;}
+  @keyframes slideIn{from{opacity:0;transform:translateX(22px);}to{opacity:1;transform:none;}}
+  /* bottom pager bar */
+  #pager{position:fixed;left:0;right:0;bottom:0;z-index:120;display:none;align-items:center;justify-content:center;gap:16px;padding:11px 16px;background:rgba(15,44,77,.97);backdrop-filter:blur(6px);box-shadow:0 -2px 14px rgba(0,0,0,.2);}
+  body.paged:not(.landing) #pager{display:flex;}
+  #pager button{background:var(--teal);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:.95rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s;min-width:120px;}
+  #pager button:hover:not(:disabled){background:#218a7d;transform:translateY(-1px);}
+  #pager button:disabled{opacity:.32;cursor:not-allowed;}
+  #pager .pginfo{color:#fff;font-weight:700;font-size:.92rem;min-width:150px;text-align:center;}
+  #pager .pginfo b{color:var(--amber);font-size:1.05rem;}
+  @media(max-width:560px){#pager button{min-width:88px;padding:11px 12px;font-size:.86rem;}#pager .pginfo{min-width:96px;font-size:.82rem;}}
+  /* graceful placeholder for missing figure images */
+  .figrow img.imgmiss{display:flex;align-items:center;justify-content:center;font-size:2rem;color:#9fb0c0;background:repeating-linear-gradient(45deg,#eef2f6,#eef2f6 10px,#e6ecf2 10px,#e6ecf2 20px);}
+</style>
+</head>
+<body class="th landing paged">
+
+<!-- ===================== OVERVIEW / LANDING ===================== -->
+<div id="overview">
+  <div class="ov-hero">
+    <button class="ov-lang" onclick="toggleLang()" id="ovlang">EN</button>
+    <a class="ov-qr" href="https://namchai48.github.io/ComSim/class1" target="_blank" rel="noopener" title="เปิดบทเรียนครั้งที่ 1 / Open Session 1">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAACECAIAAADeJhTwAAADK0lEQVR4nO2dwXHcMAwA40wKSCNpJcW6lTSSDs7P8IMxMACklbP7NUXRtwNCJEXq7fV6fRMG3+9ugPxDGSCUAUIZIJQBQhkglAHiR/SHn79+j9/s75/3T+ufKhOVr7L9O5wYGSCUAUIZIMKccbLR50Z1nuWj3BCVydy307bt3GNkgFAGCGWASOWMk+3n+o06q7mhU2enfiMDhDJAKANEOWdMEY0VqvNOGTrjlSsxMkAoA4QyQNyWMyKm1jAyEPLEiZEBQhkglAGinDM2+tmp9YnMeCJTZ+Z/3PgdjAwQygChDBCpnLHx7tBJ1Ndn1qI7uaRaz/bvYGSAUAYIZYAIc8aV8zadfjyimocy9WxjZIBQBghlgEjtz8j0m1f2+5ky1TmujTZH93V/xgNQBghlgBh717Y6j9R53p9632lq7uukk2+MDBDKAKEMEOW5qeo6c4aNMcpJps6pvYcR7ul7GMoAoQwQrbmp6jP+lTkguu9ULpxaVz8xMkAoA4QyQKzsA6/W0+lnp8Yl2+/dZsoYGSCUAUIZIN6is9Cn1pMjOnNBUflOvonwjML/FGWAUAaI1HpGZ835rnWOqfepojoz11bbbGSAUAYIZYBIjTMyTO1j2FhbrlJdq5gahxkZIJQBQhkgwpxxQpuDqpafGq9UqeY/IwOEMkAoA0R5nLF9Jnm1f6etZ1TbfGJkgFAGCGWAKO/PmBoHRGW231PaaE/mWtczHoYyQCgDRGpu6qQ6j7+x5py515VnlmTalrnWyAChDBDKANFaAyecK9Vpz5Xf5PC8qYehDBDKADF2rm1nDqczdrlrH9/GN/6MDBDKAKEMEKmzQ6aonkFSPRtqak5sqk6/B/5glAFCGSBSZ4dc+a5Upg3VMcfUfFembR2MDBDKAKEMECvnTV25byPD1DgmYmqeysgAoQwQygBRzhlTTOWV6jzV9j6+DkYGCGWAUAaI23JGRKav75znsTGOmVr7MTJAKAOEMkCUc8bGM/jUsz8hH/j9jC+CMkAoA0QqZ2y8Q7V9FuHUd1uvPLfKyAChDBDKAFHeBy57GBkglAFCGSCUAUIZIJQBQhkgPgDW3gV3KjiERAAAAABJRU5ErkJggg==" alt="QR: namchai48.github.io/ComSim/class1">
+      <small class="th-block">สแกนเปิด<br>บนมือถือ</small><small class="en-block">Scan on<br>mobile</small>
+    </a>
+    <div class="kicker">Computer Simulation I · Faculty of Logistics</div>
+    <h1>การจำลองสถานการณ์ทางคอมพิวเตอร์</h1>
+    <p class="th-title th-block">ภาพรวมรายวิชา · 6 ครั้งเรียน · เครื่องมือ Excel + Python (SimPy)</p>
+    <p class="th-title en-block">Course Overview · 6 sessions · Tools: Excel + Python (SimPy)</p>
+    <p class="desc th-block">โครงสร้างและแนวคิดการจำลองสถานการณ์ องค์ประกอบการจำลองสถานการณ์ การสร้างแบบจำลองพื้นฐาน การสร้างแบบจำลองที่ซับซ้อน การวิเคราะห์ปัจจัยที่เกี่ยวข้อง การวิเคราะห์ผลการจำลอง การออกแบบการทดลองและการเพิ่มประสิทธิภาพ การสร้างและการจำลองเพื่อวิเคราะห์กรณีศึกษา การปรับปรุงประสิทธิภาพระบบโซ่อุปทานโดยการจำลองสถานการณ์</p>
+    <p class="desc en-block">Structures and concepts of simulation, component of simulation, basic simulation modeling, modeling complex systems; input analysis, output analysis, experimental design and optimization; building and analyzing simulation for real world; improving performance of supply chain system using the developed simulation</p>
+  </div>
+
+  <div class="ov-wrap">
+    <!-- Instructor -->
+    <div class="instructor">
+      <div class="role th-block">ผู้สอน</div><div class="role en-block">Instructor</div>
+      <div class="who"><span class="av">🧑‍🏫</span><h3>Namchai Sokai (P'Jack)</h3></div>
+      <div class="aff">Lecturer, Faculty of Logistics — Burapha University · <a href="mailto:namchai.so@go.buu.ac.th">namchai.so@go.buu.ac.th</a></div>
+      <div class="inst-grid">
+        <div class="inst-box">
+          <b class="th-block">การศึกษา</b><b class="en-block">Education</b>
+          <span class="th-block">วท.บ. วิศวกรรมซอฟต์แวร์ · วท.ม. การจัดการโลจิสติกส์และโซ่อุปทาน — ม.บูรพา</span>
+          <span class="en-block">B.Sc. Software Engineering · M.Sc. Logistics &amp; Supply Chain Management — Burapha University</span>
+        </div>
+        <div class="inst-box">
+          <b class="th-block">ประสบการณ์ต่างประเทศ</b><b class="en-block">International Experience</b>
+          <span>IIPP, Lean Smart Manufacturing Lab — National Formosa University, <span class="th-block">ไต้หวัน</span><span class="en-block">Taiwan</span></span>
+        </div>
+        <div class="inst-box desc-box">
+          <b class="th-block">คำอธิบายรายวิชา</b><b class="en-block">Course Description</b>
+          <span class="th-block">โครงสร้างและแนวคิดการจำลองสถานการณ์ องค์ประกอบการจำลองสถานการณ์ การสร้างแบบจำลองพื้นฐาน การสร้างแบบจำลองที่ซับซ้อน การวิเคราะห์ปัจจัยที่เกี่ยวข้อง การวิเคราะห์ผลการจำลอง การออกแบบการทดลองและการเพิ่มประสิทธิภาพ การสร้างและการจำลองเพื่อวิเคราะห์กรณีศึกษา การปรับปรุงประสิทธิภาพระบบโซ่อุปทานโดยการจำลองสถานการณ์</span>
+          <span class="en-block">Structures and concepts of simulation, component of simulation, basic simulation modeling, modeling complex systems; input analysis, output analysis, experimental design and optimization; building and analyzing simulation for real world; improving performance of supply chain system using the developed simulation</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Check-in -->
+    <div class="checkin">
+      <h3 class="th-block">✅ เช็คชื่อเข้าเรียน</h3><h3 class="en-block">✅ Class Check-in</h3>
+      <p style="margin:2px 0 0;color:var(--muted);font-size:.9rem"><span class="th-block">กรอกอีเมลและเลือกชื่อของคุณ แล้วกดส่ง — ข้อมูลจะถูกส่งเข้า Google Form ของอาจารย์ทันที</span><span class="en-block">Enter your email, pick your name, and submit — it goes straight to the instructor's Google Form.</span></p>
+      <div class="ci-row">
+        <div class="ci-field">
+          <label class="th-block">อีเมล / Email *</label><label class="en-block">Email *</label>
+          <input type="email" id="ci_email" placeholder="you@go.buu.ac.th" autocomplete="email">
+        </div>
+        <div class="ci-field">
+          <label class="th-block">เลือกชื่อ–รหัสนิสิต / Your name *</label><label class="en-block">Select your name *</label>
+          <select id="ci_student"><option value="">— เลือก / select —</option></select>
+        </div>
+      </div>
+      <button class="ci-submit" id="ci_btn" onclick="submitCheckin()"><span class="th-block">📩 ส่งเช็คชื่อ</span><span class="en-block">📩 Submit check-in</span></button>
+      <div class="ci-msg" id="ci_msg"></div>
+      <iframe name="ci_target" id="ci_target" style="display:none" title="hidden"></iframe>
+      <form id="ci_form" action="https://docs.google.com/forms/d/e/1FAIpQLSdVkxEOnDC2wWpSK036kryzAGKiKoYsnpYelF4d2GrDNp44hA/formResponse" method="POST" target="ci_target" style="display:none">
+        <input type="hidden" name="emailAddress" id="ci_f_email">
+        <input type="hidden" name="entry.1463252013" id="ci_f_student">
+        <input type="hidden" name="fvv" value="1">
+        <input type="hidden" name="pageHistory" value="0">
+      </form>
+    </div>
+
+    <!-- Roadmap -->
+    <div class="ov-sec">
+      <h2 class="th-block">🗺️ แผนการเรียน 6 ครั้ง</h2><h2 class="en-block">🗺️ Course Roadmap — 6 Sessions</h2>
+      <div class="roadmap" id="roadmap"></div>
+    </div>
+
+    <!-- Grading -->
+    <div class="ov-sec">
+      <h2 class="th-block">📊 เกณฑ์การให้คะแนน</h2><h2 class="en-block">📊 Grading</h2>
+      <div class="grade-wrap" id="gradeWrap"></div>
+    </div>
+
+    <button class="enter-btn" onclick="enterLesson()">
+      <span class="th-block">▶ เข้าสู่บทเรียน — ครั้งที่ 1</span><span class="en-block">▶ Enter the Lesson — Session 1</span>
+      <small class="th-block">รู้จักการจำลองสถานการณ์ &amp; Monte Carlo</small><small class="en-block">Introduction to Simulation &amp; Monte Carlo</small>
+    </button>
+  </div>
+</div>
+
+<div id="progress"></div>
+<nav id="nav">
+  <span class="brand">🖥️ Com Sim I</span>
+  <a href="#" onclick="showOverview();return false;">🏠 ภาพรวม</a>
+  <a href="#s1">แนวคิด</a>
+  <a href="#s2">ทำไม/เมื่อไร</a>
+  <a href="#s3">Discrete/Continuous</a>
+  <a href="#s4">จำลองแถวคอย</a>
+  <a href="#s5">วงจร</a>
+  <a href="#s6">ธนาคาร</a>
+  <a href="#s7">Monte Carlo</a>
+  <a href="#s8">Walk-through</a>
+  <a href="#s9">Quiz</a>
+  <button class="langbtn" onclick="toggleLang()" id="langbtn">EN</button>
+</nav>
+
+<header class="hero">
+  <h1>Computer Simulation I</h1>
+  <p class="sub th-block">ครั้งที่ 1 — รู้จักการจำลองสถานการณ์ &amp; Monte Carlo</p>
+  <p class="sub en-block">Session 1 — Introduction to Simulation &amp; Monte Carlo</p>
+  <p class="sub" style="font-size:.9rem;opacity:.8">สื่อประกอบการบรรยาย · Interactive · ป.ตรี โลจิสติกส์</p>
+  <div class="badges">
+    <span class="badge">⏱️ 3–4 ชม.</span>
+    <span class="badge">🧰 Excel + Python</span>
+    <span class="badge">🎲 ลองกดเล่นได้ทุกส่วน</span>
+    <span class="badge">🌐 TH / EN</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ===================== S1 ===================== -->
+<section id="s1">
+  <h2><span class="num">1</span> Simulation คืออะไร?</h2>
+  <p class="lead th-block">การจำลองสถานการณ์บนคอมพิวเตอร์ — ทดลองกับ "แบบจำลอง" ของระบบจริง โดยไม่ต้องเสี่ยงกับของจริง</p>
+  <p class="lead en-block">Computer simulation — experimenting with a <em>model</em> of a real system, without touching the real thing.</p>
+
+  <div class="card">
+    <h3>นิยาม <span class="en">/ Definition</span></h3>
+    <p class="th-block">“Simulation คือการ<strong>ทดลองกับแบบจำลองของระบบจริงบนคอมพิวเตอร์</strong> โดยปล่อยให้เวลาเดินไป เพื่อดูว่าระบบจะทำงานอย่างไร” — เหมือนสร้างร้านกาแฟจำลองในคอมพิวเตอร์ แล้วลองเปิดร้านเป็นพันวันโดยไม่ต้องเปิดร้านจริง <span class="en">(Robinson, 2014)</span></p>
+    <p class="en-block">“Simulation is <strong>experimenting with a model of a real system on a computer</strong>, letting time advance to see how the system behaves” — like building a virtual coffee shop and running it for a thousand days without opening a real one. (Robinson, 2014)</p>
+    <div class="note tip">
+      <span class="lb">💡 เปรียบเทียบ / Analogy</span>
+      <span class="th-block">เหมือนเกม The Sims หรือเกมบริหารเมือง — เราตั้งกฎ ปล่อยระบบเดิน แล้วสังเกตผล ต่างกันตรงที่ของเราใช้ <strong>ข้อมูลจริง</strong> และเอาผลไป <strong>ตัดสินใจธุรกิจ</strong></span>
+      <span class="en-block">Like The Sims or a city-builder game — set the rules, let it run, observe. The difference: we use <strong>real data</strong> and turn results into <strong>business decisions</strong>.</span>
+    </div>
+    <div class="note warn">
+      <span class="lb">⚠️ เข้าใจผิดบ่อย / Common myth</span>
+      <span class="th-block">นักศึกษามักคิดว่า simulation = แอนิเมชัน 3 มิติสวยๆ — จริงๆ แอนิเมชันเป็นแค่ "เปลือก" หัวใจคือ <strong>ตรรกะและสถิติ</strong> ข้างใน</span>
+      <span class="en-block">Students often think simulation = pretty 3D animation. The animation is just the shell — the heart is the <strong>logic and statistics</strong> inside.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>ใช้ทำอะไรในงานโลจิสติกส์? <span class="en">/ Uses in logistics</span></h3>
+    <div class="grid2">
+      <div class="note tip" style="margin:0"><span class="th-block">🏭 ออกแบบคลังสินค้า — กี่ประตูรับ-ส่ง? ทางเดินกว้างเท่าไร? พนักงานกี่คน?</span><span class="en-block">🏭 Warehouse design — how many dock doors, aisle width, staff?</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">🚚 วิเคราะห์การไหลของสินค้าและหา <strong>คอขวด</strong> (bottleneck)</span><span class="en-block">🚚 Analyze freight flow and find <strong>bottlenecks</strong>.</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">📊 ดู <strong>อัตราการใช้งาน</strong> (utilization) ของรถยก/เครื่องจักร และสินค้าคงคลัง</span><span class="en-block">📊 Measure <strong>utilization</strong> of forklifts/machines and inventory levels.</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">🤖 ทดสอบระบบ AS/RS, หุ่นยนต์, IoT ยุค Industry 4.0 <strong>ก่อนลงทุนจริง</strong></span><span class="en-block">🤖 Test AS/RS, robots, IoT (Industry 4.0) <strong>before real investment</strong>.</span></div>
+    </div>
+
+    <p class="sub" style="font-size:.82rem;opacity:.75;margin:14px 0 0"><span class="th-block">ตัวอย่างภาพจากซอฟต์แวร์จำลอง / Example screenshots from simulation software</span><span class="en-block">Example screenshots from simulation software</span></p>
+    <div class="figrow">
+      <figure>
+        <img src="images/warehouse-sim.jpg" alt="Warehouse & distribution simulation">
+        <figcaption><span class="th-block"><strong>🏭 ออกแบบคลังสินค้า</strong> — จำลองรถบรรทุก ประตูรับ-ส่ง ชั้นวาง และรถยก</span><span class="en-block"><strong>🏭 Warehouse design</strong> — trucks, dock doors, racks and forklifts.</span></figcaption>
+      </figure>
+      <figure>
+        <img src="images/production-flow.jpg" alt="Production flow and bottleneck analysis">
+        <figcaption><span class="th-block"><strong>🚚 การไหล &amp; คอขวด</strong> — สายการผลิต 3 สาย พร้อมวงจรขนส่งและจุดคอขวด</span><span class="en-block"><strong>🚚 Flow &amp; bottlenecks</strong> — 3 production lines with transport circuit &amp; bottleneck spots.</span></figcaption>
+      </figure>
+      <figure>
+        <img src="images/oee-dashboard.jpg" alt="OEE and machine utilization dashboard">
+        <figcaption><span class="th-block"><strong>📊 อัตราการใช้งาน / OEE</strong> — แดชบอร์ดวัดประสิทธิภาพเครื่องจักร</span><span class="en-block"><strong>📊 Utilization / OEE</strong> — dashboard measuring machine performance.</span></figcaption>
+      </figure>
+      <figure>
+        <img src="images/asrs.jpg" alt="Automated storage and retrieval system (AS/RS)">
+        <figcaption><span class="th-block"><strong>🤖 ระบบ AS/RS</strong> — ชั้นวางอัตโนมัติและระบบสายพานลำเลียง Industry 4.0</span><span class="en-block"><strong>🤖 AS/RS</strong> — automated racking &amp; conveyor system (Industry 4.0).</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S2 ===================== -->
+<section id="s2">
+  <h2><span class="num">2</span> ทำไมต้อง Simulate &amp; เมื่อไร "ไม่ควร"</h2>
+  <p class="lead th-block">Simulation ให้ <strong>ข้อมูล</strong> ไม่ใช่ <strong>คำตอบสำเร็จรูป</strong> — มันบอกว่า "ถ้าทำแบบนี้จะเกิดอะไร" แต่คนยังต้องตัดสินใจ</p>
+  <p class="lead en-block">Simulation gives you <strong>insight, not answers</strong> — it tells you "what happens if", but humans still decide.</p>
+  <div class="grid2">
+    <div class="card" style="border-top:4px solid var(--teal)">
+      <h3 style="color:var(--teal)">✅ ควรใช้เมื่อ <span class="en">/ Use when</span></h3>
+      <ul>
+        <li class="th-block">อยากทำนายผล <strong>ก่อนสร้างจริง</strong> — ลดความเสี่ยง</li>
+        <li class="en-block">Predict results <strong>before building</strong> — reduce risk.</li>
+        <li class="th-block">ทดลองนโยบายใหม่โดยไม่กระทบระบบจริง</li>
+        <li class="en-block">Test new policies without disrupting the real system.</li>
+        <li class="th-block">หาคอขวด / ดูพฤติกรรมเมื่อเจอเหตุไม่ปกติ</li>
+        <li class="en-block">Find bottlenecks / see behavior under abnormal events.</li>
+        <li class="th-block">ระบบมี <strong>ความสุ่ม</strong> และ <strong>ความสัมพันธ์ซับซ้อน</strong></li>
+        <li class="en-block">System has <strong>randomness</strong> and <strong>complex interactions</strong>.</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:4px solid var(--red)">
+      <h3 style="color:var(--red)">🚫 ไม่ควรใช้เมื่อ <span class="en">/ Avoid when</span></h3>
+      <ul>
+        <li class="th-block">แก้ได้ด้วย <strong>สูตร/สามัญสำนึก</strong> อยู่แล้ว (ใช้ค้อนทุบมด)</li>
+        <li class="en-block">A <strong>formula or common sense</strong> already solves it.</li>
+        <li class="th-block">ทดลองกับระบบจริงง่ายและถูกกว่า</li>
+        <li class="en-block">Testing the real system is cheaper &amp; easier.</li>
+        <li class="th-block">ไม่มีข้อมูลเลยแม้แต่ค่าประมาณ</li>
+        <li class="en-block">No data at all, not even estimates.</li>
+        <li class="th-block">เวลา/งบ/คนไม่พอจะพิสูจน์ว่าแบบจำลองถูกต้อง</li>
+        <li class="en-block">Not enough time/budget/people to validate the model.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note ask">
+    <span class="lb">❓ ชวนคิด / Think</span>
+    <span class="th-block">“อยากรู้ว่าเหรียญออกหัวกี่ % — ควรใช้ simulation ไหม? เพราะอะไร?”</span>
+    <span class="en-block">“Want to know the % a coin lands heads — should you use simulation? Why?”</span>
+  </div>
+</section>
+
+<!-- ===================== S3 ===================== -->
+<section id="s3">
+  <h2><span class="num">3</span> Discrete vs Continuous</h2>
+  <p class="lead th-block">วิชานี้เน้น <strong>Discrete Event</strong> — ระบบเปลี่ยนสถานะเป็น "เหตุการณ์" ทีละจุดเวลา (ลูกค้ามาถึง / เริ่มบริการ / ออก)</p>
+  <p class="lead en-block">This course focuses on <strong>Discrete Event</strong> systems — state changes at discrete <em>events</em> (arrive / start service / leave).</p>
+
+  <div class="card">
+    <div class="controls">
+      <button class="act teal" onclick="dcAnim(true)">▶ เล่นภาพเคลื่อนไหว / Play</button>
+      <button class="act" onclick="dcAnim(false)">⏸ หยุด / Pause</button>
+    </div>
+    <div class="chartwrap"><canvas id="dcCanvas" width="860" height="300"></canvas></div>
+    <div class="grid2">
+      <div class="note tip" style="margin:0"><span class="th-block"><strong>Discrete</strong> — เหมือน <strong>นาฬิกาดิจิทัล</strong> ที่กระโดดเป็นขั้น ค่าคงที่ระหว่างเหตุการณ์ (เส้นขั้นบันไดสีเขียว)</span><span class="en-block"><strong>Discrete</strong> — like a <strong>digital clock</strong> jumping in steps; constant between events (green staircase).</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block"><strong>Continuous</strong> — เหมือน <strong>เข็มนาฬิกา</strong> ที่ไหลลื่น เปลี่ยนตลอดเวลา เช่น ระดับน้ำ อุณหภูมิ (เส้นโค้งสีเหลือง)</span><span class="en-block"><strong>Continuous</strong> — like an <strong>analog hand</strong> flowing smoothly; always changing, e.g. water level, temperature (amber curve).</span></div>
+    </div>
+    <div class="note warn">
+      <span class="lb">⚠️ กับดัก / Trap</span>
+      <span class="th-block">“เวลาเดินต่อเนื่อง = continuous” — <strong>ผิด!</strong> เรามองที่ <strong>สถานะระบบ</strong> ไม่ใช่ตัวเวลา แม้เวลาจะไหลต่อเนื่อง แต่ถ้าสถานะเปลี่ยนเป็นจุดๆ ก็คือ discrete</span>
+      <span class="en-block">“Time flows continuously, so it's continuous” — <strong>Wrong!</strong> We look at the <strong>system state</strong>, not the clock. Even with continuous time, if the state jumps at points, it's discrete.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>ตัวอย่างเทียบกัน <span class="en">/ Side-by-side examples</span></h3>
+    <div class="grid2">
+      <div class="note tip" style="margin:0">
+        <span class="lb" style="color:var(--teal)">🟢 Discrete Event (เน้นในวิชานี้)</span>
+        <span class="th-block">คิวธนาคาร/ATM · สายการผลิต · คลังสินค้า (รับ-เก็บ-หยิบ-ส่ง) · ท่าเรือ/ตู้คอนเทนเนอร์ · เช็กอินสนามบิน · call center · ห้องฉุกเฉินโรงพยาบาล</span>
+        <span class="en-block">Bank/ATM queues · production lines · warehouses (receive-store-pick-ship) · ports/containers · airport check-in · call centers · hospital ER</span>
+      </div>
+      <div class="note tip" style="margin:0;border-left-color:var(--amber)">
+        <span class="lb" style="color:#9a6b14">🟡 Continuous (ไม่ใช่โฟกัสหลัก)</span>
+        <span class="th-block">ระดับน้ำในถัง · อุณหภูมิเตาเผา · ความเร็ว/ตำแหน่งของรถ · การไหลของของเหลวในท่อ · ปฏิกิริยาเคมี · การเติบโตของประชากรแบบต่อเนื่อง</span>
+        <span class="en-block">Water tank level · furnace temperature · vehicle speed/position · fluid flow in pipes · chemical reactions · continuous population growth</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S4 ===================== -->
+<section id="s4">
+  <h2><span class="num">4</span> จำลองแถวคอยด้วยมือ (หัวใจของคาบ)</h2>
+  <p class="lead th-block">จำลองคิดเงินซูเปอร์มาร์เก็ต <strong>เคาน์เตอร์เดียว</strong> ลูกค้า 6 คน ทีละขั้น</p>
+  <p class="lead en-block">Before coding, <em>be</em> the computer — hand-simulate a <strong>single-server</strong> checkout, 6 customers, step by step.</p>
+
+  <figure style="margin:0 0 16px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(15,44,77,.05);max-width:420px">
+    <img src="images/cashier.jpg" alt="Supermarket cashier checkout counter" style="display:block;width:100%;height:220px;object-fit:cover;background:#eef2f6">
+    <figcaption style="padding:9px 13px;font-size:.82rem;line-height:1.45;color:var(--muted);border-top:1px solid var(--line)">
+      <span class="th-block">🧑‍💼 เคาน์เตอร์แคชเชียร์เดี่ยว — ฉากที่เราจะเดินมือจำลองในหัวข้อนี้</span>
+      <span class="en-block">🧑‍💼 A single cashier checkout counter — the scenario we hand-simulate in this section.</span>
+    </figcaption>
+  </figure>
+
+  <div class="card">
+    <div class="note ask" style="margin-bottom:16px">
+      <span class="lb th-block" style="display:block;font-weight:800;color:var(--blue);margin-bottom:4px">🎯 ทำไมต้องเดินมือก่อน? แล้วเอาไปใช้ต่อตรงไหน?</span>
+      <span class="lb en-block" style="display:block;font-weight:800;color:var(--blue);margin-bottom:4px">🎯 Why hand-simulate first — and where does this go next?</span>
+      <span class="th-block">ขั้นตอนนี้ไม่ใช่แค่ฝึกกรอกตาราง แต่คือการฝึกให้ <strong>"คิดแบบคอมพิวเตอร์"</strong> ก่อนลงมือเขียนโค้ด — เมื่อเข้าใจตรรกะ <em>เริ่ม/เสร็จ/รอ</em> ด้วยมือแล้ว จะนำไปใช้ต่อในหัวข้อถัดไปดังนี้: <strong>(1)</strong> เป็นแกนหลักของ "Conceptual model" ในวงจร Simulation (หัวข้อที่ 5) <strong>(2)</strong> ตรรกะเดียวกันนี้จะถูกเขียนเป็นโค้ด DES ด้วย Python/SimPy ในครั้งที่ 3 <strong>(3)</strong> ใช้เป็นกรณีทดสอบมือเทียบกับผลโค้ด ตอน Verify ในครั้งที่ 4 (โค้ดต้องให้ผลตรงกับที่เราคำนวณมือได้) และ <strong>(4)</strong> ตัวชี้วัดที่คำนวณได้ตรงนี้ (เวลารอเฉลี่ย, เวลาในระบบเฉลี่ย) คือ KPI แบบเดียวกับที่จะวิเคราะห์ในกรณีศึกษา Baily's Bank (หัวข้อที่ 6) และใน Output Analysis ครั้งที่ 6</span>
+      <span class="en-block">This isn't just a table-filling drill — it trains you to <strong>"think like the computer"</strong> before writing any code. Once you understand the <em>start/finish/wait</em> logic by hand, it feeds directly into what comes next: <strong>(1)</strong> it becomes the backbone of the "Conceptual model" step in the Simulation lifecycle (Topic 5); <strong>(2)</strong> the exact same logic gets coded as a DES model in Python/SimPy in Session 3; <strong>(3)</strong> it serves as a hand-calculated test case to check the code against during Verify in Session 4 (the code must match what you computed by hand); and <strong>(4)</strong> the metrics you compute here (average wait, average time in system) are the same KPIs analyzed in the Baily's Bank case (Topic 6) and in Output Analysis, Session 6.</span>
+    </div>
+
+    <p class="th-block">กด <strong>“ถัดไป”</strong> เพื่อเติมตารางทีละแถว สังเกตหลักการ:</p>
+    <p class="en-block">Press <strong>“Next”</strong> to fill one row at a time. Watch the principle:</p>
+    <div class="note ask" style="text-align:center;font-size:1.05rem">
+      <strong>เวลาเริ่มบริการ = max(เวลาที่มาถึง, เวลาที่คนก่อนหน้าเสร็จ)</strong><br>
+      <span class="en">Start = max(Arrival, Previous Finish)</span>
+    </div>
+    <table class="sim" id="queueTable">
+      <thead><tr>
+        <th class="th-block">ลูกค้า</th><th class="en-block" style="display:none">Cust</th>
+        <th class="th-block">มาถึง</th><th class="en-block" style="display:none">Arrive</th>
+        <th class="th-block">เริ่มบริการ</th><th class="en-block" style="display:none">Start</th>
+        <th class="th-block">ใช้เวลา (นาที)</th><th class="en-block" style="display:none">Service (min)</th>
+        <th class="th-block">เสร็จ</th><th class="en-block" style="display:none">Finish</th>
+        <th class="th-block">รอในแถว (นาที)</th><th class="en-block" style="display:none">Wait (min)</th>
+        <th class="th-block">อยู่ในระบบ (นาที)</th><th class="en-block" style="display:none">In system (min)</th>
+      </tr></thead>
+      <tbody id="queueBody"></tbody>
+    </table>
+    <div class="controls">
+      <button class="act amber" id="qNext" onclick="qStep()">ถัดไป ▶ / Next</button>
+      <button class="act teal" onclick="qAll()">เติมทั้งหมด / Fill all</button>
+      <button class="act" onclick="qReset()">↺ เริ่มใหม่ / Reset</button>
+    </div>
+    <div class="statgrid">
+      <div class="stat"><div class="k" id="qAvgWait">–</div><div class="l th-block">เวลารอเฉลี่ย (นาที)</div><div class="l en-block" style="display:none">Avg wait (min)</div></div>
+      <div class="stat"><div class="k" id="qAvgSys">–</div><div class="l th-block">เวลาในระบบเฉลี่ย</div><div class="l en-block" style="display:none">Avg time in system</div></div>
+      <div class="stat"><div class="k" id="qMaxWait">–</div><div class="l th-block">รอนานสุด</div><div class="l en-block" style="display:none">Max wait</div></div>
+    </div>
+    <div class="note tip" id="qMsg"><span class="th-block">👀 ดูลูกค้าคนที่ 4: มาถึง 10:07 แต่คนที่ 3 เพิ่งเสร็จตอน 10:09 → ต้องรอ! นี่คือ "ตรรกะคิว"</span><span class="en-block">👀 Customer 4 arrives at 10:07 but customer 3 finishes at 10:09 → must wait! This is the queue logic a computer repeats thousands of times.</span></div>
+  </div>
+</section>
+
+<!-- ===================== S5 ===================== -->
+<section id="s5">
+  <h2><span class="num">5</span> วงจรการทำ Simulation</h2>
+  <p class="lead th-block">กระบวนการนี้ <strong>วนซ้ำได้ (iterative)</strong> ไม่ใช่เส้นตรง — ถ้า Verify/Validate ไม่ผ่าน ต้องย้อนกลับไปแก้โมเดล คลิกแต่ละกล่องเพื่อดูว่าตรงกับครั้งไหนของวิชา</p>
+  <p class="lead en-block">This process is <strong>iterative</strong>, not linear — if Verify/Validate fails, loop back. Click each box to see which session it maps to.</p>
+  <div class="card">
+    <div class="flow" id="flow"></div>
+    <div class="note tip" id="flowMsg" style="min-height:20px"><span class="th-block">👆 คลิกกล่องด้านบนเพื่อดูรายละเอียด</span><span class="en-block">👆 Click a box above for details.</span></div>
+    <div class="grid2" style="margin-top:8px">
+      <div class="note ask" style="margin:0"><span class="th-block"><strong>Verify</strong> = "สร้าง<strong>ถูกไหม</strong>" — เขียนโค้ดตรงกับที่ออกแบบหรือเปล่า (ครั้งที่ 4)</span><span class="en-block"><strong>Verify</strong> = "built it <strong>right</strong>?" — does the code match the design? (Session 4)</span></div>
+      <div class="note ask" style="margin:0"><span class="th-block"><strong>Validate</strong> = "สร้าง<strong>ถูกตัวไหม</strong>" — โมเดลตรงกับโลกจริงหรือเปล่า (ครั้งที่ 5)</span><span class="en-block"><strong>Validate</strong> = "built the <strong>right thing</strong>?" — does the model match reality? (Session 5)</span></div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin:14px 0 0;text-align:center;border-top:1px dashed var(--line);padding-top:10px">
+      <span class="th-block">📖 ดัดแปลง (ย่อ) จากวงจร <strong>12 ขั้น</strong>ของ Banks, Carson, Nelson &amp; Nicol (2005), <em>Discrete-Event System Simulation</em> · กล่องที่มี “?” = จุดตัดสินใจที่วนกลับได้ · ในสื่อนี้รวมบางขั้นเข้าด้วยกัน (ตั้งปัญหา+วัตถุประสงค์ / รายงาน+นำไปใช้)</span>
+      <span class="en-block">📖 Adapted (condensed) from the <strong>12-step</strong> cycle in Banks, Carson, Nelson &amp; Nicol (2005), <em>Discrete-Event System Simulation</em> · boxes with “?” = decision points that loop back · some steps are merged here (problem+objectives / report+implement).</span>
+    </p>
+  </div>
+</section>
+
+<!-- ===================== S6 ===================== -->
+<section id="s6">
+  <h2><span class="num">6</span> Live Sim: กรณีศึกษา Baily's Bank</h2>
+  <p class="lead th-block">โจทย์หลักของวิชา: ธนาคารเปิด 8 ชม. มี 3 พนักงาน · ลูกค้าเฉลี่ย 30 คน/ชม. · บริการเฉลี่ย 4 นาที · เป้าหมายเวลาในระบบเฉลี่ย &lt; 15 นาที ลองปรับค่าแล้วรันจริง!</p>
+  <p class="lead en-block">Course anchor: bank open 8h, 3 tellers, ~30 customers/h, ~4 min service, target avg time-in-system &lt; 15 min. Tune and run it live!</p>
+  <div class="card">
+    <div class="controls">
+      <div class="ctl"><label>👥 พนักงาน / Tellers: <span class="val" id="vT">3</span></label><input type="range" id="rT" min="1" max="8" value="3" oninput="vT.textContent=this.value"></div>
+      <div class="ctl"><label>🚶 ลูกค้า/ชม. / Arrivals/h: <span class="val" id="vA">30</span></label><input type="range" id="rA" min="10" max="90" value="30" step="5" oninput="vA.textContent=this.value"></div>
+      <div class="ctl"><label>⏲️ บริการ (นาที) / Service min: <span class="val" id="vS">4</span></label><input type="range" id="rS" min="1" max="10" value="4" step="0.5" oninput="vS.textContent=this.value"></div>
+      <button class="act amber" onclick="runBank()">🏦 รันจำลอง / Run</button>
+    </div>
+    <div class="statgrid">
+      <div class="stat"><div class="k" id="bWait">–</div><div class="l th-block">รอเฉลี่ย (นาที)</div><div class="l en-block" style="display:none">Avg wait (min)</div></div>
+      <div class="stat"><div class="k" id="bSys">–</div><div class="l th-block">ในระบบเฉลี่ย (นาที)</div><div class="l en-block" style="display:none">Avg in-system (min)</div></div>
+      <div class="stat"><div class="k" id="bUtil">–</div><div class="l th-block">การใช้งานพนักงาน</div><div class="l en-block" style="display:none">Teller utilization</div></div>
+      <div class="stat"><div class="k" id="bN">–</div><div class="l th-block">ลูกค้าที่รับบริการ</div><div class="l en-block" style="display:none">Customers served</div></div>
+    </div>
+    <div class="chartwrap"><canvas id="bankCanvas" width="860" height="240"></canvas><div class="legend">การกระจายของเวลารอ (Histogram of waiting times)</div></div>
+    <div class="note warn" id="bankMsg" style="display:none"></div>
+    <div class="note ask">
+      <span class="lb">❓ ทดลอง / Experiment</span>
+      <span class="th-block">ก่อนปรับ ลองเดา: ถ้าลูกค้าเพิ่ม 10% (30→33) เวลารอจะเพิ่มกี่ %? แล้วรันดู — มักเพิ่ม <strong>มากกว่า 10%</strong> เพราะระบบใกล้เต็มกำลัง ผลไม่เป็นเส้นตรง นี่คือเหตุผลที่ต้องใช้ simulation ไม่ใช่บัญญัติไตรยางศ์!</span>
+      <span class="en-block">Guess first: if arrivals rise 10% (30→33), how much does waiting rise? Then run it — usually <strong>more than 10%</strong> because the system nears capacity (nonlinear). That's why we need simulation, not simple proportion!</span>
+    </div>
+    <div class="note tip">
+      <span class="lb">💬 คำถามชวนคิด / Discussion</span>
+      <span class="th-block">ดูจาก histogram ของเวลารอ — ทำไมลูกค้าแต่ละคนถึงใช้เวลาไม่เท่ากัน ทั้งที่ตั้งค่าเฉลี่ยบริการไว้ 4 นาทีเหมือนกันทุกคน? ลองช่วยกันเดาว่ามีปัจจัยอะไรบ้างที่ทำให้เวลาให้บริการจริงของแต่ละคนแตกต่างกัน</span>
+      <span class="en-block">Look at the wait-time histogram — why does each customer take a different amount of time, even though the average service time is set to the same 4 minutes for everyone? Brainstorm what makes real service times vary (number/complexity of transactions, how fast each teller/customer is, whether arrival timing lines up with a free teller) — this is exactly why we model service time as a <em>probability distribution</em>, not a single fixed number.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S7 ===================== -->
+<section id="s7">
+  <h2><span class="num">7</span> Lab: Monte Carlo ใน Excel</h2>
+  <p class="lead th-block">แนวคิดสำคัญที่สุดของคาบ: <strong>“ผลของ simulation คือตัวแปรสุ่ม”</strong> — ผลเปลี่ยนทุกครั้งที่สุ่มใหม่ แต่ <strong>ค่าเฉลี่ยค่อนข้างคงที่</strong> ส่วนนี้ให้ลงมือทำใน Excel เอง เพื่อฝึกใช้งานฟังก์ชันจริง</p>
+  <p class="lead en-block">The big idea: <strong>“a simulation's output is a random variable”</strong> — it changes each re-roll, but the <strong>average stays fairly stable</strong>. Do this hands-on in Excel to build real spreadsheet skills.</p>
+
+  <div class="card">
+    <h3>Monte Carlo คืออะไร &amp; มาจากไหน? <span class="en">/ What is Monte Carlo &amp; where it came from</span></h3>
+    <p class="th-block"><strong>Monte Carlo</strong> คือวิธีหาคำตอบของปัญหาด้วยการ <strong>สุ่มตัวเลขซ้ำจำนวนมาก</strong> แล้วดูค่าเฉลี่ย/สัดส่วนของผล — ใช้เมื่อคำนวณตรงๆ ด้วยสูตรทำได้ยากหรือทำไม่ได้ · ยิ่งสุ่มมาก ค่าประมาณยิ่งนิ่ง (กฎจำนวนมาก / Law of Large Numbers)</p>
+    <p class="en-block"><strong>Monte Carlo</strong> solves a problem by <strong>drawing many random samples</strong> and reading the average/proportion of the results — used when a direct formula is hard or impossible. The more samples, the more stable the estimate (Law of Large Numbers).</p>
+    <div class="note tip">
+      <span class="lb">📜 ที่มาของชื่อ / Origin of the name</span>
+      <span class="th-block">ตั้งชื่อตาม <strong>คาสิโนเมืองมอนติคาร์โล (โมนาโก)</strong> เพราะอาศัย “ความสุ่ม” เหมือนเกมพนัน · คิดค้นราวคริสต์ทศวรรษ 1940 โดย <strong>Stanisław Ulam</strong> และ <strong>John von Neumann</strong> ที่ห้องปฏิบัติการ Los Alamos เพื่อแก้ปัญหาการแพร่ของนิวตรอนที่ซับซ้อนเกินกว่าจะแก้ด้วยสูตรตรงๆ</span>
+      <span class="en-block">Named after the <strong>Monte Carlo casino (Monaco)</strong> for its reliance on “chance” like gambling · developed in the 1940s by <strong>Stanisław Ulam</strong> and <strong>John von Neumann</strong> at Los Alamos to solve neutron-diffusion problems too complex for direct formulas.</span>
+    </div>
+    <p class="th-block" style="font-size:.9rem;margin-bottom:0">ในบทนี้เราจะทำ Monte Carlo ง่ายๆ ใน Excel (ทอยลูกเต๋า &amp; ยอดลูกค้าร้านกาแฟ) — กด <strong>F9</strong> (หรือ Shift+F9) เพื่อสุ่มใหม่ สังเกตว่าตัวเลขเปลี่ยนทุกครั้ง แต่ค่าเฉลี่ยขยับเล็กน้อย</p>
+    <p class="en-block" style="font-size:.9rem;margin-bottom:0">Here we'll do simple Monte Carlo in Excel (dice &amp; cafe customers) — press <strong>F9</strong> (or Shift+F9) to re-randomize. Numbers change every time, but the mean barely moves.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>🎲 A. ทอยลูกเต๋า <span class="en">/ Dice — uniform</span></h3>
+      <p class="th-block" style="font-size:.92rem">ชีต <strong>A_ทอยลูกเต๋า</strong> — พิมพ์สูตรแล้วลากลง 1,000 แถว จากนั้นทำ histogram ของแต้ม 1–6</p>
+      <p class="en-block" style="font-size:.92rem">Sheet <strong>A_ทอยลูกเต๋า</strong> — type the formula, fill down 1,000 rows, then histogram faces 1–6.</p>
+      <pre>=RANDBETWEEN(1,6)      <span class="c">' สุ่มแต้ม 1–6</span>
+=COUNTIF($B$4:$B$1003, 1)  <span class="c">' นับแต้ม 1</span>
+=AVERAGE(B4:B1003)     <span class="c">' ≈ 3.5</span>
+=STDEV(B4:B1003)</pre>
+      <p class="th-block" style="font-size:.88rem;color:var(--muted)">คาดหวัง: กราฟ <strong>แบนเท่ากัน</strong> (uniform) ทุกแต้ม ≈ 167 ครั้ง</p>
+      <p class="en-block" style="font-size:.88rem;color:var(--muted)">Expect a <strong>flat</strong> (uniform) chart, ~167 each.</p>
+    </div>
+    <div class="card">
+      <h3>☕ B. ยอดลูกค้าร้านกาแฟ <span class="en">/ Customers — normal</span></h3>
+      <p class="th-block" style="font-size:.92rem">ชีต <strong>B_ยอดลูกค้า</strong> — จำลองยอดลูกค้า/วัน 1,000 วัน (เฉลี่ย 120, SD 20) พร้อมตารางความถี่เป็นช่วง</p>
+      <p class="en-block" style="font-size:.92rem">Sheet <strong>B_ยอดลูกค้า</strong> — 1,000 days (mean 120, SD 20), then a binned frequency table.</p>
+      <pre>=ROUND(NORM.INV(RAND(),120,20),0)  <span class="c">' ยอด/วัน</span>
+=AVERAGE(B4:B1003)     <span class="c">' ≈ 120</span>
+=STDEV(B4:B1003)       <span class="c">' ≈ 20</span>
+=COUNTIFS($B$4:$B$1003,"&gt;="&amp;low, $B$4:$B$1003,"&lt;"&amp;high)</pre>
+      <div class="note tip">
+        <span class="lb">🧮 อธิบายสูตร / Formula notes</span>
+        <span class="th-block"><strong>NORM.INV(RAND(),120,20)</strong> — สุ่มค่าจากการแจกแจงปกติ (Normal) ค่าเฉลี่ย 120, SD 20: <code>RAND()</code> สุ่มความน่าจะเป็นสะสม (0–1) แล้ว <code>NORM.INV</code> แปลงกลับเป็นค่า x บนแกนของ Normal (inverse CDF) — ค่าที่ได้ส่วนใหญ่จะอยู่ใกล้ 120 และหายากขึ้นเมื่อห่างจาก 120 มาก จึงได้กราฟรูประฆังคว่ำ<br>
+        <strong>=COUNTIFS($B$4:$B$1003,"&gt;="&amp;low, $B$4:$B$1003,"&lt;"&amp;high)</strong> — นับจำนวนวัน (จาก 1,000 วัน) ที่ยอดลูกค้าอยู่ในช่วง <code>[low, high)</code> คือ ≥ ขอบล่าง และ &lt; ขอบบนของแต่ละช่วง (bin) — ใช้สร้าง<strong>ตารางความถี่</strong>เพื่อวาด histogram โดย <code>low</code>/<code>high</code> คือเซลล์ที่เก็บขอบล่าง/ขอบบนของแต่ละช่วง เปลี่ยนไปทีละแถวของตาราง</span>
+        <span class="en-block"><strong>NORM.INV(RAND(),120,20)</strong> — draws a value from the Normal distribution, mean 120, SD 20: <code>RAND()</code> picks a cumulative probability (0–1), then <code>NORM.INV</code> converts it back to an x-value on the Normal curve (inverse CDF) — most draws land near 120, with rarer values farther away, giving the bell shape.<br>
+        <strong>=COUNTIFS($B$4:$B$1003,"&gt;="&amp;low, $B$4:$B$1003,"&lt;"&amp;high)</strong> — counts how many of the 1,000 simulated days fall in the range <code>[low, high)</code>, i.e. ≥ the lower bound and &lt; the upper bound of a bin — builds the <strong>frequency table</strong> for the histogram; <code>low</code>/<code>high</code> are the cells holding each bin's lower/upper edge, one row per bin.</span>
+      </div>
+      <p class="th-block" style="font-size:.88rem;color:var(--muted)">คาดหวัง: กราฟ <strong>ระฆังคว่ำ</strong> (normal) สูงตรงกลาง ~120</p>
+      <p class="en-block" style="font-size:.88rem;color:var(--muted)">Expect a <strong>bell shape</strong> (normal) peaking near 120.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>ขั้นตอนทำ Lab <span class="en">/ Lab steps</span></h3>
+    <ol style="margin:6px 0">
+      <li class="th-block">เปิดไฟล์ Excel แล้วอ่านชีต <strong>คู่มือ Lab1</strong> ก่อน</li>
+      <li class="en-block">Open the file, read the <strong>คู่มือ Lab1</strong> sheet first.</li>
+      <li class="th-block">ทำชีต A (ลูกเต๋า) → กด F9 หลายครั้ง สังเกตค่าเฉลี่ยกับรูปกราฟ</li>
+      <li class="en-block">Do sheet A (dice) → press F9 several times; watch mean &amp; shape.</li>
+      <li class="th-block">ทำชีต B (ยอดลูกค้า) → ลองแก้ค่าเฉลี่ย/SD ในเซลล์ แล้วดูกราฟเปลี่ยน</li>
+      <li class="en-block">Do sheet B (customers) → edit mean/SD cells and watch the chart shift.</li>
+    </ol>
+  </div>
+
+  <div class="note tip">
+    <span class="lb">💬 คำถามชวนคิด (ตอบใน Excel) / Reflection</span>
+    <span class="th-block">1) กด F9 หลายครั้ง — ค่าเฉลี่ยเปลี่ยนมากไหม เทียบกับค่ามากสุด/น้อยสุด?<br>
+    2) ถ้าเพิ่มจำนวนวันจาก 1,000 เป็นมากขึ้น ค่าเฉลี่ยจะนิ่งขึ้นหรือไม่?<br>
+    3) รูปร่าง histogram ของลูกเต๋า (uniform) กับยอดลูกค้า (normal) ต่างกันอย่างไร? — นี่คือเหตุผลว่าทำไม input ต้องเป็น "การแจกแจง" ไม่ใช่แค่ค่าเฉลี่ย</span>
+    <span class="en-block">1) Re-roll many times — does the mean change much vs the max/min?<br>
+    2) If you increase from 1,000 days to more, does the mean settle further?<br>
+    3) How do the dice (uniform) and customer (normal) histograms differ? — This is why inputs must be <em>distributions</em>, not just averages.</span>
+  </div>
+</section>
+
+<!-- ===================== S8 WALK-THROUGH ===================== -->
+<section id="s8">
+  <h2><span class="num">8</span> กิจกรรมกลุ่ม: Walk-through ระบบจริง <span class="en" style="font-size:.9rem">/ Group activity</span></h2>
+  <p class="lead th-block">ก่อนสร้างแบบจำลองในคอมพิวเตอร์ นักจำลองมืออาชีพจะ <strong>เดินไปดูระบบจริง</strong> ก่อนเสมอ — กิจกรรมนี้ให้ทุกกลุ่มฝึกขั้นตอนแรกนั้น กับระบบรอคิวที่เจอทุกวันในมหาวิทยาลัย</p>
+  <p class="lead en-block">Before building any computer model, professionals <strong>walk through the real system</strong> first — in this activity your group practices that very first step on a campus queue you see every day.</p>
+
+  <div class="note ask">
+    <span class="lb">🎯 ทำกิจกรรมนี้ไปเพื่ออะไร? / Why are we doing this?</span>
+    <span class="th-block">โปรเจกต์จริงทุกโปรเจกต์เริ่มจากกระดาษแบบนี้ <u>ไม่ใช่เริ่มจากโค้ด</u></span>
+    <span class="en-block">Every real project starts on paper like this, <u>not with code</u>.</span>
+  </div>
+
+  <h3 class="th-block">มองระบบให้เหลือแค่ 3 ชิ้น</h3><h3 class="en-block">See any system as just 3 pieces</h3>
+  <p class="th-block" style="color:var(--muted);font-size:.95rem;margin-top:-4px">ระบบรอคิวที่ดูวุ่นวายแค่ไหน ก็สรุปเป็นคำถาม 3 ข้อนี้ได้เสมอ:</p>
+  <p class="en-block" style="color:var(--muted);font-size:.95rem;margin-top:-4px">However messy a queueing system looks, it always reduces to these 3 questions:</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>1️⃣ Entity — <span style="font-weight:600">ใครไหลผ่านระบบ?</span> <span class="en">/ who flows through?</span></h3>
+      <p class="th-block" style="font-size:.93rem;margin-bottom:0">ถามตัวเอง: <strong>"ใคร/อะไรที่เข้ามา → รอ → ได้รับบริการ → ออกไป?"</strong><br><span style="color:var(--muted)">โรงอาหาร = นักศึกษา · ไปรษณีย์ = พัสดุ · คลังสินค้า = สินค้า</span></p>
+      <p class="en-block" style="font-size:.93rem;margin-bottom:0">Ask: <strong>"who/what arrives → waits → gets served → leaves?"</strong><br><span style="color:var(--muted)">canteen = students · post office = parcels · warehouse = goods</span></p>
+    </div>
+    <div class="card">
+      <h3>2️⃣ คิว &amp; ทรัพยากร — <span style="font-weight:600">รอตรงไหน ใครให้บริการ?</span> <span class="en">/ where's the wait, who serves?</span></h3>
+      <p class="th-block" style="font-size:.93rem;margin-bottom:0">ถามตัวเอง: <strong>"จุดไหนที่คนต้องหยุดรอ และอะไรคือของที่มีจำกัด?"</strong><br><span style="color:var(--muted)">แถวหน้าเคาน์เตอร์ / แม่ครัว 2 คน / เครื่อง POS 1 เครื่อง</span></p>
+      <p class="en-block" style="font-size:.93rem;margin-bottom:0">Ask: <strong>"where do people stop and wait, and what is the scarce thing?"</strong><br><span style="color:var(--muted)">the line at the counter / 2 cooks / 1 POS machine</span></p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>3️⃣ KPI — <span style="font-weight:600">อยากแก้ตัวเลขไหน?</span> <span class="en">/ which number do you want to fix?</span></h3>
+    <p class="th-block" style="font-size:.93rem;margin-bottom:0">ถามตัวเอง: <strong>"ถ้าปรับปรุงได้ 1 อย่าง อยากให้ตัวเลขอะไรดีขึ้น?"</strong> ต้องวัดเป็นตัวเลขได้ เช่น เวลารอเฉลี่ย · ความยาวคิวช่วง peak · utilization ของพนักงาน — KPI นี้แหละคือ "โจทย์" ของแบบจำลอง (เหมือนเป้า &lt; 15 นาทีของ Baily's Bank ในหัวข้อ 6)</p>
+    <p class="en-block" style="font-size:.93rem;margin-bottom:0">Ask: <strong>"if you could improve one thing, which number should get better?"</strong> It must be measurable: average wait · peak queue length · staff utilization — this KPI is the model's "question" (like the &lt; 15-min target in Baily's Bank, topic 6).</p>
+  </div>
+
+  <div class="card" style="border-left:4px solid var(--amber)">
+    <h3>👀 ตัวอย่างที่เติมแล้ว: ร้านกาแฟหน้ามหาวิทยาลัย <span class="en">/ Worked example: the campus café</span></h3>
+    <p class="th-block" style="font-size:.9rem;color:var(--muted);margin-top:0">ก่อนลงมือ ดูตัวอย่างนี้ก่อน — ใบงานของกลุ่มคุณควรออกมาหน้าตาประมาณนี้</p>
+    <p class="en-block" style="font-size:.9rem;color:var(--muted);margin-top:0">Look at this before you start — your worksheet should end up looking like this.</p>
+    <div class="wt-grid">
+      <div class="wt-f full"><label>📍 ระบบ / System</label>
+        <p style="margin:0;font-size:.92rem;background:#fdf6e9;border:1px dashed var(--amber);border-radius:8px;padding:9px 11px">ร้านกาแฟอเมซอนหน้าเทาทอง ช่วงเช้า 7:30–9:00 (ก่อนเข้าเรียน) — ลูกค้าเยอะ คิวยาวถึงหน้าประตู<span class="en-block" style="display:block">Campus café, 7:30–9:00 before class — long queue out the door.</span></p>
+      </div>
+      <div class="wt-f"><label>1️⃣ Entity</label>
+        <p style="margin:0;font-size:.92rem;background:#fdf6e9;border:1px dashed var(--amber);border-radius:8px;padding:9px 11px">ลูกค้า (นักศึกษา/อาจารย์) ที่มาซื้อเครื่องดื่ม<span class="en-block" style="display:block">Customers (students/staff) buying drinks.</span></p>
+      </div>
+      <div class="wt-f"><label>2️⃣ คิว &amp; ทรัพยากร / Queue &amp; resource</label>
+        <p style="margin:0;font-size:.92rem;background:#fdf6e9;border:1px dashed var(--amber);border-radius:8px;padding:9px 11px">รอ 2 จุด: สั่ง+จ่ายเงิน (แคชเชียร์ 1 คน) และรอรับแก้ว (บาริสต้า 2 คน)<span class="en-block" style="display:block">2 waits: order+pay (1 cashier) and pickup (2 baristas).</span></p>
+      </div>
+      <div class="wt-f full"><label>3️⃣ KPI + เป้าหมาย / KPI + target</label>
+        <p style="margin:0;font-size:.92rem;background:#fdf6e9;border:1px dashed var(--amber);border-radius:8px;padding:9px 11px">เวลาตั้งแต่เข้าแถวจนได้แก้ว เฉลี่ย &lt; 8 นาที (ตอนนี้รู้สึกว่า ~15 นาที) — คำถามที่โมเดลจะตอบ: "เพิ่มบาริสต้าอีก 1 คน หรือเพิ่มแคชเชียร์ อะไรช่วยมากกว่า?"<span class="en-block" style="display:block">Order-to-cup average &lt; 8 min (feels like ~15 now) — the model's question: "add a barista or a cashier — which helps more?"</span></p>
+      </div>
+    </div>
+    <p class="th-block" style="font-size:.88rem;color:var(--muted);margin-bottom:0">💡 สังเกต: ไม่ต้องจำลองเมนู รสชาติ หรือที่นั่ง — ตัดทุกอย่างที่ไม่กระทบ KPI ออก</p>
+    <p class="en-block" style="font-size:.88rem;color:var(--muted);margin-bottom:0">💡 Note: no menus, flavors, or seating — everything that doesn't affect the KPI is cut.</p>
+  </div>
+
+  <div class="card">
+    <h3>🕐 ขั้นตอนทำจริง (20 นาที) <span class="en">/ How to do it — 20 minutes</span></h3>
+    <ol style="margin:6px 0">
+      <li class="th-block"><strong>รวมกลุ่ม 3–4 คน แล้วเลือกระบบ</strong> (2 นาที) — โรงอาหาร / ธนาคารในมอ / เคาน์เตอร์ทะเบียน / ร้านกาแฟ / ร้านถ่ายเอกสาร — เลือกระบบที่มีคนในกลุ่ม <u>เคยไปต่อคิวจริง</u></li>
+      <li class="en-block"><strong>Form a group of 3–4 and pick a system</strong> (2 min) — canteen / campus bank / registrar / café / copy shop — pick one someone in the group has <u>actually queued at</u>.</li>
+      <li class="th-block"><strong>เดินดูในหัว (mental walk-through)</strong> (5 นาที) — หลับตานึกภาพตามลูกค้า 1 คน: เข้ามาทางไหน → หยุดรอตรงไหน → ใครให้บริการ → ออกทางไหน แล้ววาดเป็นลูกศรง่ายๆ 3–4 ช่องบนกระดาษ</li>
+      <li class="en-block"><strong>Mental walk-through</strong> (5 min) — follow one customer in your head: entrance → waiting points → who serves → exit; sketch it as 3–4 boxes with arrows.</li>
+      <li class="th-block"><strong>ตอบคำถาม 3 ข้อลงใบงานด้านล่าง</strong> (8 นาที) — entity / คิว&amp;ทรัพยากร / KPI — เทียบกับตัวอย่างร้านกาแฟด้านบนได้ตลอด</li>
+      <li class="en-block"><strong>Answer the 3 questions in the worksheet below</strong> (8 min) — entity / queue &amp; resource / KPI — keep comparing with the café example above.</li>
+      <li class="th-block"><strong>ส่งตัวแทนนำเสนอ 1 นาที</strong> (5 นาที) — ใช้สคริปต์: <em>"ระบบของเราคือ… entity คือ… คิวเกิดตรง… ทรัพยากรคือ… KPI ที่อยากแก้คือ… เพราะ…"</em></li>
+      <li class="en-block"><strong>One-minute pitch per group</strong> (5 min) — script: <em>"Our system is… the entity is… queues form at… the resource is… the KPI we want to fix is… because…"</em></li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>📝 ใบงานกลุ่ม (พิมพ์ได้เลย บันทึกอัตโนมัติ) <span class="en">/ Group worksheet — auto-saves</span></h3>
+    <div class="wt-grid">
+      <div class="wt-f full">
+        <label class="th-block">📍 ระบบที่กลุ่มเลือก + ช่วงเวลาที่คิวยาวสุด</label><label class="en-block">📍 Chosen system + its busiest window</label>
+        <textarea class="wtsave" data-wt="system" placeholder="ระบบอะไร ที่ไหน ช่วงเวลาไหนที่คิวยาว? เช่น โรงอาหารตึก A ช่วง 12:00–13:00"></textarea>
+      </div>
+      <div class="wt-f">
+        <label class="th-block">1️⃣ Entity — ใคร/อะไรไหลผ่านระบบ?</label><label class="en-block">1️⃣ Entity — who/what flows through?</label>
+        <textarea class="wtsave" data-wt="entity" placeholder="ใครเข้ามา รอ รับบริการ แล้วออกไป?"></textarea>
+      </div>
+      <div class="wt-f">
+        <label class="th-block">2️⃣ รอตรงไหน &amp; ใคร/อะไรให้บริการ (กี่คน/กี่เครื่อง)?</label><label class="en-block">2️⃣ Where's the wait &amp; who/what serves (how many)?</label>
+        <textarea class="wtsave" data-wt="queue" placeholder="จุดรอมีกี่จุด? ผู้ให้บริการคือใคร กี่คน?"></textarea>
+      </div>
+      <div class="wt-f full">
+        <label class="th-block">3️⃣ KPI ที่อยากแก้ + เป้าหมายตัวเลข + คำถามที่อยากให้โมเดลตอบ</label><label class="en-block">3️⃣ KPI to fix + numeric target + the question for the model</label>
+        <textarea class="wtsave" data-wt="kpi" placeholder="เช่น เวลารอเฉลี่ย < 5 นาที — คำถาม: เพิ่มพนักงาน 1 คนคุ้มไหม?"></textarea>
+      </div>
+    </div>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:0"><span class="th-block">✅ เช็คก่อนนำเสนอ: entity เป็น "สิ่งที่ไหล" ไม่ใช่คนให้บริการ · ระบุจำนวนทรัพยากรชัด · KPI วัดเป็นตัวเลขได้</span><span class="en-block">✅ Pre-pitch check: the entity is what FLOWS, not the server · resource count is explicit · the KPI is measurable.</span></p>
+  </div>
+
+</section>
+
+<!-- ===================== S9 QUIZ ===================== -->
+<section id="s9">
+  <h2><span class="num">9</span> Quiz ทบทวน 10 ข้อ <span class="en" style="font-size:.9rem">/ Review — 10 questions</span></h2>
+  <p class="lead th-block">ครอบคลุมทุกหัวข้อของวันนี้ — เลือกคำตอบแล้วดูเฉลยทันที ตอบครบ 10 ข้อจะเห็นคะแนนรวม</p>
+  <p class="lead en-block">Covers everything from today — pick an answer for instant feedback; finish all 10 to see your score.</p>
+  <div class="quiz" id="quiz"></div>
+  <div class="scoreband" id="scoreband"></div>
+  <div class="qz-submit-wrap" id="qzSubmitWrap">
+    <button class="act teal" id="qz_btn" onclick="submitQuizScore()"><span class="th-block">📤 ส่งคะแนนเข้า Google Form</span><span class="en-block">📤 Submit score to Google Form</span></button>
+    <div class="qz-msg" id="qz_msg"></div>
+    <iframe name="qz_target" id="qz_target" style="display:none" title="hidden"></iframe>
+    <form id="qz_form" action="https://docs.google.com/forms/d/e/1FAIpQLSclFIU4THZ0JFcnzklIJMQHxs5ADRj6vVDYOojO0M70uiGwiQ/formResponse" method="POST" target="qz_target" style="display:none">
+      <input type="hidden" name="entry.1463252013" id="qz_f_student">
+      <input type="hidden" name="entry.1569454509" id="qz_f_score">
+      <input type="hidden" name="fvv" value="1">
+      <input type="hidden" name="pageHistory" value="0">
+    </form>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="notetools">
+    <button onclick="downloadNotes()">⬇️ ดาวน์โหลดโน้ต + ใบงาน (.txt) / Download notes</button>
+    <button onclick="clearNotes()">🗑️ ล้างโน้ตทั้งหมด / Clear all notes</button>
+  </div>
+  <p style="opacity:.7;font-size:.82rem;margin-top:4px">📝 โน้ตและใบงานบันทึกอัตโนมัติในเบราว์เซอร์เครื่องนี้ (localStorage) · เปิดไฟล์เดิมครั้งหน้ายังอยู่ · Notes &amp; worksheet auto-save in this browser</p>
+  <p class="th-block">สื่อประกอบการบรรยาย — Computer Simulation I ครั้งที่ 1 · จัดทำเพื่อการเรียนการสอน คณะโลจิสติกส์</p>
+  <p class="en-block">Lecture companion — Computer Simulation I, Session 1 · For teaching, Faculty of Logistics</p>
+  <p style="opacity:.7;font-size:.82rem">อ้างอิงเนื้อหา: simMainBook บทที่ 1 · Robinson (2014) · Banks et al. (2005) · ทุกส่วนโต้ตอบได้ ทบทวนเองที่บ้านได้</p>
+</footer>
+
+<!-- ===================== PAGER (หัวข้อละหน้า) ===================== -->
+<div id="pager">
+  <button id="prevBtn" onclick="pageMove(-1)">◀ <span class="th-block">ย้อนกลับ</span><span class="en-block">Back</span></button>
+  <span class="pginfo"><span class="th-block">หน้า</span><span class="en-block">Page</span> <b id="pgCur">1</b> / <span id="pgTot">1</span></span>
+  <button id="nextBtn" onclick="pageMove(1)"><span class="th-block">ถัดไป</span><span class="en-block">Next</span> ▶</button>
+</div>
+
+<script>
+/* ================= LANGUAGE ================= */
+function toggleLang(){
+  document.body.classList.toggle('en');
+  var en = document.body.classList.contains('en');
+  document.getElementById('langbtn').textContent = en ? 'TH' : 'EN';
+  var ov=document.getElementById('ovlang'); if(ov) ov.textContent = en ? 'TH' : 'EN';
+  // toggle table header cells
+  document.querySelectorAll('#queueTable th').forEach(function(th){
+    if(th.classList.contains('th-block')) th.style.display = en?'none':'';
+    if(th.classList.contains('en-block')) th.style.display = en?'':'none';
+  });
+  document.querySelectorAll('.stat .l.en-block, .stat .l.th-block').forEach(function(el){
+    if(el.classList.contains('th-block')) el.style.display = en?'none':'';
+    if(el.classList.contains('en-block')) el.style.display = en?'':'none';
+  });
+  drawDC(); // redraw labels
+}
+
+/* ================= OVERVIEW / LANDING ================= */
+function enterLesson(){
+  document.body.classList.remove('landing');
+  window.scrollTo(0,0);
+  if(typeof goToPage==='function') goToPage(0);
+}
+function showOverview(){
+  document.body.classList.add('landing');
+  window.scrollTo(0,0);
+}
+var roadmapData=[
+  {n:1,th:'แนะนำ Simulation, DESS, เมื่อไร/ทำไม, วงจรการทำ simulation',en:'Intro to Simulation, DESS, When/Why, the simulation lifecycle',hrs:'3–4 ชม.',tool:'Excel',tc:'excel',cur:true},
+  {n:2,th:'Input Analysis — การเก็บข้อมูล & การแจกแจงความน่าจะเป็น',en:'Input Analysis — data collection & probability distributions',hrs:'4 ชม.',tool:'Excel',tc:'excel'},
+  {n:3,th:'สร้างแบบจำลอง DES ด้วย Python / SimPy (Case: ธนาคาร)',en:'Build a DES model with Python / SimPy (Case: bank)',hrs:'4 ชม.',tool:'Python/SimPy',tc:'py'},
+  {n:4,th:'Verification — 7 วิธีตรวจสอบความถูกต้องของโมเดล',en:'Verification — checking the model is built right',hrs:'4 ชม.',tool:'Python + Excel',tc:'py'},
+  {n:5,th:'Validation — ความสมเหตุสมผล & การทดสอบสมมติฐาน',en:'Validation — plausibility & hypothesis testing',hrs:'4 ชม.',tool:'Excel + Python',tc:'excel'},
+  {n:6,th:'Output Analysis + แนะนำ Simio & โปรเจกต์',en:'Output Analysis + intro to Simio & the project',hrs:'4 ชม.',tool:'Python + Simio',tc:'simio'}
+];
+(function(){
+  var box=document.getElementById('roadmap');if(!box)return;
+  roadmapData.forEach(function(r){
+    var d=document.createElement('div');d.className='rm-item'+(r.cur?' current':'');
+    d.innerHTML='<div class="rm-num">'+r.n+'</div>'+
+      '<div class="rm-body"><h4><span class="th-block">'+r.th+'</span><span class="en-block">'+r.en+'</span>'+
+      '<span class="rm-tool '+r.tc+'">'+r.tool+'</span></h4>'+
+      '<div class="rm-meta">⏱️ '+r.hrs+'</div></div>'+
+      (r.cur?'<div class="rm-badge th-block">เริ่มที่นี่</div><div class="rm-badge en-block">Start here</div>':'');
+    box.appendChild(d);
+  });
+})();
+var gradeData=[
+  {th:'การทำโครงงาน',en:'Project',pct:30},
+  {th:'การบ้าน & กรณีศึกษา',en:'Assignments & Case Studies',pct:20},
+  {th:'ข้อสอบกลางภาค',en:'Mid-term Exam',pct:20},
+  {th:'ข้อสอบปลายภาค',en:'Final Exam',pct:20},
+  {th:'การมีส่วนร่วมในห้องเรียน',en:'Class Participation',pct:10}
+];
+(function(){
+  var box=document.getElementById('gradeWrap');if(!box)return;
+  gradeData.forEach(function(g){
+    var row=document.createElement('div');row.className='grade-row';
+    row.innerHTML='<div class="glabel"><span class="th-block">'+g.th+'</span><span class="en-block">'+g.en+'</span></div>'+
+      '<div class="grade-bar"><span style="width:'+(g.pct*3)+'%">'+g.pct+'%</span></div>';
+    box.appendChild(row);
+  });
+  var tot=document.createElement('div');tot.style.cssText='text-align:right;font-weight:800;color:var(--navy);margin-top:14px;border-top:1px dashed var(--line);padding-top:10px;';
+  tot.innerHTML='<span class="th-block">รวม 100 คะแนน</span><span class="en-block">Total 100 points</span>';
+  box.appendChild(tot);
+})();
+
+/* ================= PROGRESS + NAV (scroll mode fallback) ================= */
+window.addEventListener('scroll',function(){
+  if(document.body.classList.contains('paged')) return; // paged mode handles its own progress/nav
+  var h=document.documentElement, st=h.scrollTop, sh=h.scrollHeight-h.clientHeight;
+  document.getElementById('progress').style.width=(st/sh*100)+'%';
+  var secs=document.querySelectorAll('section'), cur='';
+  secs.forEach(function(s){ if(window.scrollY>=s.offsetTop-120) cur=s.id; });
+  document.querySelectorAll('#nav a').forEach(function(a){
+    a.classList.toggle('active', a.getAttribute('href')==='#'+cur);
+  });
+});
+
+/* ================= PAGER ENGINE (หัวข้อละหน้า / one topic per page) ================= */
+var pgPages=[], pgIdx=0;
+function pgInit(){
+  pgPages=Array.prototype.slice.call(document.querySelectorAll('.wrap > section'));
+  if(!pgPages.length) return;
+  var tot=document.getElementById('pgTot'); if(tot) tot.textContent=pgPages.length;
+  // in-page nav links (#s1..#s9) switch page instead of scrolling
+  document.querySelectorAll('#nav a[href^="#s"]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      if(document.body.classList.contains('landing')) enterLesson();
+      goToPageById(a.getAttribute('href').slice(1));
+    });
+  });
+  // graceful placeholder for figure images that fail to load
+  document.querySelectorAll('.figrow img').forEach(function(img){
+    img.addEventListener('error',function(){
+      if(img.classList.contains('imgmiss')) return;
+      img.classList.add('imgmiss');
+      img.src='data:image/svg+xml;charset=utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"/>');
+    });
+  });
+  goToPage(0,true);
+}
+function goToPageById(id){
+  for(var i=0;i<pgPages.length;i++){ if(pgPages[i].id===id){ goToPage(i); return; } }
+}
+function goToPage(i,silent){
+  if(!pgPages.length) return;
+  pgIdx=Math.max(0,Math.min(i,pgPages.length-1));
+  pgPages.forEach(function(s,k){ s.classList.toggle('active',k===pgIdx); });
+  var cur=document.getElementById('pgCur'); if(cur) cur.textContent=pgIdx+1;
+  var pb=document.getElementById('prevBtn'), nb=document.getElementById('nextBtn');
+  if(pb) pb.disabled=(pgIdx===0);
+  if(nb) nb.disabled=(pgIdx===pgPages.length-1);
+  document.getElementById('progress').style.width=((pgIdx+1)/pgPages.length*100)+'%';
+  var curId=pgPages[pgIdx].id;
+  document.querySelectorAll('#nav a').forEach(function(a){
+    a.classList.toggle('active', a.getAttribute('href')==='#'+curId);
+  });
+  if(!silent) window.scrollTo(0,0);
+  try{ if(curId==='s3'){ dcT=1; drawDC(); } }catch(e){}
+}
+function pageMove(d){ goToPage(pgIdx+d); }
+document.addEventListener('keydown',function(e){
+  if(document.body.classList.contains('landing')) return;
+  var t=e.target.tagName; if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT') return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'){ e.preventDefault(); pageMove(1); }
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); pageMove(-1); }
+});
+
+/* ================= S3: DISCRETE vs CONTINUOUS ANIM ================= */
+var dcCanvas=document.getElementById('dcCanvas'), dcx=dcCanvas.getContext('2d');
+var dcT=0, dcRun=false, dcRAF=null;
+function drawDC(){
+  var W=dcCanvas.width,H=dcCanvas.height,pad=44;
+  dcx.clearRect(0,0,W,H);
+  var en=document.body.classList.contains('en');
+  // axes
+  dcx.strokeStyle='#c8d2dc';dcx.lineWidth=1;
+  dcx.beginPath();dcx.moveTo(pad,H-30);dcx.lineTo(W-15,H-30);dcx.stroke();
+  dcx.beginPath();dcx.moveTo(pad,15);dcx.lineTo(pad,H-30);dcx.stroke();
+  dcx.fillStyle='#5b6b7b';dcx.font='12px Segoe UI';
+  dcx.fillText(en?'time →':'เวลา →',W-70,H-12);
+  dcx.save();dcx.translate(14,H/2);dcx.rotate(-Math.PI/2);
+  dcx.fillText(en?'system state':'สถานะระบบ',0,0);dcx.restore();
+  var x0=pad, x1=W-15, span=x1-x0, base=H-30, top=25;
+  var prog=Math.min(dcT,1);
+  // continuous (amber sine-ish smooth curve)
+  dcx.strokeStyle='#e9a93f';dcx.lineWidth=3;dcx.beginPath();
+  for(var i=0;i<=span*prog;i++){
+    var tt=i/span; var y=base-(0.5+0.4*Math.sin(tt*7))*(base-top);
+    if(i===0)dcx.moveTo(x0+i,y);else dcx.lineTo(x0+i,y);
+  }
+  dcx.stroke();
+  // discrete (green staircase)
+  dcx.strokeStyle='#2a9d8f';dcx.lineWidth=3;dcx.beginPath();
+  var steps=[0.15,0.45,0.30,0.70,0.55,0.85,0.65];
+  var segW=span/steps.length, py=base-steps[0]*(base-top);
+  dcx.moveTo(x0,py);
+  for(var s=0;s<steps.length;s++){
+    var sx=x0+segW*s, ex=x0+segW*(s+1);
+    var lim=x0+span*prog;
+    var yv=base-steps[s]*(base-top);
+    if(sx>lim)break;
+    dcx.lineTo(Math.min(ex,lim),yv);
+    if(ex<=lim){ var ny=base-steps[Math.min(s+1,steps.length-1)]*(base-top); dcx.lineTo(ex,ny); }
+  }
+  dcx.stroke();
+  // dots on discrete events
+  dcx.fillStyle='#0f2c4d';
+  for(var s2=0;s2<steps.length;s2++){
+    var sx2=x0+segW*s2; if(sx2>x0+span*prog)break;
+    var yv2=base-steps[s2]*(base-top);
+    dcx.beginPath();dcx.arc(sx2,yv2,4,0,7);dcx.fill();
+  }
+  // legend
+  dcx.font='bold 12px Segoe UI';
+  dcx.fillStyle='#2a9d8f';dcx.fillText('■ Discrete',pad+8,26);
+  dcx.fillStyle='#e9a93f';dcx.fillText('■ Continuous',pad+90,26);
+}
+function dcLoop(){ if(!dcRun)return; dcT+=0.004; if(dcT>1)dcT=0; drawDC(); dcRAF=requestAnimationFrame(dcLoop); }
+function dcAnim(on){ dcRun=on; if(on){ if(dcT>=1)dcT=0; dcLoop(); } else if(dcRAF) cancelAnimationFrame(dcRAF); }
+dcT=1; drawDC();
+
+/* ================= S4: HAND QUEUE SIM ================= */
+var qData=[ // customer, arrival, service
+  {c:1,arr:0,srv:2},{c:2,arr:2,srv:1},{c:3,arr:6,srv:3},
+  {c:4,arr:7,srv:2},{c:5,arr:9,srv:1},{c:6,arr:15,srv:4}
+];
+var qStepI=0, qRows=[];
+function qClk(m){var t=600+m,h=Math.floor(t/60),mm=t%60;return (h<10?'0':'')+h+':'+(mm<10?'0':'')+mm;} // 600 = 10:00
+function qReset(){
+  qStepI=0;qRows=[];
+  var b=document.getElementById('queueBody');b.innerHTML='';
+  qData.forEach(function(d,i){
+    var tr=document.createElement('tr');tr.className='dim';tr.id='qr'+i;
+    tr.innerHTML='<td>'+d.c+'</td><td>'+qClk(d.arr)+'</td><td>–</td><td>'+d.srv+'</td><td>–</td><td>–</td><td>–</td>';
+    b.appendChild(tr);
+  });
+  document.getElementById('qNext').disabled=false;
+  ['qAvgWait','qAvgSys','qMaxWait'].forEach(function(id){document.getElementById(id).textContent='–';});
+}
+function qStep(){
+  if(qStepI>=qData.length)return;
+  var i=qStepI, d=qData[i];
+  var prevFin = i===0?0:qRows[i-1].fin;
+  var start=Math.max(d.arr,prevFin);
+  var fin=start+d.srv;
+  var wait=start-d.arr;
+  var sys=fin-d.arr;
+  qRows.push({start:start,fin:fin,wait:wait,sys:sys});
+  var tr=document.getElementById('qr'+i);
+  tr.className='cur';
+  var startCell = (wait>0) ? '<td class="hl">max('+qClk(d.arr)+','+qClk(prevFin)+')='+qClk(start)+'</td>' : '<td>'+qClk(start)+'</td>';
+  var waitCell = (wait>0) ? '<td class="hl">'+wait+'</td>' : '<td>'+wait+'</td>';
+  tr.innerHTML='<td>'+d.c+'</td><td>'+qClk(d.arr)+'</td>'+startCell+'<td>'+d.srv+'</td><td>'+qClk(fin)+'</td>'+waitCell+'<td>'+sys+'</td>';
+  // un-highlight previous cur
+  for(var k=0;k<i;k++){document.getElementById('qr'+k).className='';}
+  qStepI++;
+  if(qStepI>=qData.length){document.getElementById('qNext').disabled=true;document.getElementById('qr'+i).className='';}
+  qUpdateStats();
+}
+function qAll(){ while(qStepI<qData.length)qStep(); }
+function qUpdateStats(){
+  if(qRows.length===0)return;
+  var sw=0,ss=0,mw=0;
+  qRows.forEach(function(r){sw+=r.wait;ss+=r.sys;if(r.wait>mw)mw=r.wait;});
+  document.getElementById('qAvgWait').textContent=(sw/qRows.length).toFixed(2);
+  document.getElementById('qAvgSys').textContent=(ss/qRows.length).toFixed(2);
+  document.getElementById('qMaxWait').textContent=mw;
+}
+qReset();
+
+/* ================= S5: FLOW ================= */
+var flowSteps=[
+  {t:'ตั้งปัญหา & วัตถุประสงค์',e:'Define problem',d:{th:'📅 ครั้งที่ 1 (คาบนี้) — เริ่มจากเข้าใจว่าจะแก้อะไร วัดผลด้วยอะไร ตามที่เกริ่นไว้ในหัวข้อ "ทำไมต้อง Simulate"',en:'📅 Session 1 (today) — understand what to solve and how to measure it, as introduced in "Why Simulate".'}},
+  {t:'Conceptual model',e:'Conceptual model',d:{th:'📅 ครั้งที่ 1 (คาบนี้) — ร่างแบบจำลองแนวคิด กำหนด Entity/ทรัพยากร/KPI ตามกิจกรรม Walk-through โรงอาหาร (หัวข้อ 8)',en:'📅 Session 1 (today) — sketch the conceptual model: entities, resources & KPIs, as in the canteen Walk-through activity (Topic 8).'}},
+  {t:'เก็บข้อมูล',e:'Collect data',d:{th:'📅 ครั้งที่ 2 — Input Analysis เก็บและ fit การแจกแจง',en:'📅 Session 2 — Input Analysis, collect & fit distributions.'}},
+  {t:'สร้างแบบจำลอง',e:'Build model',d:{th:'📅 ครั้งที่ 3 — เขียนโมเดล DES ด้วย Python/SimPy',en:'📅 Session 3 — build the DES model in Python/SimPy.'}},
+  {t:'Verify?',e:'Verify?',q:1,d:{th:'📅 ครั้งที่ 4 — "สร้างถูกไหม" โค้ดตรงแบบที่ออกแบบ',en:'📅 Session 4 — "built it right?" code matches design.'}},
+  {t:'Validate?',e:'Validate?',q:1,d:{th:'📅 ครั้งที่ 5 — "สร้างถูกตัวไหม" โมเดลตรงโลกจริง',en:'📅 Session 5 — "built the right thing?" model matches reality.'}},
+  {t:'ออกแบบการทดลอง',e:'Design experiments',d:{th:'📅 ครั้งที่ 6 — Output Analysis: กำหนดสถานการณ์/พารามิเตอร์ และจำนวนรอบรันก่อนเก็บผล',en:'📅 Session 6 — Output Analysis: define scenarios/parameters and the number of replications before collecting results.'}},
+  {t:'รัน & วิเคราะห์ผล',e:'Run & analyze',d:{th:'📅 ครั้งที่ 6 — Output Analysis: รันหลายรอบ วิเคราะห์ผลทางสถิติ',en:'📅 Session 6 — Output Analysis: run replications, analyze statistically.'}},
+  {t:'รอบเพิ่ม?',e:'More runs?',q:1,d:{th:'📅 ครั้งที่ 6 — Output Analysis: ขั้นที่ 10 (Banks et al.) ถ้าความผิดพลาด (estimation error) ยังสูง วนกลับไปเพิ่มจำนวนรอบรัน/ขนาดตัวอย่าง แล้ววิเคราะห์ใหม่',en:'📅 Session 6 — Output Analysis: Step 10 (Banks et al.) — if the estimation error is still high, loop back to run more replications, then re-analyze.'}},
+  {t:'รายงาน & นำไปใช้',e:'Report & implement',d:{th:'📅 หลังครั้งที่ 6 — สรุปผลเป็นโครงงานปลายภาค (Project) เสนอผู้บริหาร นำไปตัดสินใจจริง',en:'📅 After Session 6 — wrap up as the final Project: report, present, and drive real decisions.'}}
+];
+(function(){
+  var f=document.getElementById('flow');
+  flowSteps.forEach(function(s,i){
+    var div=document.createElement('div');div.className='step'+(s.q?' q':'');
+    div.innerHTML='<span class="th-block">'+s.t+'</span><span class="en-block">'+s.e+'</span>';
+    div.onclick=function(){
+      var m=document.getElementById('flowMsg');
+      m.innerHTML='<span class="th-block"><strong>'+s.t+'</strong> — '+s.d.th+'</span><span class="en-block"><strong>'+s.e+'</strong> — '+s.d.en+'</span>';
+    };
+    f.appendChild(div);
+    if(i<flowSteps.length-1){var a=document.createElement('div');a.className='arrow';a.textContent='→';f.appendChild(a);}
+  });
+})();
+
+/* ================= S6: BANK DES ================= */
+function expo(mean){ return -mean*Math.log(1-Math.random()); }
+function runBank(){
+  var tellers=+document.getElementById('rT').value;
+  var arrPerH=+document.getElementById('rA').value;
+  var svcMean=+document.getElementById('rS').value;
+  var SIM=480; // 8h in minutes
+  var iat=60/arrPerH; // mean interarrival minutes
+  // generate arrivals
+  var t=0, arrivals=[];
+  while(true){ t+=expo(iat); if(t>SIM)break; arrivals.push(t); }
+  var freeAt=new Array(tellers).fill(0);
+  var waits=[], systimes=[], busy=0;
+  arrivals.forEach(function(a){
+    // pick earliest free teller
+    var idx=0; for(var i=1;i<tellers;i++){ if(freeAt[i]<freeAt[idx]) idx=i; }
+    var start=Math.max(a,freeAt[idx]);
+    var svc=expo(svcMean);
+    var fin=start+svc;
+    freeAt[idx]=fin;
+    busy+=svc;
+    waits.push(start-a);
+    systimes.push(fin-a);
+  });
+  var n=waits.length;
+  var avgW=n?waits.reduce(function(x,y){return x+y;},0)/n:0;
+  var avgS=n?systimes.reduce(function(x,y){return x+y;},0)/n:0;
+  var util=Math.min(busy/(tellers*SIM)*100,100);
+  document.getElementById('bWait').textContent=avgW.toFixed(1);
+  document.getElementById('bSys').textContent=avgS.toFixed(1);
+  document.getElementById('bUtil').textContent=util.toFixed(0)+'%';
+  document.getElementById('bN').textContent=n;
+  drawHist('bankCanvas',waits,'#1f5f8b',12);
+  // message vs target (<15 min in system)
+  var msg=document.getElementById('bankMsg');
+  var en=document.body.classList.contains('en');
+  if(avgS<15 && util<90){
+    msg.className='note tip';msg.style.display='block';
+    msg.innerHTML=en?'✅ Meets target: avg time-in-system '+avgS.toFixed(1)+' min < 15, utilization '+util.toFixed(0)+'% (healthy).':'✅ ผ่านเป้าหมาย: เวลาในระบบเฉลี่ย '+avgS.toFixed(1)+' นาที < 15 · การใช้งาน '+util.toFixed(0)+'% (ยังไหว)';
+  } else {
+    msg.className='note warn';msg.style.display='block';
+    msg.innerHTML=en?'⚠️ Over target / overloaded: avg in-system '+avgS.toFixed(1)+' min, utilization '+util.toFixed(0)+'%. Add tellers or reduce load.':'⚠️ เกินเป้า/ระบบแน่น: ในระบบเฉลี่ย '+avgS.toFixed(1)+' นาที · การใช้งาน '+util.toFixed(0)+'% ลองเพิ่มพนักงานหรือลดโหลด';
+  }
+}
+/* generic histogram */
+function drawHist(id,data,color,bins){
+  var cv=document.getElementById(id),cx=cv.getContext('2d');
+  var W=cv.width,H=cv.height;cx.clearRect(0,0,W,H);
+  if(!data.length)return;
+  var en=document.body.classList.contains('en');
+  var padL=48,padR=16,padT=14,padB=46;
+  var mn=Math.min.apply(null,data), mx=Math.max.apply(null,data);
+  if(mx===mn)mx=mn+1;
+  var bw=(mx-mn)/bins, counts=new Array(bins).fill(0);
+  data.forEach(function(v){var b=Math.floor((v-mn)/bw);if(b>=bins)b=bins-1;if(b<0)b=0;counts[b]++;});
+  var mxc=Math.max.apply(null,counts)||1;
+  // round the y-axis max up to a "nice" number
+  var step=Math.pow(10,Math.floor(Math.log10(mxc)));
+  var yMax=Math.ceil(mxc/step)*step; if(yMax<mxc)yMax=mxc; if(yMax<5)yMax=Math.max(mxc,5);
+  var plotW=W-padL-padR, plotH=H-padT-padB, x0=padL, y0=H-padB;
+  // Y gridlines + value labels
+  cx.font='11px Segoe UI';cx.textBaseline='middle';
+  var ySteps=5;
+  for(var g=0; g<=ySteps; g++){
+    var yval=Math.round(yMax*g/ySteps);
+    var yy=y0-(yval/yMax)*plotH;
+    cx.strokeStyle=(g===0)?'#c8d2dc':'#eef2f6';cx.lineWidth=1;
+    cx.beginPath();cx.moveTo(x0,yy);cx.lineTo(W-padR,yy);cx.stroke();
+    cx.fillStyle='#5b6b7b';cx.textAlign='right';cx.fillText(yval,x0-6,yy);
+  }
+  cx.strokeStyle='#c8d2dc';cx.beginPath();cx.moveTo(x0,padT);cx.lineTo(x0,y0);cx.stroke();
+  // bars
+  var barW=plotW/bins;
+  for(var i=0;i<bins;i++){
+    var h=counts[i]/yMax*plotH;
+    cx.fillStyle=color;cx.fillRect(x0+i*barW+2, y0-h, Math.max(1,barW-3), h);
+  }
+  // X ticks + value labels (waiting time in minutes)
+  cx.textAlign='center';cx.textBaseline='top';
+  var xTicks=Math.min(bins,8), dec=(mx-mn)<8?1:0;
+  for(var t=0;t<=xTicks;t++){
+    var frac=t/xTicks, xval=mn+frac*(mx-mn), px=x0+frac*plotW;
+    cx.strokeStyle='#c8d2dc';cx.beginPath();cx.moveTo(px,y0);cx.lineTo(px,y0+4);cx.stroke();
+    cx.fillStyle='#5b6b7b';cx.fillText(xval.toFixed(dec),px,y0+7);
+  }
+  // axis titles
+  cx.fillStyle='#0f2c4d';cx.font='bold 11px Segoe UI';cx.textAlign='center';cx.textBaseline='alphabetic';
+  cx.fillText(en?'Waiting time (min)':'เวลารอ (นาที)', x0+plotW/2, H-6);
+  cx.save();cx.translate(11,padT+plotH/2);cx.rotate(-Math.PI/2);
+  cx.fillText(en?'Customers (freq.)':'จำนวนลูกค้า (คน)',0,0);cx.restore();
+}
+runBank();
+
+/* ================= PER-SECTION NOTES (localStorage) ================= */
+var NOTE_PREFIX='comsim1_note_';
+(function(){
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    var id=sec.id||('sec'+Math.random().toString(36).slice(2));
+    var h=sec.querySelector('h2');
+    var title=h?h.textContent.trim():id;
+    var box=document.createElement('div');
+    box.className='notebox';
+    box.innerHTML=
+      '<div class="nhead"><label>📝 โน้ตของฉัน / My notes — <span style="font-weight:600;color:#5b6b7b">'+title+'</span></label>'+
+      '<span class="savemark">บันทึกอัตโนมัติ / auto-save</span></div>'+
+      '<textarea placeholder="พิมพ์สิ่งที่เข้าใจ ข้อสงสัย หรือสิ่งที่อาจารย์เน้น... / Type what you learned, questions, or key points..."></textarea>';
+    sec.appendChild(box);
+    var ta=box.querySelector('textarea');
+    var mark=box.querySelector('.savemark');
+    var key=NOTE_PREFIX+id;
+    try{ ta.value=localStorage.getItem(key)||''; }catch(e){}
+    ta.addEventListener('input',function(){
+      try{ localStorage.setItem(key,ta.value); }catch(e){}
+      mark.textContent='✓ บันทึกแล้ว / saved';mark.classList.add('ok');
+      clearTimeout(ta._t);
+      ta._t=setTimeout(function(){mark.textContent='บันทึกอัตโนมัติ / auto-save';mark.classList.remove('ok');},1400);
+    });
+  });
+})();
+function downloadNotes(){
+  var lines=['โน้ต — Computer Simulation I (ครั้งที่ 1)','ดาวน์โหลดเมื่อ: '+new Date().toLocaleString('th-TH'),''];
+  var any=false;
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    var ta=sec.querySelector('.notebox textarea');
+    var title=(sec.querySelector('h2')||{}).textContent||sec.id;
+    var v=ta?ta.value.trim():'';
+    if(v){any=true;lines.push('■ '+title.trim());lines.push(v);lines.push('');}
+  });
+  var wtLabels={system:'ระบบที่เลือก',entity:'Entity',queue:'คิว & ทรัพยากร',kpi:'KPI'};
+  var wtAny=false, wtLines=['■ ใบงานกลุ่ม Walk-through'];
+  document.querySelectorAll('textarea.wtsave').forEach(function(ta){
+    var v=ta.value.trim(); if(v){wtAny=true;wtLines.push('- '+(wtLabels[ta.dataset.wt]||ta.dataset.wt)+': '+v);}
+  });
+  if(wtAny){any=true;lines=lines.concat(wtLines).concat(['']);}
+  if(!any){alert('ยังไม่มีโน้ต / No notes yet');return;}
+  var blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='โน้ต_ComSim1_'+new Date().toISOString().slice(0,10)+'.txt';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+function clearNotes(){
+  if(!confirm('ลบโน้ตทั้งหมดในเครื่องนี้? / Delete ALL notes on this browser?'))return;
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    try{ localStorage.removeItem(NOTE_PREFIX+sec.id); }catch(e){}
+    var ta=sec.querySelector('.notebox textarea');if(ta)ta.value='';
+  });
+}
+
+
+/* ================= CHECK-IN (Google Form) ================= */
+var ROSTER=["67090002 นายอภิวิชญ์ เฉลิมวงศ์", "67090003 นายนำแสง แก้วบางพูด", "67090004 นายภาณุวิทย์ วัณโณภาศ", "67090005 นางสาววิภาดา แสงศิลา", "67090006 นางสาวอัจฉริยา แพงไทย", "67090007 นางสาวฉันท์สินี ปาวารี", "67090008 นางสาวฐิติมา ไร่วิวัฒน์", "67090009 นางสาวกรกนก สร่างทุกข์", "67090010 นางสาวสุนันทา พรมพานิช", "67090012 นางสาวศศิพร สิมพา", "67090014 นางสาวอาทิตติยา เพ็ชรวิลัย", "67090063 นายเกรียงไกร ศักดาเพชรศิริ", "67090064 นางสาวเกษญาดา คนธรรมศาสตร์", "67090065 นางสาวชนากานต์ ยงยืน", "67090066 นางสาวชนิตา ฮั่นกูล", "67090067 นางสาวชนิษฐา นิลวดี", "67090068 นายชลาธิป อ้นถาวร", "67090069 นางสาวโชติรส แสวงผล", "67090070 นางสาวณัฏฐณิชา บุญสวนสุขฤดี", "67090071 นางสาวณัฐกานต์ กมลเนตร์", "67090072 นางสาวณัฐกานต์ สิงเหาะ", "67090073 นางสาวณัฐญาดา นิยมทอง", "67090074 นางสาวณัฐธยาน์ วงศ์คำ", "67090075 นายธนกฤต มหกิจขจร", "67090076 นางสาวธนภรณ์ แซ่เตียว", "67090077 นางสาวธวัลฤทัย ขำเชย", "67090078 นางสาวธัญชนก วึบชัยภูมิ", "67090079 นายธีรภัทร เหล่าทวีสุข", "67090080 นางสาวนงนภัส กระดุมเงิน", "67090081 นางสาวนะฮ์ดา มหาประทุม", "67090082 นายปฏิพล เจโคกกรวด", "67090083 นางสาวพรนภัส ศิริชัยวัฒนา", "67090084 นางสาวพรปวีณ์ น้อมสมทรัพย์", "67090085 นางสาวพรรณมัย แก้วกุ่ม", "67090086 นางสาวพลอยจันทร์ เรืองจรูญวัฒนา", "67090087 นางสาวเพ็ญนภา ทองยา", "67090088 นางสาวภาคินี สระศิริ", "67090089 นายภาณุวัฒน์ เทียนชัย", "67090090 นางสาวเยาวเรศ จันทฤทธิ์", "67090091 นางสาวรัชตา ชลวิริยะกุล", "67090092 นายศรณ์พงศ์ ปิ่นอนงค์", "67090093 นางสาวศิริลักษณ์ ปานสอน", "67090094 นายศิวัช สุทธิแพทย์", "67090095 นายสินมหัต กลีบมาลี", "67090096 นางสาวสุนิตา แซ่เติ๋น", "67090097 นางสาวสุพิชญา ใจเพียร", "67090098 นางสาวสุภัทชพร สามเตี้ย", "67090230 นายกฤษนัย เติมสุข", "67090232 นายกูฟิตรี เงาะมะเจะ", "67090233 นางสาวจริยา โกมลศรี", "67090234 นายเจษฎา ทองดอนสา", "67090235 นายชุติภาส ทวีคูณ", "67090236 นางสาวณัฐกฤตา โนราช", "67090237 นางสาวณัฐธยาน์ บุญมี", "67090238 นางสาวณัฐธิดา ทรงศิริ", "67090239 นางสาวทอขวัญ เกื้อน้อย", "67090240 นายธนบดี ตรัยวรัญญู", "67090241 นายธนาวิชส์ กาอ่วน", "67090242 นางสาวธัญญรัตน์ แตงชัยภูมิ", "67090243 นายบวรรักษ์ ยอดประทุม", "67090244 นางสาวปนัสยา เพาะนิยม", "67090245 นางสาวปรางค์วลี สีดำ", "67090246 นายปวเรศ แคล่วคล่อง", "67090247 นางสาวพรลภัส เกิดศักดิ์สิทธิ์", "67090248 นายพลช อุบล", "67090249 นางสาวพัชรินทร์ นันธิ", "67090250 นางสาวเพ็ญพิชา แสงประสิทธิ์", "67090251 นางสาวแพรวา นามไพร", "67090252 นางสาวภัทรธิดา จันทชิต", "67090253 นายภูมิพัฒน์ จันทร์วิไชย", "67090254 นางสาวมนณกร อภิธารภูวดล", "67090255 นางสาวรดามณี ประศรีพัฒน์", "67090256 นางสาววรรณพร จินดาธนาคม", "67090257 นางสาววรัชยา บุษบา", "67090258 นางสาววรินทร ดาปาน", "67090259 นายศุภสัณฑ์ ขันสันเทียะ", "67090260 นายสมยศ การเจริญ", "67090261 นางสาวสุรัสวดี ฤทธิ์ชัยภูมิ", "67090262 นางสาวอนุดา เตียวทองธนา"];
+(function(){
+  var sel=document.getElementById('ci_student'); if(!sel)return;
+  ROSTER.forEach(function(name){
+    var o=document.createElement('option'); o.value=name; o.textContent=name; sel.appendChild(o);
+  });
+})();
+function submitCheckin(){
+  var email=(document.getElementById('ci_email').value||'').trim();
+  var student=document.getElementById('ci_student').value;
+  var msg=document.getElementById('ci_msg');
+  var en=document.body.classList.contains('en');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    msg.className='ci-msg err';
+    msg.textContent=en?'⚠️ Please enter a valid email.':'⚠️ กรุณากรอกอีเมลให้ถูกต้อง';
+    return;
+  }
+  if(!student){
+    msg.className='ci-msg err';
+    msg.textContent=en?'⚠️ Please select your name.':'⚠️ กรุณาเลือกชื่อ–รหัสนิสิตของคุณ';
+    return;
+  }
+  document.getElementById('ci_f_email').value=email;
+  document.getElementById('ci_f_student').value=student;
+  document.getElementById('ci_form').submit();
+  var btn=document.getElementById('ci_btn');
+  btn.disabled=true;
+  msg.className='ci-msg ok';
+  msg.textContent=en?'✅ Check-in sent: '+student:'✅ ส่งเช็คชื่อแล้ว: '+student;
+  try{ localStorage.setItem('comsim1_checkin', student+' @ '+new Date().toLocaleString('th-TH')); }catch(e){}
+}
+(function(){
+  try{
+    var prev=localStorage.getItem('comsim1_checkin');
+    if(prev){
+      var msg=document.getElementById('ci_msg');
+      if(msg){ msg.className='ci-msg ok'; msg.textContent='ℹ️ เคยเช็คชื่อจากเครื่องนี้: '+prev; }
+    }
+  }catch(e){}
+})();
+
+/* ================= S8: GROUP WORKSHEET (auto-save) ================= */
+(function(){
+  document.querySelectorAll('textarea.wtsave').forEach(function(ta){
+    var key='comsim1_wt_'+ta.dataset.wt;
+    try{ ta.value=localStorage.getItem(key)||''; }catch(e){}
+    ta.addEventListener('input',function(){
+      try{ localStorage.setItem(key,ta.value); }catch(e){}
+    });
+  });
+})();
+
+/* ================= S9: QUIZ (10 ข้อ — ตัวเลือกความยาวใกล้เคียงกัน) ================= */
+var quizData=[
+  {q:{th:'ข้อใดอธิบาย "หัวใจ" ของ simulation ได้ถูกต้องที่สุด?',en:'Which best describes the real "core" of a simulation?'},
+   opts:[{th:'แอนิเมชัน 3 มิติที่สมจริงของระบบ',en:'A realistic 3D animation of the system'},
+         {th:'ตรรกะและสถิติที่อยู่ภายในแบบจำลอง',en:'The logic and statistics inside the model'},
+         {th:'ความเร็วในการประมวลผลของเครื่อง',en:'The processing speed of the computer'},
+         {th:'ความสวยงามของกราฟและรายงานผล',en:'The beauty of the charts and reports'}],
+   ans:1,fb:{th:'ถูก! แอนิเมชันเป็นแค่ "เปลือก" — หัวใจจริงคือตรรกะ + สถิติข้างใน (Robinson, 2014: การทดลองกับแบบจำลองของระบบจริงบนคอมพิวเตอร์)',en:'Right! Animation is just the shell — the core is the logic + statistics inside (Robinson, 2014).'}},
+  {q:{th:'สถานการณ์ใด "ไม่ควร" ใช้ simulation?',en:'In which situation should you NOT use simulation?'},
+   opts:[{th:'ออกแบบคลังสินค้าที่มีความสุ่มสูง',en:'Designing a warehouse with high randomness'},
+         {th:'ปัญหาที่มีสูตรตอบได้แน่นอนอยู่แล้ว',en:'A problem a formula already answers exactly'},
+         {th:'หาคอขวดของสายการผลิตหลายสถานี',en:'Finding bottlenecks in a multi-station line'},
+         {th:'ทดสอบนโยบายใหม่ก่อนใช้กับระบบจริง',en:'Testing a new policy before real rollout'}],
+   ans:1,fb:{th:'ถูก! ถ้าสูตร/สามัญสำนึกตอบได้อยู่แล้ว การ simulate คือใช้ค้อนทุบมด — เช่น อยากรู้ % เหรียญออกหัว ทฤษฎีตอบได้เลยว่า 50%',en:'Right! If a formula or common sense answers it, simulation is overkill — e.g. a coin\'s heads % is already 50% by theory.'}},
+  {q:{th:'ระบบ "แถวคอยธนาคาร" (มาถึง → บริการ → ออก) จัดเป็นระบบแบบใด?',en:'A bank queue (arrive → serve → leave) is which type of system?'},
+   opts:[{th:'Continuous — เพราะเวลาเดินไปอย่างต่อเนื่อง',en:'Continuous — because time flows continuously'},
+         {th:'Discrete event — เพราะสถานะเปลี่ยนเป็นจุดๆ',en:'Discrete event — the state changes at points'},
+         {th:'Continuous — เพราะลูกค้าเคลื่อนที่ตลอดเวลา',en:'Continuous — because customers keep moving'},
+         {th:'Deterministic — เพราะไม่มีความสุ่มในระบบ',en:'Deterministic — there is no randomness in it'}],
+   ans:1,fb:{th:'ถูก! ดูที่ "สถานะระบบ" ไม่ใช่ตัวเวลา — จำนวนคนในระบบกระโดดเป็นจุดๆ เมื่อเกิดเหตุการณ์ (มาถึง/เริ่มบริการ/ออก)',en:'Right! Look at the system STATE, not the clock — the count jumps at events (arrive/start/leave).'}},
+  {q:{th:'ข้อใดเป็นตัวอย่างของระบบแบบ continuous?',en:'Which is an example of a CONTINUOUS system?'},
+   opts:[{th:'คิวเช็คอินที่สนามบิน',en:'The check-in queue at an airport'},
+         {th:'ระดับน้ำในถังเก็บน้ำ',en:'The water level in a storage tank'},
+         {th:'คิวลูกค้าหน้าร้านกาแฟ',en:'The customer line at a café'},
+         {th:'พัสดุที่รอคัดแยกในคลัง',en:'Parcels waiting to be sorted'}],
+   ans:1,fb:{th:'ถูก! ระดับน้ำเปลี่ยนต่อเนื่องตลอดเวลา อธิบายด้วยฟังก์ชัน f(t) — ส่วนอีก 3 ข้อสถานะเปลี่ยนเป็นเหตุการณ์ทีละจุด (discrete) ซึ่งเป็นโฟกัสของวิชานี้',en:'Right! Water level changes continuously, described by f(t) — the other three change state at discrete events, this course\'s focus.'}},
+  {q:{th:'คิวเคาน์เตอร์เดียว: "เวลาเริ่มบริการ" ของลูกค้าแต่ละคนคือข้อใด?',en:'Single-server queue: each customer\'s service START time is...?'},
+   opts:[{th:'เท่ากับเวลาที่ลูกค้าคนนั้นมาถึงเสมอ',en:'Always equal to that customer\'s arrival'},
+         {th:'max(เวลามาถึง, เวลาที่คนก่อนหน้าเสร็จ)',en:'max(arrival, previous customer\'s finish)'},
+         {th:'min(เวลามาถึง, เวลาที่คนก่อนหน้าเสร็จ)',en:'min(arrival, previous customer\'s finish)'},
+         {th:'เวลาที่คนก่อนหน้ามาถึง บวกเวลาบริการ',en:'Previous arrival plus the service time'}],
+   ans:1,fb:{th:'ถูก! ต้องครบ 2 เงื่อนไข: ตัวเองมาถึงแล้ว และเคาน์เตอร์ว่างแล้ว — เหมือนลูกค้าคนที่ 4 ในตาราง (มาถึง 10:07 แต่ได้เริ่ม 10:09)',en:'Right! Two conditions must hold: you have arrived AND the server is free — like customer 4 (arrives 10:07, starts 10:09).'}},
+  {q:{th:'Verify กับ Validate ต่างกันอย่างไร?',en:'What is the difference between Verify and Validate?'},
+   opts:[{th:'Verify = โมเดลตรงโลกจริง · Validate = โค้ดตรงตามแบบ',en:'Verify = matches reality · Validate = code matches design'},
+         {th:'Verify = โค้ดตรงตามแบบ · Validate = โมเดลตรงโลกจริง',en:'Verify = code matches design · Validate = matches reality'},
+         {th:'Verify = ทำตอนเริ่มโครงการ · Validate = ทำหลังรายงาน',en:'Verify = done at project start · Validate = after reporting'},
+         {th:'Verify = ผู้ใช้เป็นคนตรวจ · Validate = คนเขียนโค้ดตรวจ',en:'Verify = checked by users · Validate = by the coder'}],
+   ans:1,fb:{th:'ถูก! Verify = "สร้างถูกไหม" · Validate = "สร้างถูกตัวไหม" — ถ้าไม่ผ่านต้องวนกลับไปแก้โมเดล (ครั้งที่ 4 และ 5 ของวิชา)',en:'Right! Verify = "built it right?" · Validate = "built the right thing?" — on failure, loop back (Sessions 4 & 5).'}},
+  {q:{th:'Baily\'s Bank: ถ้าลูกค้าเพิ่ม 10% (30→33 คน/ชม.) เวลารอเฉลี่ยมักจะ...?',en:'Baily\'s Bank: if arrivals rise 10% (30→33/h), average waiting usually...?'},
+   opts:[{th:'เพิ่มขึ้นประมาณ 10% ตามสัดส่วนเดิม',en:'Rises about 10%, in simple proportion'},
+         {th:'เพิ่มขึ้นมากกว่า 10% แบบไม่เป็นเส้นตรง',en:'Rises more than 10%, nonlinearly'},
+         {th:'เท่าเดิม เพราะจำนวนพนักงานยังเท่าเดิม',en:'Stays the same — teller count is fixed'},
+         {th:'ลดลง เพราะพนักงานเร่งมือให้เร็วขึ้น',en:'Falls — the tellers speed up their work'}],
+   ans:1,fb:{th:'ถูก! ยิ่งระบบใกล้เต็มกำลัง เวลารอยิ่งพุ่งแรง — นี่คือเหตุผลที่ต้องรัน simulation ไม่ใช่เทียบบัญญัติไตรยางศ์ (ลองกด Run ในหัวข้อ 6 ดู!)',en:'Right! Near capacity, waiting explodes — that\'s why we simulate instead of using proportion (try Run in topic 6!).'}},
+  {q:{th:'ข้อใดอธิบายวิธี Monte Carlo ได้ถูกต้อง?',en:'Which correctly describes the Monte Carlo method?'},
+   opts:[{th:'สุ่มตัวอย่างจำนวนมากแล้วสรุปจากค่าเฉลี่ย',en:'Draw many random samples, read the average'},
+         {th:'แก้สมการแบบแม่นตรงด้วยแคลคูลัสชั้นสูง',en:'Solve equations exactly with calculus'},
+         {th:'ทดลองซ้ำกับระบบจริงหลายๆ รอบโดยตรง',en:'Repeat experiments on the real system'},
+         {th:'พยากรณ์จากความเห็นของผู้เชี่ยวชาญหลายคน',en:'Forecast from several expert opinions'}],
+   ans:0,fb:{th:'ถูก! อาศัย "ความสุ่ม" เหมือนเกมพนัน จึงถูกตั้งชื่อตามคาสิโนเมืองมอนติคาร์โล — ใน Lab เราใช้ RANDBETWEEN และ NORM.INV(RAND(),...)',en:'Right! It relies on "chance" like gambling — named after the Monte Carlo casino; in the lab: RANDBETWEEN and NORM.INV(RAND(),...).'}},
+  {q:{th:'"ผลของ simulation คือตัวแปรสุ่ม" — ในทางปฏิบัติควรทำอย่างไร?',en:'"A simulation\'s output is a random variable" — so in practice you should...?'},
+   opts:[{th:'รันครั้งเดียวพอ เพราะทุกครั้งได้ผลเท่ากัน',en:'Run once — every run gives the same result'},
+         {th:'รันหลายรอบ แล้วสรุปจากค่าเฉลี่ยและการกระจาย',en:'Run many times; use the mean and the spread'},
+         {th:'ปัดเศษผลลัพธ์เป็นจำนวนเต็มก่อนใช้งานเสมอ',en:'Always round the outputs to whole numbers'},
+         {th:'เลือกรอบที่ให้ผลดีที่สุดไปเขียนในรายงาน',en:'Report only the best-looking run you got'}],
+   ans:1,fb:{th:'ถูก! กด F9 ใน Lab — ตัวเลขเปลี่ยนทุกครั้ง แต่ค่าเฉลี่ยจาก 1,000 วันค่อนข้างนิ่ง · ข้อ 4 คืออันตรายจริงในทางปฏิบัติ (cherry-picking)!',en:'Right! Press F9 — numbers change but the 1,000-day mean is stable · option 4 is a real practical danger (cherry-picking)!'}},
+  {q:{th:'โรงอาหาร: นักศึกษามาต่อคิว มีแม่ครัว 2 คนตักอาหาร — ข้อใดจับคู่ถูกต้อง?',en:'Canteen: students queue, 2 cooks serve — which mapping is correct?'},
+   opts:[{th:'Entity = แม่ครัว · ทรัพยากร = นักศึกษา',en:'Entity = the cooks · Resource = students'},
+         {th:'Entity = นักศึกษา · ทรัพยากร = แม่ครัว',en:'Entity = students · Resource = the cooks'},
+         {th:'Entity = แถวคอย · ทรัพยากร = เวลารอ',en:'Entity = the queue · Resource = wait time'},
+         {th:'Entity = โต๊ะอาหาร · ทรัพยากร = เมนู',en:'Entity = the tables · Resource = the menu'}],
+   ans:1,fb:{th:'ถูก! Entity = สิ่งที่ "ไหลผ่าน" ระบบ (นักศึกษา) · ทรัพยากร = ผู้ให้บริการที่มีจำกัด (แม่ครัว 2 คน) · ส่วน KPI ก็เช่น เวลารอเฉลี่ย — ตามใบงาน Walk-through',en:'Right! Entity = what FLOWS through (students) · Resource = the scarce servers (2 cooks) · and a KPI would be e.g. average wait — as in the walk-through worksheet.'}}
+];
+(function(){
+  var box=document.getElementById('quiz');
+  quizData.forEach(function(item,qi){
+    var d=document.createElement('div');d.className='q';
+    var h='<div class="qh"><span class="th-block">'+(qi+1)+'. '+item.q.th+'</span><span class="en-block">'+(qi+1)+'. '+item.q.en+'</span></div>';
+    var order=item.opts.map(function(_,oi){return oi;});
+    for(var k=order.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1));var t=order[k];order[k]=order[j];order[j]=t;}
+    order.forEach(function(oi){
+      var o=item.opts[oi];
+      h+='<button class="opt" data-q="'+qi+'" data-o="'+oi+'"><span class="th-block">'+o.th+'</span><span class="en-block">'+o.en+'</span></button>';
+    });
+    h+='<div class="fb" id="fb'+qi+'"></div>';
+    d.innerHTML=h;box.appendChild(d);
+  });
+  var answered={};
+  box.addEventListener('click',function(e){
+    var btn=e.target.closest('.opt');if(!btn)return;
+    var qi=+btn.dataset.q, oi=+btn.dataset.o;
+    if(answered[qi])return;
+    answered[qi]=true;
+    var item=quizData[qi];
+    var opts=box.querySelectorAll('.opt[data-q="'+qi+'"]');
+    opts.forEach(function(b){ b.disabled=true; if(+b.dataset.o===item.ans)b.classList.add('correct'); });
+    if(oi!==item.ans)btn.classList.add('wrong');
+    var fb=document.getElementById('fb'+qi);fb.classList.add('show');
+    var ok=oi===item.ans;
+    fb.innerHTML=(ok?'✅ ':'❌ ')+'<span class="th-block">'+item.fb.th+'</span><span class="en-block">'+item.fb.en+'</span>';
+    if(Object.keys(answered).length===quizData.length){
+      var correct=0;
+      quizData.forEach(function(it,i){
+        var chosen=box.querySelector('.opt[data-q="'+i+'"].wrong');
+        if(!chosen)correct++;
+      });
+      quizScore=correct;
+      var band=document.getElementById('scoreband');band.style.display='block';
+      var en=document.body.classList.contains('en');
+      band.textContent=(en?'Score: ':'คะแนน: ')+correct+' / '+quizData.length+(correct===quizData.length?' 🎉':'');
+      var wrap=document.getElementById('qzSubmitWrap'); if(wrap) wrap.style.display='block';
+      var sName=(document.getElementById('ci_student')||{}).value||'';
+      if(sName){
+        submitQuizScore(true);
+      }else{
+        var qm=document.getElementById('qz_msg');
+        if(qm){
+          qm.className='qz-msg err';
+          qm.textContent = en?'ℹ️ Please check-in first (select your name at the top of the page), then press the button below to submit your score.':'ℹ️ ยังไม่ได้เช็คชื่อ — กรุณาเลือกชื่อของคุณที่ส่วน "เช็คชื่อเข้าเรียน" ด้านบน แล้วกดปุ่มด้านล่างเพื่อส่งคะแนน';
+        }
+      }
+    }
+  });
+})();
+
+/* ================= S9: QUIZ SCORE → GOOGLE FORM (auto-submit) ================= */
+var quizScore=0;
+function submitQuizScore(auto){
+  var student=(document.getElementById('ci_student')||{}).value||'';
+  var msg=document.getElementById('qz_msg');
+  var en=document.body.classList.contains('en');
+  if(!student){
+    msg.className='qz-msg err';
+    msg.textContent=en?'⚠️ Please select your name in the Check-in section (top of page) before submitting.':'⚠️ กรุณาเลือกชื่อของคุณในส่วน "เช็คชื่อเข้าเรียน" (ด้านบนสุดของหน้า) ก่อนส่งคะแนน';
+    return;
+  }
+  document.getElementById('qz_f_student').value=student;
+  document.getElementById('qz_f_score').value=quizScore;
+  document.getElementById('qz_form').submit();
+  var btn=document.getElementById('qz_btn'); if(btn) btn.disabled=true;
+  msg.className='qz-msg ok';
+  msg.textContent=(auto?(en?'✅ Score auto-submitted: ':'✅ ส่งคะแนนอัตโนมัติแล้ว: '):(en?'✅ Score submitted: ':'✅ ส่งคะแนนแล้ว: '))+student+' — '+quizScore+'/'+quizData.length;
+  try{ localStorage.setItem('comsim1_quiz', student+' : '+quizScore+'/'+quizData.length+' @ '+new Date().toLocaleString('th-TH')); }catch(e){}
+}
+
+/* ================= INIT PAGER ================= */
+pgInit();
+</script>
+</body>
+</html>
