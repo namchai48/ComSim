@@ -74,7 +74,9 @@
   body.en .en-block{display:block;}
   .quiz .q{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;}
   .quiz .q .qh{font-weight:700;margin-bottom:10px;}
-  .quiz .opt{display:block;width:100%;text-align:left;background:#f7f9fb;border:1.5px solid var(--line);border-radius:9px;padding:10px 14px;margin:6px 0;cursor:pointer;font-size:.92rem;font-family:inherit;transition:.12s;}
+  .quiz .opts-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:8px;margin:10px 0 6px;}
+  .quiz .opt{display:block;width:100%;height:100%;text-align:left;background:#f7f9fb;border:1.5px solid var(--line);border-radius:9px;padding:10px 14px;margin:0;cursor:pointer;font-size:.92rem;font-family:inherit;transition:.12s;}
+  @media(max-width:560px){.quiz .opts-grid{grid-template-columns:1fr;}}
   .quiz .opt:hover{border-color:var(--blue);}
   .quiz .opt.correct{background:#e6f6ee;border-color:var(--teal);color:#166b56;font-weight:700;}
   .quiz .opt.wrong{background:#fdeaea;border-color:var(--red);color:#a23;}
@@ -92,52 +94,129 @@
   .notetools{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 4px;}
   .notetools button{background:rgba(255,255,255,.13);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:8px 16px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;}
   .notetools button:hover{background:rgba(255,255,255,.25);}
+  .checkin{background:linear-gradient(135deg,#f0fbf8,#eef3fb);border:2px solid var(--teal);border-radius:16px;padding:22px 24px;margin:16px 0;}
+  .checkin h3{margin:0 0 4px;color:var(--navy);font-size:1.2rem;}
+  .checkin .ci-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;}
+  .checkin .ci-field{flex:1 1 240px;display:flex;flex-direction:column;gap:5px;}
+  .checkin label{font-weight:700;font-size:.85rem;color:var(--navy);}
+  .checkin input,.checkin select{padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:.95rem;background:#fff;width:100%;}
+  .checkin input:focus,.checkin select:focus{outline:2px solid var(--teal);border-color:var(--teal);}
+  .checkin .ci-submit{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:13px 26px;font-weight:800;font-size:1rem;cursor:pointer;font-family:inherit;margin-top:14px;}
+  .checkin .ci-submit:hover{background:#218a7d;}
+  .checkin .ci-submit:disabled{opacity:.5;cursor:not-allowed;}
+  .checkin .ci-msg{margin-top:10px;font-weight:700;font-size:.92rem;min-height:20px;}
+  .checkin .ci-msg.ok{color:#166b56;}
+  .checkin .ci-msg.err{color:var(--red);}
+  .hwbox{background:#fbf7ff;border:2px solid var(--purple);border-radius:16px;padding:20px 24px;margin:16px 0;}
+  .hwbox h3{margin:0 0 6px;color:var(--purple);}
+  .hwbox .hw-f{display:flex;flex-direction:column;gap:5px;margin-top:12px;}
+  .hwbox label{font-weight:700;font-size:.88rem;color:var(--navy);}
+  .hwbox textarea{width:100%;min-height:56px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:.93rem;line-height:1.6;background:#fff;}
+  .hwbox textarea:focus{outline:2px solid var(--purple);border-color:var(--purple);}
+  .qz-submit-wrap{margin-top:14px;text-align:center;display:none;}
+  .qz-msg{margin-top:10px;font-weight:700;font-size:.88rem;min-height:20px;}
+  .qz-msg.ok{color:#166b56;}
+  .qz-msg.err{color:var(--red);}
+  /* ============ PAGER (หัวข้อละหน้า) ============ */
+  body.paged .wrap{padding-top:64px;padding-bottom:104px;min-height:70vh;}
+  body.paged .wrap > section{display:none;border-bottom:none;padding:26px 0 24px;}
+  body.paged .wrap > section.active{display:block;animation:slideIn .34s ease;}
+  @keyframes slideIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  #pager{position:fixed;left:0;right:0;bottom:0;z-index:120;display:flex;align-items:center;justify-content:center;gap:16px;padding:11px 16px;background:rgba(15,44,77,.97);backdrop-filter:blur(6px);box-shadow:0 -2px 14px rgba(0,0,0,.2);}
+  #pager button{background:var(--teal);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:.95rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s;min-width:120px;}
+  #pager button:hover:not(:disabled){background:#218a7d;transform:translateY(-1px);}
+  #pager button:disabled{opacity:.32;cursor:not-allowed;}
+  #pager .pginfo{color:#fff;font-weight:700;font-size:.92rem;min-width:110px;text-align:center;}
+  #pager .pginfo b{color:var(--amber);font-size:1.05rem;}
+  @media(max-width:560px){#pager button{min-width:88px;padding:11px 12px;font-size:.86rem;}#pager .pginfo{min-width:90px;font-size:.82rem;}}
 </style>
 </head>
-<body class="th">
+<body class="th paged">
 <div id="progress"></div>
 <nav id="nav">
   <span class="brand">🖥️ Com Sim I · ครั้งที่ 2</span>
+  <a href="#s0">เริ่มต้น</a>
   <a href="#s1">เชื่อมโยง</a>
-  <a href="#s2">Flaw of Averages</a>
-  <a href="#s3">คุณภาพ 3V</a>
-  <a href="#s4">Histogram</a>
+  <a href="#s2">คุณภาพข้อมูล</a>
+  <a href="#s3">Histogram</a>
+  <a href="#s4">Flaw of Averages</a>
   <a href="#s5">การแจกแจง</a>
   <a href="#s6">Fit</a>
-  <a href="#s7">Lab Excel</a>
-  <a href="#s8">Quiz</a>
-  <button class="langbtn" onclick="toggleLang()" id="langbtn">EN</button>
+  <a href="#s7">Lab 1</a>
+  <a href="#s8">Lab 2</a>
+  <a href="#s9">Quiz</a>
 </nav>
 
 <header class="hero">
   <h1>Input Analysis</h1>
   <p class="sub th-block">ครั้งที่ 2 — การวิเคราะห์ข้อมูลนำเข้า &amp; การแจกแจงความน่าจะเป็น</p>
-  <p class="sub en-block">Session 2 — Input Analysis &amp; Probability Distributions</p>
+  
   <p class="sub" style="font-size:.95rem;opacity:.9">💡 หัวใจ: input ที่ดี = การแจกแจง ไม่ใช่ค่าเฉลี่ย</p>
   <div class="badges">
     <span class="badge">⏱️ 4 ชม.</span>
     <span class="badge">🧰 Excel (Workshop Class 2)</span>
     <span class="badge">🎲 กดเล่นได้ทุกส่วน</span>
-    <span class="badge">🌐 TH / EN</span>
-  </div>
+    </div>
 </header>
 
 <div class="wrap">
+
+<!-- ===================== S0 INTRO ===================== -->
+<section id="s0">
+  <h2>เริ่มต้นคาบเรียน — วัตถุประสงค์ &amp; เช็คชื่อ</h2>
+
+  <!-- Learning objectives -->
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <h3>🎯 วัตถุประสงค์การเรียนรู้ — เมื่อจบครั้งที่ 2 นักศึกษาจะ...</h3>
+    <ol style="font-size:.95rem;line-height:1.9;margin:8px 0 4px">
+      <li><strong>บอกคุณภาพข้อมูล</strong>ด้วยกรอบ 3 คุณสมบัติของข้อมูลดี และรู้จัก noise/กับดักที่พบบ่อยในการเก็บข้อมูล รวมถึงผลของช่วงเวลา (หัวข้อ 2)</li>
+      <li><strong>สร้างและอ่านฮิสโทแกรม</strong>เพื่อเดารูปร่างการแจกแจง พร้อมเลือกจำนวน bin ที่เหมาะสม (หัวข้อ 3)</li>
+      <li><strong>อธิบายได้</strong>ว่าทำไม input ต้องเป็น "การแจกแจง" ไม่ใช่ "ค่าเฉลี่ย" (Flaw of Averages — หัวข้อ 4)</li>
+      <li><strong>จับคู่ข้อมูลกับการแจกแจงมาตรฐาน</strong> (Uniform / Triangular / Normal / Exponential / Poisson) โดยเริ่มจากพื้นฐานทางกายภาพ และรู้จัก goodness-of-fit เบื้องต้น (หัวข้อ 5–6)</li>
+      <li><strong>สุ่มค่าจากการแจกแจง</strong>ทั้งแบบมาตรฐานและเชิงประสบการณ์ใน Excel ด้วยเทคนิค Inverse Transform (หัวข้อ 7–8)</li>
+    </ol>
+  </div>
+
+  <!-- Check-in -->
+  <div class="checkin">
+    <h3 class="th-block">✅ เช็คชื่อเข้าเรียน — ครั้งที่ 2</h3>
+    <p style="margin:2px 0 0;color:var(--muted);font-size:.9rem"><span class="th-block">กรอกอีเมลและเลือกชื่อของคุณ แล้วกดส่ง — ข้อมูลจะถูกส่งเข้า Google Form ของอาจารย์ทันที</span></p>
+    <div class="ci-row">
+      <div class="ci-field">
+        <label class="th-block">อีเมล *</label>
+        <input type="email" id="ci_email" placeholder="you@go.buu.ac.th" autocomplete="email">
+      </div>
+      <div class="ci-field">
+        <label class="th-block">เลือกชื่อ–รหัสนิสิต *</label>
+        <select id="ci_student"><option value="">— เลือก —</option></select>
+      </div>
+    </div>
+    <button class="ci-submit" id="ci_btn" onclick="submitCheckin()"><span class="th-block">📩 ส่งเช็คชื่อ</span></button>
+    <div class="ci-msg" id="ci_msg"></div>
+    <iframe name="ci_target" id="ci_target" style="display:none" title="hidden"></iframe>
+    <form id="ci_form" action="https://docs.google.com/forms/d/e/1FAIpQLScGcFNrb87HpVUUJas3rPsFIQpSRZSCHPHeVAgmCfKbSmd-jQ/formResponse" method="POST" target="ci_target" style="display:none">
+      <input type="hidden" name="emailAddress" id="ci_f_email">
+      <input type="hidden" name="entry.2045911396" id="ci_f_student">
+      <input type="hidden" name="fvv" value="1">
+      <input type="hidden" name="pageHistory" value="0">
+    </form>
+  </div>
+</section>
 
 <!-- ===================== S1 ===================== -->
 <section id="s1">
   <h2><span class="num">1</span> เชื่อมจากครั้งที่แล้ว &amp; ภาพรวม</h2>
   <p class="lead th-block">ครั้งที่ 1 จบด้วย “ผลของ simulation เป็นตัวแปรสุ่ม” — วันนี้ตอบว่า <strong>ความสุ่มนั้นมาจากไหน</strong> และจะใส่เข้าโมเดลให้ถูกต้องได้อย่างไร</p>
-  <p class="lead en-block">Session 1 ended with “a simulation output is a random variable.” Today: <strong>where does that randomness come from</strong>, and how do we put it into the model correctly?</p>
+  
 
   <div class="card">
     <div class="note tip" style="font-size:1.05rem;text-align:center">
-      <span class="lb">🎯 ประโยคเดียวของทั้งคาบ / The one line</span>
-      <strong>Garbage in, garbage out</strong> — <span class="th-block">ถ้าข้อมูลนำเข้าไม่ดี ผลลัพธ์สวยแค่ไหนก็เชื่อไม่ได้</span><span class="en-block">if the input is bad, no matter how pretty the output, it can't be trusted.</span>
+      <span class="lb">🎯 ประโยคเดียวของทั้งคาบ</span>
+      <strong>Garbage in, garbage out</strong> — <span class="th-block">ถ้าข้อมูลนำเข้าไม่ดี ผลลัพธ์สวยแค่ไหนก็เชื่อไม่ได้</span>
     </div>
-    <h3>เราอยู่ตรงไหนของวงจร? <span class="en">/ Where are we?</span></h3>
+    <h3>เราอยู่ตรงไหนของวงจร?</h3>
     <p class="th-block">ครั้งนี้อยู่ที่ขั้น <strong>“เก็บข้อมูล + สร้างแบบจำลองตัวแปรนำเข้า (input model)”</strong> — ก่อนเขียนโค้ดจริงในครั้งที่ 3</p>
-    <p class="en-block">This session sits at <strong>“collect data + build the input model”</strong> — before coding the real model in Session 3.</p>
+    
     <div style="overflow-x:auto"><table class="tbl" style="font-size:.82rem;white-space:nowrap;text-align:center">
       <tr>
         <td>ตั้งปัญหา</td><td>→</td><td style="background:#fff5e0;font-weight:800;color:#9a6b14">เก็บข้อมูล + Input Analysis<br><span style="font-size:.75rem">📍 เราอยู่ที่นี่ (ครั้ง 2)</span></td><td>→</td>
@@ -146,112 +225,199 @@
     </table></div>
   </div>
   <div class="card">
-    <h3>Input model ที่ดีต้องมี 3 อย่าง <span class="en">/ A good input model</span></h3>
+    <h3>Input model ที่ดีต้องมี 3 อย่าง</h3>
     <div class="grid2">
-      <div class="note tip" style="margin:0"><span class="th-block">① <strong>แทนความจริงได้</strong> — สะท้อนความแปรผันของระบบจริง</span><span class="en-block">① <strong>Represents reality</strong> — reflects the real system's variability.</span></div>
-      <div class="note tip" style="margin:0"><span class="th-block">② <strong>ปรับใช้ง่าย</strong> — แก้พารามิเตอร์ได้สะดวก</span><span class="en-block">② <strong>Easy to adjust</strong> — parameters are convenient to tune.</span></div>
-      <div class="note tip" style="margin:0"><span class="th-block">③ <strong>สุ่มค่าได้</strong> — สร้างตัวเลขด้วยคณิตศาสตร์ได้</span><span class="en-block">③ <strong>Can generate values</strong> — samples numbers mathematically.</span></div>
-      <div class="note tip" style="margin:0"><span class="th-block">🔗 ครั้ง 3 จะเอาการแจกแจงวันนี้ไปป้อน SimPy จริง</span><span class="en-block">🔗 Session 3 feeds today's distributions into real SimPy.</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">① <strong>แทนความจริงได้</strong> — สะท้อนความแปรผันของระบบจริง</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">② <strong>ปรับใช้ง่าย</strong> — แก้พารามิเตอร์ได้สะดวก</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">③ <strong>สุ่มค่าได้</strong> — สร้างตัวเลขด้วยคณิตศาสตร์ได้</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">🔗 ครั้ง 3 จะเอาการแจกแจงวันนี้ไปป้อน SimPy จริง</span></div>
     </div>
   </div>
+
 </section>
 
 <!-- ===================== S2 ===================== -->
 <section id="s2">
-  <h2><span class="num">2</span> Flaw of Averages — ทำไม input ต้องเป็น "การแจกแจง"</h2>
-  <p class="lead th-block">ร้าน A และ B บริการ <strong>เฉลี่ยเท่ากันคือ 4 นาที</strong> ต่างกันแค่ <strong>ความแปรผัน</strong> ลองปรับความแปรผันของร้าน B แล้วรันดูว่าคิวใครยาวกว่า</p>
-  <p class="lead en-block">Shops A and B have the <strong>same mean service time (4 min)</strong> — they differ only in <strong>variability</strong>. Tune shop B's variability and see whose queue is longer.</p>
+  <h2><span class="num">2</span> คุณภาพข้อมูล: 3 คุณสมบัติของข้อมูลดี + Noise</h2>
+  <p class="lead th-block">เก็บข้อมูลอย่างไรให้ใช้ได้ และระวังกับดักอะไรบ้าง</p>
+
+  <div class="grid2">
+    <div class="card" style="border-top:4px solid var(--teal)">
+      <h3 style="color:var(--teal)">3 คุณสมบัติของข้อมูลดี</h3>
+      <p class="th-block"><strong>Quality</strong> — ความถูกต้อง/แม่นยำ (วัดด้วยเครื่องมือเชื่อถือได้ ไม่กะเอา)</p>
+
+      <p class="th-block"><strong>Quantity</strong> — มากพอต่อการวิเคราะห์ (แนะนำ 100–200 ตัวอย่าง)</p>
+
+      <p class="th-block"><strong>Variety</strong> — ครอบคลุมหลายสถานการณ์ (peak / off-peak / หลายวัน)</p>
+
+    </div>
+    <div class="card" style="border-top:4px solid var(--red)">
+      <h3 style="color:var(--red)">🔊 Noise ที่พบบ่อย</h3>
+      <ul>
+        <li class="th-block">ข้อมูลถูก <strong>ปัดเศษ</strong> (จด "5" ทั้งที่จริง 5.3) → histogram หลอก</li>
+
+        <li class="th-block">บันทึกไม่เรียงลำดับที่สังเกตจริง</li>
+
+        <li class="th-block">ขาด <strong>metadata</strong> (ไม่รู้ช่วงไหน/เครื่องไหน)</li>
+
+        <li class="th-block"><strong>Outlier</strong> ชัดเจน (เวลาบริการ 0 หรือ 999)</li>
+
+        <li class="th-block">ถูกจัดกลุ่มเป็นช่วงมาแล้ว (ไม่มีค่าดิบ) → เสียรายละเอียด</li>
+
+      </ul>
+      <div class="note tip" style="margin-top:10px;font-size:.88rem">
+        <span class="lb">✂️ เจอ outlier — ตัดหรือเก็บ?</span>
+        <span class="th-block"><strong>อย่าลบทันที ให้สืบก่อน:</strong> ① ค่าที่ <strong>"เป็นไปไม่ได้"</strong> (เวลาบริการ 0 / ติดลบ / 999 จากจดผิดหรือเครื่องพัง) → <strong>ตัดได้</strong> แต่ต้องจดไว้ว่าตัดอะไรเพราะอะไร ② ค่าที่ <strong>"จริงแต่หายาก"</strong> (ลูกค้าสั่งเยอะจริง งานใหญ่จริง) → <strong>ต้องเก็บ</strong> เพราะหางของการแจกแจงคือตัวสร้างคิว ③ เกณฑ์คัดกรองเบื้องต้น: ค่าที่ห่างจาก mean เกิน <strong>~3SD</strong> ให้ "ตั้งข้อสงสัย" แล้วกลับไปดู metadata ว่าตอนเก็บเกิดอะไรขึ้น — ไม่ใช่ตัดอัตโนมัติ</span>
+      </div>
+    </div>
+  </div>
 
   <div class="card">
-    <div class="note warn">
-      <span class="lb">🌊 อุปมา / Analogy</span>
-      <span class="th-block">แม่น้ำ “ลึกเฉลี่ย 1 เมตร” — เดินข้ามได้ไหม? ตรงกลางอาจลึก 3 เมตร! ค่าเฉลี่ยไม่บอกความเสี่ยงจากความแปรผัน</span>
-      <span class="en-block">A river “averaging 1 m deep” — safe to cross? The middle may be 3 m! The mean hides the risk from variability.</span>
+    <h3>🔍 รู้ได้อย่างไรว่า Quantity พอแล้ว?</h3>
+    <div class="note tip">
+      <span class="th-block">ไม่ใช่แค่นับให้ถึง 100–200 แต่เช็ก 3 ทาง: <strong>① ความนิ่งของสถิติ</strong> — ลองเทียบ mean/SD จากข้อมูลครึ่งแรกกับทั้งหมด ถ้าเพิ่มข้อมูลแล้วตัวเลขไม่ขยับมาก แปลว่านิ่งพอ <strong>② พอสำหรับการใช้งานต่อ</strong> — ฮิสโทแกรม (หัวข้อ 3) และการทดสอบ goodness-of-fit (หัวข้อ 6) ต้องการ n ระดับหนึ่งถึงจะบอกรูปร่าง/ความเข้ากันได้จริง ข้อมูลน้อยเกินไปทำให้ทดสอบ "ผ่าน" ง่ายเกินจริง <strong>③ พอในแต่ละช่วงย่อย</strong> — ถ้าระบบมีหลาย peak/off-peak (ตาม Variety) 100–200 ต้องพอ<strong>ในแต่ละช่วง</strong> ไม่ใช่รวมทุกช่วงแล้วได้ตามเกณฑ์ · <strong>หมายเหตุ:</strong> การบ้านที่ให้เก็บ 30–50 ค่าเป็นจุดเริ่มต้นฝึกดูรูปร่างคร่าวๆ เท่านั้น ถ้าจะใช้เป็น input model จริงป้อน SimPy ในครั้งที่ 3 ควรเก็บเพิ่มให้ใกล้ 100–200</span>
     </div>
-    <div class="controls">
-      <div class="ctl"><label>🚶 ลูกค้า/ชม. (ทั้งสองร้าน) / Arrivals/h: <span class="val" id="vFA">13</span></label><input type="range" id="rFA" min="8" max="16" value="13" oninput="vFA.textContent=this.value"></div>
-      <div class="ctl"><label>📊 ความแปรผันร้าน B (SD นาที) / Shop B variability: <span class="val" id="vFB">4.0</span></label><input type="range" id="rFB" min="0.5" max="6" step="0.5" value="4" oninput="vFB.textContent=(+this.value).toFixed(1)"></div>
-      <button class="act amber" onclick="runFlaw()">▶ รันเปรียบเทียบ / Run</button>
-    </div>
+  </div>
+
+  <div class="card">
+    <h3>คำแนะนำเชิงปฏิบัติ</h3>
     <div class="grid2">
-      <div>
-        <div class="stat a"><div class="k" id="faWaitA">–</div><div class="l th-block">ร้าน A — รอเฉลี่ย (นาที) · SD บริการ 0.5</div><div class="l en-block">Shop A — avg wait (min) · service SD 0.5</div></div>
-        <div class="chartwrap"><canvas id="faCanvasA" width="410" height="180"></canvas><div class="legend th-block">ร้าน A · บริการนิ่ง (แปรผันต่ำ)</div><div class="legend en-block">Shop A · steady service (low variability)</div></div>
-      </div>
-      <div>
-        <div class="stat b"><div class="k" id="faWaitB">–</div><div class="l th-block">ร้าน B — รอเฉลี่ย (นาที) · แปรผันสูง</div><div class="l en-block">Shop B — avg wait (min) · high variability</div></div>
-        <div class="chartwrap"><canvas id="faCanvasB" width="410" height="180"></canvas><div class="legend th-block">ร้าน B · บริการแกว่ง (แปรผันสูง)</div><div class="legend en-block">Shop B · swinging service (high variability)</div></div>
-      </div>
+      <div class="note tip" style="margin:0"><span class="th-block">⏱️ บันทึก <strong>เวลาที่เกิดเหตุการณ์</strong> แล้วค่อยลบกันเป็น interval — แม่นกว่าจับเวลาช่วงตรงๆ</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">🔬 บันทึกค่าจริง <strong>ละเอียดสูง</strong> อย่าปัดตั้งแต่ต้น</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">🕐 ระบบขึ้นกับช่วงเวลา → เก็บหลายช่วง หลายวัน แยกวิเคราะห์</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">🔗 ค่าแต่ละตัวควร <strong>เป็นอิสระ</strong> — ค่าหนึ่งไม่ควรทำนายค่าถัดไป</span></div>
     </div>
-    <div class="note tip" id="faMsg" style="display:none"></div>
     <div class="note ask">
-      <span class="lb">❓ ชวนคิด / Think</span>
-      <span class="th-block">ค่าเฉลี่ยบริการเท่ากันทั้งสองร้าน แต่ทำไมคิวถึงต่างกัน? แล้ว “ความแปรผัน” ส่งผลต่อคิวอย่างไร?</span>
-      <span class="en-block">Both shops have the same mean service — why do the queues differ? How does variability drive the queue?</span>
+      <span class="lb">❓ ชวนคิด</span>
+      <span class="th-block">จะวัด “เวลาระหว่างลูกค้ามาถึง” ให้แม่น ควรจับเวลาช่วงตรงๆ หรือจดเวลาที่แต่ละคนเดินเข้าแล้วลบกัน? เพราะอะไร?</span>
+
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--amber)">
+    <h3 style="color:#9a6b14">🕐 ผลของช่วงเวลา (Period of Time)</h3>
+    <p class="th-block"><strong>อัตราการมาถึงขึ้นกับช่วงเวลา</strong> — ระบบเดียวกัน คนละช่วง พฤติกรรมคนละเรื่อง:</p>
+
+    <div class="grid2">
+      <div class="note tip" style="margin:0"><span class="th-block">🏦 <strong>ธนาคาร</strong> — เที่ยง (พนักงานออฟฟิศแห่มา) ≠ บ่ายสาม</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">🍜 <strong>ร้านอาหาร</strong> — มื้อเย็น ≠ บ่ายโมงครึ่ง</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">✈️ <strong>สนามบิน</strong> — เช้าไฟลต์แน่น ≠ ดึก</span></div>
+      <div class="note tip" style="margin:0"><span class="th-block">☕ <strong>ร้านกาแฟหน้ามอ</strong> — 7:30–9:00 ก่อนเข้าเรียน ≠ ช่วงบ่าย (นึกถึงระบบของคุณในหัวข้อ 1!)</span></div>
     </div>
     <div class="note warn">
-      <span class="lb">⚠️ ข้อผิดพลาดอันดับ 1 / #1 data mistake</span>
-      <span class="th-block">“ใส่ค่าเฉลี่ยก็พอ” เป็นข้อผิดพลาดด้านข้อมูลที่พบบ่อยที่สุดในงานจริง — ลบความแปรผันทิ้ง = โมเดลบอกว่าไม่มีคิว ทั้งที่จริงคิวยาว</span>
-      <span class="en-block">“Just use the average” is the most common real-world data mistake — dropping variability makes the model say there's no queue, when in reality it's long.</span>
+      <span class="lb">⚠️ กับดัก</span>
+      <span class="th-block">เอาข้อมูล <strong>ทุกช่วงมารวมกัน</strong> แล้วหาค่าเฉลี่ย/การแจกแจงเดียว → ได้โมเดลที่ <strong>ผิดทั้งช่วง peak และ off-peak</strong> — ถ้าช่วงเวลาสำคัญ ต้องเก็บแยกช่วง แยกวัน แล้วสร้าง input model คนละชุด</span>
+
+    </div>
+    <div class="note warn">
+      <span class="lb">⚠️ เข้าใจผิด</span>
+      <span class="th-block">“เก็บข้อมูลเยอะๆ วันเดียวก็พอ” — ไม่พอ! ถ้าระบบขึ้นกับช่วงเวลา/วัน ต้องเก็บ <strong>หลายช่วงและหลายวัน</strong> ไม่งั้น <strong>Variety</strong> ใน 3 คุณสมบัติของข้อมูลดีไม่ครบ</span>
+
     </div>
   </div>
 </section>
 
 <!-- ===================== S3 ===================== -->
 <section id="s3">
-  <h2><span class="num">3</span> คุณภาพข้อมูล 3V + Noise</h2>
-  <p class="lead th-block">เก็บข้อมูลอย่างไรให้ใช้ได้ และระวังกับดักอะไรบ้าง</p>
-  <p class="lead en-block">How to collect usable data, and which traps to avoid.</p>
-  <div class="grid2">
-    <div class="card" style="border-top:4px solid var(--teal)">
-      <h3 style="color:var(--teal)">3V ของข้อมูลดี</h3>
-      <p class="th-block"><strong>Quality</strong> — ความถูกต้อง/แม่นยำ (วัดด้วยเครื่องมือเชื่อถือได้ ไม่กะเอา)</p>
-      <p class="en-block"><strong>Quality</strong> — accuracy (reliable instruments, not guesses).</p>
-      <p class="th-block"><strong>Quantity</strong> — มากพอต่อการวิเคราะห์ (แนะนำ 100–200 ตัวอย่าง)</p>
-      <p class="en-block"><strong>Quantity</strong> — enough to analyze (~100–200 samples).</p>
-      <p class="th-block"><strong>Variety</strong> — ครอบคลุมหลายสถานการณ์ (peak / off-peak / หลายวัน)</p>
-      <p class="en-block"><strong>Variety</strong> — covers many situations (peak / off-peak / many days).</p>
-    </div>
-    <div class="card" style="border-top:4px solid var(--red)">
-      <h3 style="color:var(--red)">🔊 Noise ที่พบบ่อย</h3>
-      <ul>
-        <li class="th-block">ข้อมูลถูก <strong>ปัดเศษ</strong> (จด "5" ทั้งที่จริง 5.3) → histogram หลอก</li>
-        <li class="en-block"><strong>Rounded</strong> data ("5" when it's 5.3) → fake histogram bars.</li>
-        <li class="th-block">บันทึกไม่เรียงลำดับที่สังเกตจริง</li>
-        <li class="en-block">Recorded out of observed order.</li>
-        <li class="th-block">ขาด <strong>metadata</strong> (ไม่รู้ช่วงไหน/เครื่องไหน)</li>
-        <li class="en-block">Missing <strong>metadata</strong> (which period / machine?).</li>
-        <li class="th-block"><strong>Outlier</strong> ชัดเจน (เวลาบริการ 0 หรือ 999)</li>
-        <li class="en-block">Obvious <strong>outliers</strong> (service time 0 or 999).</li>
-        <li class="th-block">ถูกจัดกลุ่มเป็นช่วงมาแล้ว (ไม่มีค่าดิบ) → เสียรายละเอียด</li>
-        <li class="en-block">Pre-binned (no raw values) → detail lost.</li>
-      </ul>
-    </div>
-  </div>
+  <h2><span class="num">3</span> Histogram</h2>
+  <p class="lead th-block">ฮิสโทแกรมคือเครื่องมือ “เดารูปร่าง” การแจกแจง — แต่ <strong>จำนวนช่วง (bin)</strong> สำคัญมาก ลองเลื่อนดู</p>
+
+
   <div class="card">
-    <h3>คำแนะนำเชิงปฏิบัติ <span class="en">/ Practical tips</span></h3>
+    <h3>🎚️ ทดลอง: จำนวน bin ของฮิสโทแกรม</h3>
+    <p class="th-block" style="font-size:.9rem">ข้อมูลชุดเดียวกัน (เวลาบริการ 150 ค่า แบบ Exponential) กฎง่ายๆ: bin ≈ √n ≈ <strong>12</strong> ช่อง</p>
+
+    <div class="controls">
+      <div class="ctl"><label>จำนวน bin: <span class="val" id="vBin">12</span></label><input type="range" id="rBin" min="3" max="40" value="12" oninput="drawBinHist()"></div>
+      <button class="act" onclick="newBinData()">🎲 สุ่มข้อมูลชุดใหม่</button>
+    </div>
+    <div class="chartwrap"><canvas id="binCanvas" width="860" height="260"></canvas></div>
+    <div class="note tip" id="binMsg"></div>
+  </div>
+
+  <div class="card">
+    <h3>ทำไมจำนวน bin ถึงสำคัญ &amp; เลือกกี่ช่องดี</h3>
+    <p class="th-block"><strong>ฮิสโทแกรมคือ "แว่นตา" ที่เราใช้เดารูปร่างการแจกแจง</strong> — ถ้าจำนวน bin ผิด แว่นก็เบลอ: อ่านรูปร่างผิด → เลือกการแจกแจงผิด → input model ผิด → ผลลัพธ์ทั้งโมเดลเชื่อไม่ได้ (garbage in, garbage out ตั้งแต่ขั้นดูข้อมูล!)</p>
+
     <div class="grid2">
-      <div class="note tip" style="margin:0"><span class="th-block">⏱️ บันทึก <strong>เวลาที่เกิดเหตุการณ์</strong> แล้วค่อยลบกันเป็น interval — แม่นกว่าจับเวลาช่วงตรงๆ</span><span class="en-block">⏱️ Record <strong>event times</strong> then subtract to get intervals — more accurate than timing gaps directly.</span></div>
-      <div class="note tip" style="margin:0"><span class="th-block">🔬 บันทึกค่าจริง <strong>ละเอียดสูง</strong> อย่าปัดตั้งแต่ต้น</span><span class="en-block">🔬 Record at <strong>high precision</strong>; don't round early.</span></div>
-      <div class="note tip" style="margin:0"><span class="th-block">🕐 ระบบขึ้นกับช่วงเวลา → เก็บหลายช่วง หลายวัน แยกวิเคราะห์</span><span class="en-block">🕐 Time-dependent system → collect many periods/days, analyze separately.</span></div>
-      <div class="note tip" style="margin:0"><span class="th-block">🔗 ค่าแต่ละตัวควร <strong>เป็นอิสระ</strong> — ค่าหนึ่งไม่ควรทำนายค่าถัดไป</span><span class="en-block">🔗 Values should be <strong>independent</strong> — one shouldn't predict the next.</span></div>
+      <div class="note warn" style="margin:0">
+        <span class="lb">📦 น้อยเกินไป</span>
+        <span class="th-block">เช่น 3–5 ช่อง — ข้อมูลถูก "ยุบ" รวมกัน เห็นแต่ก้อนหยาบๆ ความเบ้/หางยาวหายไป อาจดูเหมือน Uniform ทั้งที่จริงเป็น Exponential</span>
+
+      </div>
+      <div class="note tip" style="margin:0">
+        <span class="lb">✅ พอดี</span>
+        <span class="th-block">≈ √n ช่อง — เห็น "รูปร่างจริง" ของข้อมูล: ยอดอยู่ไหน เบ้ทางไหน หางยาวแค่ไหน — นี่คือเบาะแสแรกในการเลือกการแจกแจง (หัวข้อ 5)</span>
+
+      </div>
+      <div class="note warn" style="margin:0">
+        <span class="lb">🔊 มากเกินไป</span>
+        <span class="th-block">เช่น 35–40 ช่อง — แต่ละช่องมีข้อมูลไม่กี่ค่า กราฟฟันหลอขึ้นๆ ลงๆ เห็นแต่ sampling noise ไม่ใช่รูปร่างจริง</span>
+
+      </div>
+    </div>
+    <div class="note tip">
+      <span class="lb">📐 กฎเลือกจำนวน bin</span>
+      <span class="th-block">หลัก: <strong>bin ≈ √n</strong> (n = จำนวนข้อมูล) และโดยทั่วไปควรอยู่ราว <strong>5–20 ช่อง</strong> · ตัวอย่าง: n = 150 → √150 ≈ 12 ช่อง · การบ้านวันนี้ n = 30–50 → ราว <strong>6–7 ช่อง</strong> ก็พอ · จำไว้ว่าเป็นแค่จุดเริ่มต้น — เลื่อนดูหลายค่าแล้วเลือกอันที่เห็นรูปร่างชัดสุด (ลอง slider ด้านบน!)</span>
+
     </div>
     <div class="note ask">
-      <span class="lb">❓ ชวนคิด / Think</span>
-      <span class="th-block">จะวัด “เวลาระหว่างลูกค้ามาถึง” ให้แม่น ควรจับเวลาช่วงตรงๆ หรือจดเวลาที่แต่ละคนเดินเข้าแล้วลบกัน? เพราะอะไร?</span>
-      <span class="en-block">To measure “time between arrivals” accurately — time each gap directly, or record each entry time and subtract? Why?</span>
+      <span class="lb">❓ ชวนคิด</span>
+      <span class="th-block">ข้อมูลชุดเดียวกันแท้ๆ ทำไมพอเปลี่ยนจำนวน bin แล้ว "หน้าตา" เปลี่ยนได้ขนาดนี้? แล้วถ้าเพื่อนสรุปการแจกแจงจากฮิสโทแกรม 3 ช่อง คุณจะเตือนว่าอะไร?</span>
+
     </div>
   </div>
 </section>
 
 <!-- ===================== S4 ===================== -->
 <section id="s4">
-  <h2><span class="num">4</span> สถิติที่ต้องใช้ + Histogram</h2>
-  <p class="lead th-block">ฮิสโทแกรมคือเครื่องมือ “เดารูปร่าง” การแจกแจง — แต่ <strong>จำนวนช่วง (bin)</strong> สำคัญมาก ลองเลื่อนดู</p>
-  <p class="lead en-block">A histogram is a tool to “guess the shape” — but the <strong>number of bins</strong> matters a lot. Try the slider.</p>
+  <h2><span class="num">4</span> Flaw of Averages — ทำไมใช้แค่ค่าเฉลี่ยไม่ได้ ต้องเป็น "การแจกแจง"</h2>
+  <p class="lead th-block">ร้าน A และ B บริการ <strong>เฉลี่ยเท่ากันคือ 4 นาที</strong> ต่างกันแค่ <strong>ความแปรผัน</strong> ลองปรับความแปรผันของร้าน B แล้วรันดูว่าคิวใครยาวกว่า</p>
+  <p class="note tip" style="font-size:.85rem;margin:0 0 10px"><span class="th-block">💬 ในบทเรียนนี้ <strong>"ความแปรผัน"</strong> ที่พูดถึงคือ <strong>SD (ส่วนเบี่ยงเบนมาตรฐาน)</strong> ตัวเดียวกัน — ใช้สองคำนี้แทนกันได้เลย</span></p>
 
   <div class="card">
-    <h3>ดัชนีที่ต้องรู้จัก <span class="en">/ Key stats</span></h3>
+    <div class="note warn">
+      <span class="lb">🌊 อุปมา</span>
+      <span class="th-block">แม่น้ำ “ลึกเฉลี่ย 1 เมตร” — เดินข้ามได้ไหม? ตรงกลางอาจลึก 3 เมตร! ค่าเฉลี่ยไม่บอกความเสี่ยงจากความแปรผัน</span>
+
+    </div>
+    <div class="controls">
+      <div class="ctl"><label>🚶 ลูกค้า/ชม. (ทั้งสองร้าน): <span class="val" id="vFA">13</span></label><input type="range" id="rFA" min="8" max="16" value="13" oninput="vFA.textContent=this.value"></div>
+      <div class="ctl"><label>📊 ความแปรผันร้าน B (SD นาที): <span class="val" id="vFB">4.0</span></label><input type="range" id="rFB" min="0.5" max="6" step="0.5" value="4" oninput="vFB.textContent=(+this.value).toFixed(1)"></div>
+      <button class="act amber" onclick="runFlaw()">▶ รันเปรียบเทียบ</button>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="stat a"><div class="k" id="faWaitA">–</div><div class="l th-block">ร้าน A — รอเฉลี่ย (นาที) · SD บริการ 0.5</div></div>
+        <div class="chartwrap"><canvas id="faCanvasA" width="410" height="180"></canvas><div class="legend th-block">ร้าน A · บริการนิ่ง (แปรผันต่ำ)</div></div>
+      </div>
+      <div>
+        <div class="stat b"><div class="k" id="faWaitB">–</div><div class="l th-block">ร้าน B — รอเฉลี่ย (นาที) · แปรผันสูง</div></div>
+        <div class="chartwrap"><canvas id="faCanvasB" width="410" height="180"></canvas><div class="legend th-block">ร้าน B · บริการแกว่ง (แปรผันสูง)</div></div>
+      </div>
+    </div>
+    <div class="note tip" id="faMsg" style="display:none"></div>
+    <div class="note ask">
+      <span class="lb">❓ ชวนคิด</span>
+      <span class="th-block">ค่าเฉลี่ยบริการเท่ากันทั้งสองร้าน แต่ทำไมคิวถึงต่างกัน? แล้ว “ความแปรผัน” ส่งผลต่อคิวอย่างไร?</span>
+
+    </div>
+    <div class="note warn">
+      <span class="lb">⚠️ ข้อผิดพลาดอันดับ 1</span>
+      <span class="th-block">“ใส่ค่าเฉลี่ยก็พอ” เป็นข้อผิดพลาดด้านข้อมูลที่พบบ่อยที่สุดในงานจริง — ลบความแปรผันทิ้ง = โมเดลบอกว่าไม่มีคิว ทั้งที่จริงคิวยาว</span>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S5 ===================== -->
+<section id="s5">
+  <h2><span class="num">5</span> สถิติที่ต้องใช้ + การแจกแจงมาตรฐานที่ใช้บ่อย</h2>
+  <p class="lead th-block">เคล็ดลับเลือกการแจกแจง: <strong>อย่าเพิ่งถามว่า "กราฟทรงไหน fit"</strong> — ให้ถามก่อนว่า <strong>"ตัวเลขนี้เกิดขึ้นมาได้อย่างไร"</strong> (นับของ? จับเวลา? ชั่งน้ำหนัก?) คำตอบจะตัดตัวเลือกให้เหลือ 1–2 ตัวทันที (ตำราเรียกวิธีคิดนี้ว่า "เลือกจากพื้นฐานทางกายภาพ") — คลิกเลือกการแจกแจงด้านล่างแล้วปรับพารามิเตอร์เพื่อดูรูปร่างสด</p>
+
+
+  <div class="card">
+    <h3>ดัชนีที่ต้องรู้จัก</h3>
     <table class="tbl">
       <tr><th>ดัชนี</th><th>ความหมาย</th><th>Excel</th></tr>
       <tr><td>ค่าเฉลี่ย (mean, μ)</td><td class="th-block">ตำแหน่งกลาง</td><td><code>AVERAGE</code></td></tr>
@@ -259,26 +425,27 @@
       <tr><td>สัมประสิทธิ์การแปรผัน (CV = σ/μ)</td><td class="th-block">การกระจายแบบไม่มีหน่วย · <strong>Exponential มี CV ≈ 1</strong></td><td><code>=STDEV.S/AVERAGE</code></td></tr>
       <tr><td>ควอร์ไทล์/เปอร์เซ็นไทล์</td><td class="th-block">ดูค่าสุดขั้ว/ความเบ้</td><td><code>QUARTILE, PERCENTILE</code></td></tr>
     </table>
+    <div class="note tip">
+      <span class="lb">💡 ทำไม CV ถึงสำคัญ</span>
+      <span class="th-block">CV เป็นตัวเลข <strong>ไร้หน่วย</strong> เทียบความแปรผันข้ามระบบที่ค่าเฉลี่ยต่างกันได้ตรงๆ (ต่างจาก SD เฉยๆ ที่บอกไม่ได้ว่ามากหรือน้อยถ้าไม่รู้ขนาดค่าเฉลี่ย) · ใช้เป็น <strong>"ลายเซ็น" เดารูปร่างการแจกแจง</strong> ก่อนทำ goodness-of-fit — <strong>CV ≈ 1</strong> เข้าเค้า Exponential, <strong>CV &lt; 1</strong> แปรผันน้อยกว่า (ใกล้ Normal/Erlang), <strong>CV &gt; 1</strong> แปรผันมากกว่า (หางยาว คล้าย Hyperexponential) · และเชื่อมกับธีม <strong>Flaw of Averages</strong> ของทั้งคาบ: ความแปรผัน (ไม่ใช่ค่าเฉลี่ย) คือตัวสร้างคิว — CV สูงจึงเตือนล่วงหน้าได้ว่าคิวจะรอนานและแกว่งมาก</span>
+    </div>
   </div>
 
   <div class="card">
-    <h3>🎚️ ทดลอง: จำนวน bin ของฮิสโทแกรม <span class="en">/ Histogram bins</span></h3>
-    <p class="th-block" style="font-size:.9rem">ข้อมูลชุดเดียวกัน (เวลาบริการ 150 ค่า แบบ Exponential) กฎง่ายๆ: bin ≈ √n ≈ <strong>12</strong> ช่อง</p>
-    <p class="en-block" style="font-size:.9rem">Same dataset (150 Exponential service times). Rule of thumb: bins ≈ √n ≈ <strong>12</strong>.</p>
-    <div class="controls">
-      <div class="ctl"><label>จำนวน bin / Bins: <span class="val" id="vBin">12</span></label><input type="range" id="rBin" min="3" max="40" value="12" oninput="drawBinHist()"></div>
-      <button class="act" onclick="newBinData()">🎲 สุ่มข้อมูลชุดใหม่ / New data</button>
+    <h3>มีข้อมูลแล้ว เลือกได้ 2 ทาง</h3>
+    <div class="grid2">
+      <div class="note tip" style="margin:0">
+        <span class="lb">① Standard distribution</span>
+        <span class="th-block">จับข้อมูลเข้ากับ <strong>สูตรมาตรฐาน</strong> (Uniform, Triangular, Normal, Exponential, Poisson) — กระชับ ปรับพารามิเตอร์ง่าย สุ่มค่าง่าย → <strong>ลองทางนี้ก่อนเสมอ</strong></span>
+        
+      </div>
+      <div class="note tip" style="margin:0">
+        <span class="lb">② Empirical distribution</span>
+        <span class="th-block">สร้างจาก <strong>ข้อมูลจริงตรงๆ</strong> (ตารางความน่าจะเป็นสะสม) — ใช้เมื่อไม่มีสูตรไหน fit เลย · จะได้ลงมือทำจริงใน <strong>Lab 2</strong> (หัวข้อ 8)</span>
+        
+      </div>
     </div>
-    <div class="chartwrap"><canvas id="binCanvas" width="860" height="260"></canvas></div>
-    <div class="note tip" id="binMsg"></div>
   </div>
-</section>
-
-<!-- ===================== S5 ===================== -->
-<section id="s5">
-  <h2><span class="num">5</span> การแจกแจงมาตรฐานที่ใช้บ่อย</h2>
-  <p class="lead th-block">เลือกจาก <strong>พื้นฐานทางกายภาพ</strong> ก่อน (ตัวแปรนี้เกิดจากกลไกอะไร) แล้วค่อยดูข้อมูล — คลิกเลือกการแจกแจงแล้วปรับพารามิเตอร์เพื่อดูรูปร่างสด</p>
-  <p class="lead en-block">Choose by <strong>physical basis</strong> first (what mechanism creates this variable), then look at the data. Click a distribution and tune its parameters.</p>
 
   <div class="card">
     <div class="distbtns" id="distBtns">
@@ -290,23 +457,91 @@
     </div>
     <div class="grid2">
       <div>
-        <div class="chartwrap"><canvas id="distCanvas" width="410" height="240"></canvas><div class="legend">1,000 samples</div></div>
+        <div class="chartwrap"><canvas id="distCanvas" width="410" height="240"></canvas><div class="legend">1,000 ตัวอย่าง</div></div>
+        <div class="statgrid" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="stat"><div class="k" id="distMean">–</div><div class="l th-block">mean</div></div>
+          <div class="stat"><div class="k" id="distSD">–</div><div class="l th-block">SD</div></div>
+          <div class="stat"><div class="k" id="distCV">–</div><div class="l th-block">CV ≈ SD/mean</div></div>
+        </div>
         <div class="controls" id="distControls"></div>
-        <button class="act teal" onclick="sampleDist()">🎲 สุ่มใหม่ / Re-sample</button>
+        <button class="act teal" onclick="sampleDist()">🎲 สุ่มใหม่</button>
       </div>
       <div>
         <div class="note tip" id="distInfo" style="min-height:200px"></div>
       </div>
     </div>
     <div class="note warn" style="margin-top:14px">
-      <span class="lb">👯 คู่แฝดสำคัญ / The key twin</span>
-      <span class="th-block">ถ้า <strong>จำนวนการมาถึงต่อชั่วโมง</strong> เป็น <strong>Poisson</strong> แล้ว <strong>เวลาระหว่างการมาถึง</strong> จะเป็น <strong>Exponential</strong> โดยอัตโนมัติ — เหรียญคนละด้านของเรื่องเดียวกัน และเป็นหัวใจของแบบจำลองแถวคอย</span>
-      <span class="en-block">If the <strong>number of arrivals per hour</strong> is <strong>Poisson</strong>, then the <strong>time between arrivals</strong> is automatically <strong>Exponential</strong> — two sides of the same coin, the heart of queueing models.</span>
+      <span class="lb">👯 คู่แฝดสำคัญ</span>
+      <span class="th-block">ถ้า <strong>จำนวนการมาถึงต่อชั่วโมง</strong> เป็น <strong>Poisson</strong> แล้ว <strong>เวลาระหว่างการมาถึง</strong> จะเป็น <strong>Exponential</strong> โดยอัตโนมัติ — เป็นเรื่องเดียวกันมองคนละมุม: <strong>Poisson นับ "กี่คนต่อชั่วโมง"</strong> ส่วน <strong>Exponential จับเวลา "ห่างกันกี่นาที"</strong> · ตัวอย่าง: ลูกค้ามาเฉลี่ย 12 คน/ชม. (Poisson, λ=12) ⇔ เวลาห่างระหว่างลูกค้าเฉลี่ย 60÷12 = <strong>5 นาที</strong> (Exponential, mean=5) — คู่นี้คือหัวใจของแบบจำลองแถวคอย</span>
+    </div>
+    <div class="note tip">
+      <span class="lb">🧠 "สุ่มไร้ความจำ" (memoryless) แปลว่าอะไร</span>
+      <span class="th-block">รอลูกค้ามานาน 10 นาทีแล้ว โอกาสที่ลูกค้าคนถัดไปจะโผล่มา "ในนาทีต่อจากนี้" <strong>ยังเท่าเดิม</strong> — ระบบไม่จำว่ารอมานานแค่ไหน (เหมือนโยนเหรียญ: ออกก้อยติดกัน 5 ครั้ง โอกาสหัวครั้งถัดไปก็ยัง 50%) ลูกค้าที่ต่างคนต่างมาไม่ได้นัดกันจึงมักมีพฤติกรรมแบบนี้ → ใช้ Exponential</span>
     </div>
     <div class="note warn">
-      <span class="lb">⚠️ เข้าใจผิด / Myth</span>
+      <span class="lb">⚠️ เข้าใจผิด</span>
       <span class="th-block">“ข้อมูลทุกอย่างเป็น Normal” — ไม่จริง! เวลาบริการ/เวลาระหว่างมาถึงมัก <strong>เบ้ขวา</strong> ใช้ Exponential เหมาะกว่า และ Normal ให้ค่าติดลบได้ ซึ่งเป็นไปไม่ได้สำหรับ “เวลา”</span>
-      <span class="en-block">“Everything is Normal” — false! Service/inter-arrival times are usually <strong>right-skewed</strong>; Exponential fits better, and Normal can give negatives, impossible for “time.”</span>
+      
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🧭 ทางลัด: เลือกการแจกแจงด้วย 4 คำถาม</h3>
+    <p class="th-block" style="font-size:.93rem">ไล่ถามทีละข้อจากบนลงล่าง เจอคำตอบ "ใช่" ข้อไหน หยุดที่ข้อนั้น:</p>
+    <ol style="font-size:.95rem;line-height:2">
+      <li>ข้อมูลเป็น <strong>"จำนวนนับ"</strong> ต่อช่วงเวลาไหม? (กี่คน/ชม., กี่ออเดอร์/วัน — เป็นเลขจำนวนเต็ม) → <strong>Poisson</strong></li>
+      <li>เป็น <strong>"เวลาระหว่าง"</strong> เหตุการณ์ที่ต่างคนต่างมาไหม? (เวลาห่างระหว่างลูกค้า) → <strong>Exponential</strong> (เช็กลายเซ็น: CV ≈ 1, เบ้ขวา)</li>
+      <li>ค่า <strong>เกาะกลุ่มรอบค่าเฉลี่ยแบบสมมาตร</strong> ไหม? (น้ำหนัก/ขนาดสินค้า ยอดรวมต่อวัน) → <strong>Normal</strong> (ระวัง: ห้ามใช้กับ "เวลา" ที่ติดลบไม่ได้)</li>
+      <li><strong>ไม่มีข้อมูลจริง</strong> รู้แค่ประมาณการไหม? → รู้ min–max อย่างเดียว = <strong>Uniform</strong> · รู้ค่าที่พบบ่อยสุดด้วย = <strong>Triangular</strong></li>
+    </ol>
+    <div class="note tip" style="font-size:.9rem">
+      <span class="th-block">ตอบครบ 4 ข้อแล้วยังไม่เข้าตัวไหนเลย → ใช้ <strong>Empirical distribution</strong> จากข้อมูลตรงๆ (Lab 2 · หัวข้อ 8) — แล้วใช้ตารางข้างล่างนี้เป็นที่ทวนความจำ</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 ตารางสรุป: ตัวไหนใช้เมื่อไร</h3>
+    <div style="overflow-x:auto"><table class="tbl">
+      <tr><th>การแจกแจง</th><th>ใช้เมื่อ (พื้นฐานทางกายภาพ)</th><th>ตัวอย่างข้อมูลที่มักมีรูปร่างนี้</th><th>CV โดยประมาณ</th></tr>
+      <tr><td><strong>Uniform</strong></td><td><span class="th-block">ทุกค่าในช่วงมีโอกาสเท่ากัน / รู้แค่ min–max</span></td><td><span class="th-block">ค่าประมาณคร่าวๆ ตอนไม่มีข้อมูล</span></td><td><span class="th-block">≈ 0.4 <span style="opacity:.7">(ขึ้นกับ a,b — ที่ a=2,b=10)</span></span></td></tr>
+      <tr><td><strong>Triangular</strong></td><td><span class="th-block">รู้ min, max และค่าที่พบบ่อยสุด (mode)</span></td><td><span class="th-block">ประมาณเวลางานจากความเห็นผู้เชี่ยวชาญ</span></td><td><span class="th-block">≈ 0.36 <span style="opacity:.7">(ขึ้นกับ min/mode/max)</span></span></td></tr>
+      <tr><td><strong>Normal</strong></td><td><span class="th-block">ค่าลอยรอบค่าเฉลี่ย สมมาตร เกิดจากหลายปัจจัยรวมกัน · ⚠️ ติดลบได้</span></td><td><span class="th-block">น้ำหนัก/ขนาดสินค้า, ยอดรวมต่อวัน</span></td><td><span class="th-block">≈ 0.17 <span style="opacity:.7">(ไม่ตายตัว — เลือก mean/SD เองได้อิสระ)</span></span></td></tr>
+      <tr><td><strong>Exponential</strong></td><td><span class="th-block">เวลาระหว่างเหตุการณ์ “สุ่มไร้ความจำ” เบ้ขวา CV≈1</span></td><td><span class="th-block">เวลาระหว่างลูกค้ามาถึง, เวลาบริการบางแบบ</span></td><td><span class="th-block"><strong>= 1</strong> <span style="opacity:.7">(เท่ากับ 1 เสมอ ไม่ว่า mean เท่าไร)</span></span></td></tr>
+      <tr><td><strong>Poisson</strong></td><td><span class="th-block">จำนวนเหตุการณ์ต่อช่วงเวลา (นับเป็นจำนวนเต็ม)</span></td><td><span class="th-block">จำนวนลูกค้าต่อชั่วโมง, จำนวนออเดอร์/วัน</span></td><td><span class="th-block">≈ 0.35 <span style="opacity:.7">(= 1/√λ — ที่ λ=8)</span></span></td></tr>
+    </table></div>
+    <div class="note tip">
+      <span class="lb">🤷 ถ้าไม่มีข้อมูลเลยล่ะ?</span>
+      <span class="th-block">ระบบยังไม่สร้าง / เก็บข้อมูลไม่ได้ → ใช้ <strong>ความเห็นผู้เชี่ยวชาญ</strong> + การแจกแจงที่ต้องรู้พารามิเตอร์น้อย: <strong>Triangular</strong> (min/mode/max) หรือ <strong>Uniform</strong> (min/max) — แล้วทำ <strong>sensitivity analysis</strong> ลองขยับพารามิเตอร์ดูว่าคำตอบเปลี่ยนมากไหม</span>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🧪 สูตร Excel สุ่มค่าจากแต่ละการแจกแจง</h3>
+    <p class="th-block" style="font-size:.93rem">หลักเดียวกันทุกสูตร (Inverse Transform — จะได้ใช้จริงใน Lab): <strong>ใส่ <code>RAND()</code> เข้าไป ได้ค่าสุ่มตามการแจกแจงออกมา</strong> · พิมพ์แล้วลากลงกี่แถวก็ได้ กด F9 สุ่มใหม่ทั้งชุด</p>
+
+    <p class="th-block" style="font-size:.92rem;margin-bottom:2px"><strong>Uniform</strong> — โอกาสเท่ากันทุกค่าในช่วง a ถึง b</p>
+    <pre>=RANDBETWEEN(1,6)      <span class="c">' จำนวนเต็ม 1–6 (ลูกเต๋า)</span>
+=2+(10-2)*RAND()       <span class="c">' ทศนิยมต่อเนื่องช่วง 2–10 · สูตรทั่วไป =a+(b-a)*RAND()</span></pre>
+
+    <p class="th-block" style="font-size:.92rem;margin-bottom:2px"><strong>Normal</strong> — ระฆังรอบ mean (ตัวอย่าง: mean 120, SD 20)</p>
+    <pre>=NORM.INV(RAND(), 120, 20)   <span class="c">' ⚠️ ติดลบได้ — ไม่เหมาะกับ "เวลา/จำนวน"</span></pre>
+
+    <p class="th-block" style="font-size:.92rem;margin-bottom:2px"><strong>Exponential</strong> — เวลาระหว่างเหตุการณ์สุ่ม (ตัวอย่าง: mean 4 นาที)</p>
+    <pre>=-4*LN(RAND())         <span class="c">' สูตรทั่วไป =-mean*LN(RAND()) · สูตรเดียวกับ Lab 1</span></pre>
+
+    <p class="th-block" style="font-size:.92rem;margin-bottom:2px"><strong>Triangular</strong> — รู้ min/mode/max (ตัวอย่าง: 2/4/12) · Excel ไม่มีฟังก์ชันสำเร็จ ใช้เลขสุ่มตัวช่วย 1 คอลัมน์</p>
+    <pre>D2: =RAND()            <span class="c">' คอลัมน์ตัวช่วย — ห้ามใส่ RAND() ซ้ำในสูตรล่าง (จะกลายเป็นสุ่มคนละตัว)</span>
+E2: =IF(D2&lt;(4-2)/(12-2), 2+SQRT(D2*(12-2)*(4-2)), 12-SQRT((1-D2)*(12-2)*(12-4)))</pre>
+
+    <p class="th-block" style="font-size:.92rem;margin-bottom:2px"><strong>Poisson</strong> — จำนวนนับต่อช่วงเวลา (ตัวอย่าง: λ = 8 ต่อชั่วโมง) · Excel ไม่มี POISSON.INV — ใช้เทคนิค <strong>ตารางสะสม + VLOOKUP</strong> แบบเดียวกับ Lab 2 เป๊ะ</p>
+    <pre><span class="c">' G: ขอบล่างสะสม · H: จำนวน 0,1,2,...,20</span>
+G2: 0                          H2: 0
+G3: =G2+POISSON.DIST(H2,8,FALSE)   H3: 1   <span class="c">' ลากลงถึงราว 20 แถว</span>
+J2: =VLOOKUP(RAND(), $G$2:$H$22, 2, TRUE)  <span class="c">' ได้จำนวนลูกค้า/ชม. ตาม Poisson</span></pre>
+
+    <div class="note tip" style="font-size:.88rem">
+      <span class="th-block">💡 สังเกต: Poisson ใช้เทคนิคเดียวกับการสุ่มจาก empirical distribution ใน Lab 2 (ตารางสะสม + VLOOKUP) — เทคนิคเดียวสุ่มได้ทุกการแจกแจงที่มีตารางความน่าจะเป็น · ใน SimPy (ครั้งที่ 3) ทั้งหมดนี้เหลือบรรทัดเดียว เช่น <code>random.expovariate(1/4)</code></span>
     </div>
   </div>
 </section>
@@ -314,120 +549,292 @@
 <!-- ===================== S6 ===================== -->
 <section id="s6">
   <h2><span class="num">6</span> เลือก / Fit การแจกแจง + Goodness-of-fit</h2>
-  <p class="lead th-block">3 ขั้น: (1) เดารูปร่างจากฮิสโทแกรม + พื้นฐานกายภาพ → (2) ประมาณพารามิเตอร์จากข้อมูล → (3) ตรวจความสอดคล้อง ลองปรับ mean ให้เส้นทฤษฎีทับฮิสโทแกรมให้ดีที่สุด</p>
-  <p class="lead en-block">3 steps: (1) guess the shape → (2) estimate parameters → (3) check fit. Tune the mean to overlay the theoretical curve onto the histogram.</p>
+  <p class="lead th-block">"Fit" = จับข้อมูลจริงเข้ากับสูตรการแจกแจง — ทำแค่ 3 ขั้น: <strong>เดา → วัดตัว → ตรวจ</strong></p>
 
   <div class="card">
-    <h3>🎯 ทดลอง fit เส้น Exponential <span class="en">/ Fit an Exponential</span></h3>
-    <p class="th-block" style="font-size:.9rem">ข้อมูลจริงถูกสร้างจาก Exponential ที่ mean ซ่อนอยู่ — เลื่อน mean จนเส้นสีแดงทับฮิสโทแกรมพอดี แล้วดูค่า “ความต่าง” ให้น้อยที่สุด</p>
-    <p class="en-block" style="font-size:.9rem">The data comes from an Exponential with a hidden mean — slide the mean until the red curve matches, minimizing the “misfit” score.</p>
+    <h3>3 ขั้นของการ fit</h3>
+    <div class="grid2" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="note tip" style="margin:0">
+        <span class="lb">① เดารูปร่าง</span>
+        <span class="th-block">ดูฮิสโทแกรม (หัวข้อ 3) + ตอบ 4 คำถาม (หัวข้อ 5) → ได้ผู้ต้องสงสัย 1–2 ตัว เช่น "เบ้ขวา CV≈1 → น่าจะ Exponential"</span>
+      </div>
+      <div class="note tip" style="margin:0">
+        <span class="lb">② วัดตัว (ประมาณพารามิเตอร์)</span>
+        <span class="th-block">เอาสถิติของข้อมูลใส่เข้าสูตรตรงๆ: <strong>Exponential</strong> ต้องการแค่ mean → <code>=AVERAGE(ข้อมูล)</code> จบ · <strong>Normal</strong> ต้องการ mean กับ SD → <code>=AVERAGE</code> + <code>=STDEV.S</code> จบ — ไม่มีคณิตศาสตร์ซับซ้อน</span>
+      </div>
+      <div class="note tip" style="margin:0">
+        <span class="lb">③ ตรวจ (goodness-of-fit)</span>
+        <span class="th-block">2 ระดับ: <strong>ตาดู</strong> — วาดเส้นสูตรทับฮิสโทแกรม ทับสนิทไหม? แล้วค่อย <strong>ตัวเลขยืนยัน</strong> — Chi-square (กล่องล่าง)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🎯 ทดลอง fit เส้น Exponential — ขั้น ② + ③ ฉบับมือหมุน</h3>
+    <p class="th-block" style="font-size:.9rem">ข้อมูลจริงถูกสร้างจาก Exponential ที่ mean ซ่อนอยู่ — <strong>การเลื่อน slider = ขั้น "วัดตัว"</strong> (ลองค่า mean ไปเรื่อยๆ) และ <strong>ค่า "ความต่าง" = ขั้น "ตรวจ" ฉบับสายตา</strong> เลื่อนจนเส้นแดงทับฮิสโทแกรมแล้วดูความต่างให้น้อยสุด</p>
+    <div class="note tip" style="font-size:.88rem">
+      <span class="th-block">💡 ความจริงไม่ต้องเดา: <code>=AVERAGE(ข้อมูล)</code> ให้คำตอบขั้น ② ทันที — ลองเลื่อน slider ไปที่ค่าเฉลี่ยจริง (กดเฉลย) แล้วดูว่าความต่างต่ำสุดพอดีไหม</span>
+    </div>
+    
     <div class="controls">
-      <div class="ctl"><label>mean ที่เดา / Guessed mean: <span class="val" id="vFit">4.0</span></label><input type="range" id="rFit" min="1" max="10" step="0.2" value="4" oninput="drawFit()"></div>
-      <button class="act amber" onclick="revealFit()">👁️ เฉลย mean จริง / Reveal</button>
-      <button class="act" onclick="newFitData()">🎲 ข้อมูลใหม่ / New data</button>
+      <div class="ctl"><label>mean ที่เดา: <span class="val" id="vFit">4.0</span></label><input type="range" id="rFit" min="1" max="10" step="0.2" value="4" oninput="drawFit()"></div>
+      <button class="act amber" onclick="revealFit()">👁️ เฉลย mean จริง</button>
+      <button class="act" onclick="newFitData()">🎲 ข้อมูลใหม่</button>
     </div>
     <div class="chartwrap"><canvas id="fitCanvas" width="860" height="280"></canvas></div>
     <div class="statgrid" style="grid-template-columns:1fr 1fr">
-      <div class="stat"><div class="k" id="fitScore">–</div><div class="l th-block">ความต่าง (ยิ่งน้อยยิ่ง fit ดี)</div><div class="l en-block">Misfit (lower = better)</div></div>
-      <div class="stat"><div class="k" id="fitReveal">?</div><div class="l th-block">mean จริงของข้อมูล</div><div class="l en-block">True data mean</div></div>
+      <div class="stat"><div class="k" id="fitScore">–</div><div class="l th-block">ความต่าง (ยิ่งน้อยยิ่ง fit ดี)</div></div>
+      <div class="stat"><div class="k" id="fitReveal">?</div><div class="l th-block">mean จริงของข้อมูล</div></div>
     </div>
     <div class="note tip">
       <span class="lb">📏 Goodness-of-fit แบบเข้าใจง่าย</span>
-      <span class="th-block">การทดสอบพวกนี้ตอบคำถามเดียว: “ความต่างระหว่างข้อมูลจริงกับการแจกแจงที่เลือก มากเกินกว่าจะเป็นเรื่องบังเอิญไหม” ถ้าไม่มาก = เข้ากันได้ ตัวที่ใช้บ่อย: <strong>Chi-square</strong> <code>=CHISQ.TEST()</code> และ <strong>K–S test</strong> (p สูง = เข้ากันดี)</span>
-      <span class="en-block">These tests answer one question: “is the gap between the data and the chosen distribution too large to be chance?” If not → good fit. Common: <strong>Chi-square</strong> <code>=CHISQ.TEST()</code> and <strong>K–S test</strong> (high p = good fit).</span>
+      <span class="th-block">การทดสอบพวกนี้ตอบคำถามเดียว: <strong>"ความต่างระหว่างข้อมูลจริงกับสูตรที่เลือก มากเกินกว่าจะเป็นเรื่องบังเอิญไหม"</strong> — เหมือนค่า "ความต่าง" ใน slider ข้างบน แต่คำนวณเป็นมาตรฐาน · ตัวที่ใช้บ่อย: <strong>Chi-square</strong> <code>=CHISQ.TEST(ความถี่จริง, ความถี่ตามสูตร)</code> และ <strong>K–S test</strong> · ผลออกมาเป็นค่า <strong>p</strong> (0–1) — อ่านง่ายๆ: <strong>p สูง (เช่น &gt; 0.05) = เข้ากันได้ ใช้สูตรนี้ต่อได้</strong> · <strong>p ต่ำมาก = ข้อมูลกับสูตรไม่เข้ากัน</strong> กลับไปลองสูตรอื่นหรือใช้ empirical (จะได้ใช้จริงตอน validation ครั้งที่ 5)</span>
     </div>
     <div class="note warn">
-      <span class="lb">⚠️ อย่าเชื่อซอฟต์แวร์อย่างเดียว / Don't trust software blindly</span>
+      <span class="lb">⚠️ อย่าเชื่อซอฟต์แวร์อย่างเดียว</span>
       <span class="th-block">Arena Input Analyzer / EasyFit / Python <code>scipy.stats</code> แนะนำการแจกแจงให้ได้ แต่บางทีมัน fit ตัวเลขดีแต่ไม่สมเหตุสมผลทางกายภาพ (เช่น แนะ Normal ให้ “เวลา” ที่ห้ามติดลบ) — คนต้องใช้วิจารณญาณเสมอ</span>
-      <span class="en-block">Arena Input Analyzer / EasyFit / Python <code>scipy.stats</code> suggest distributions, but sometimes they fit the numbers yet make no physical sense (e.g. Normal for “time” that can't be negative) — human judgment is always required.</span>
-    </div>
-  </div>
-</section>
 
-<!-- ===================== S7 ===================== -->
-<section id="s7">
-  <h2><span class="num">7</span> Lab: ลงมือใน Excel (Workshop Class 2)</h2>
-  <p class="lead th-block">ฝึกสร้าง ดูรูปร่าง และ <strong>สุ่มค่าจากการแจกแจง</strong> ทั้งแบบมาตรฐานและเชิงประสบการณ์ ในไฟล์ Excel ของตัวเอง</p>
-  <p class="lead en-block">Practice building, viewing shapes, and <strong>sampling from distributions</strong> — both standard and empirical — in your own Excel file.</p>
-
-  <div class="note ask" style="font-size:1.02rem">
-    <span class="lb">📂 ไฟล์ที่ต้องเปิด / Open this file</span>
-    <span class="th-block"><code>Workshop / โซ่ฯ Class 2.xlsx</code> — ชีตสำคัญ: <strong>Dice Rolling 1</strong> (สร้างการแจกแจงเชิงประสบการณ์), <strong>Dice Rolling 2</strong> (สุ่มค่าด้วยความน่าจะเป็นสะสม), <strong>Newsvendor</strong> (โจทย์ตัดสินใจ) · กด <strong>F9</strong> เพื่อสุ่มใหม่</span>
-    <span class="en-block"><code>Workshop / โซ่ฯ Class 2.xlsx</code> — key sheets: <strong>Dice Rolling 1</strong> (build empirical distribution), <strong>Dice Rolling 2</strong> (sample via cumulative probability), <strong>Newsvendor</strong> (decision problem) · press <strong>F9</strong> to re-randomize.</span>
-  </div>
-
-  <div class="grid2">
-    <div class="card">
-      <h3>Lab 1 — Histogram + สุ่มจากการแจกแจงมาตรฐาน</h3>
-      <p class="th-block" style="font-size:.9rem"><strong>ขั้น 1:</strong> สร้างข้อมูล Exponential แล้วดูทรงเบ้ขวา</p>
-      <pre>=-4*LN(RAND())     <span class="c">' ลากลง 150 แถว, mean≈4</span>
-=AVERAGE(A2:A151)  <span class="c">' ≈ 4</span>
-=STDEV.S(A2:A151)  <span class="c">' ≈ 4 → CV≈1 = ลายเซ็น Exponential</span></pre>
-      <p class="th-block" style="font-size:.9rem"><strong>ขั้น 2:</strong> เทียบ 3 ทรง — กด F9 พร้อมกัน สังเกตทรงคงเดิม</p>
-      <pre>=RANDBETWEEN(1,6)          <span class="c">' Uniform → แบน</span>
-=NORM.INV(RAND(),120,20)   <span class="c">' Normal → ระฆัง</span>
-<span class="c">' Triangular: min/mode/max เช่น 2/4/12</span></pre>
-      <p class="th-block" style="font-size:.86rem;color:var(--muted)">⚠️ <code>NORM.INV</code> ให้ค่าติดลบได้ — ไม่เหมาะกับ “เวลา/จำนวน”</p>
-      <p class="en-block" style="font-size:.86rem;color:var(--muted)">⚠️ <code>NORM.INV</code> can go negative — bad for “time/count.”</p>
-    </div>
-    <div class="card">
-      <h3>Lab 2 — Empirical + สุ่มด้วยความน่าจะเป็นสะสม</h3>
-      <p class="th-block" style="font-size:.9rem"><strong>Dice Rolling 1:</strong> นับความถี่ด้วย <code>COUNTIF</code> ÷ ทั้งหมด → ได้ความน่าจะเป็นจริง (ไม่เท่ากันเป๊ะ 1/6 เพราะมี noise)</p>
-      <p class="en-block" style="font-size:.9rem"><strong>Dice Rolling 1:</strong> count with <code>COUNTIF</code> ÷ total → real probabilities (not exactly 1/6, due to noise).</p>
-      <p class="th-block" style="font-size:.9rem"><strong>Dice Rolling 2:</strong> ตารางความน่าจะเป็นสะสม + สุ่มด้วย</p>
-      <pre>=VLOOKUP(RAND(), ตารางสะสม, 2, 1)
-<span class="c">' เลข 1 ท้าย = approximate match</span>
-<span class="c">' = หาช่วงที่ค่าตกลงไป (Inverse Transform)</span></pre>
-      <p class="th-block" style="font-size:.86rem;color:var(--muted)">4 วิธีทำสิ่งเดียวกัน: Nested-IF · IFS · VLOOKUP(,1) · XLOOKUP</p>
-      <p class="en-block" style="font-size:.86rem;color:var(--muted)">4 ways, same result: Nested-IF · IFS · VLOOKUP(,1) · XLOOKUP</p>
     </div>
   </div>
 
   <div class="card">
-    <div class="note tip">
-      <span class="lb">🔑 กุญแจสำคัญ / The key idea</span>
-      <span class="th-block"><code>NORM.INV(RAND(),...)</code>, <code>-mean*LN(RAND())</code>, และ <code>VLOOKUP(RAND(),สะสม,,1)</code> ล้วนเป็นเทคนิคเดียวกันชื่อ <strong>Inverse Transform</strong> — ใส่ <code>RAND()</code> เข้าฟังก์ชันผกผันของ CDF แล้วได้ค่าสุ่มตามการแจกแจง (จะเรียนลึกในบทการสร้างค่าสุ่ม)</span>
-      <span class="en-block"><code>NORM.INV(RAND(),...)</code>, <code>-mean*LN(RAND())</code>, and <code>VLOOKUP(RAND(),cumulative,,1)</code> are all the same technique — <strong>Inverse Transform</strong>: feed <code>RAND()</code> into the inverse CDF to get a sample (studied deeply in the random-variate chapter).</span>
+    <h3>📚 ตัวอย่างการ fit การแจกแจงแบบอื่น — 3 ขั้นเดิม เปลี่ยนแค่ "พารามิเตอร์ที่ต้องวัด"</h3>
+
+    <div class="note tip" style="border-left-color:var(--blue)">
+      <span class="lb" style="color:var(--blue)">ตัวอย่าง 1 · Normal — น้ำหนักพัสดุ</span>
+      <span class="th-block">ชั่งพัสดุ 150 กล่อง ฮิสโทแกรมเป็น <strong>ระฆังสมมาตร</strong> รอบ 2.4 kg → <strong>① เดา:</strong> Normal · <strong>② วัดตัว:</strong> ต้องการ 2 ค่า — <code>=AVERAGE(ข้อมูล)</code> ได้ 2.4 และ <code>=STDEV.S(ข้อมูล)</code> ได้ 0.3 → ได้ <strong>Normal(mean 2.4, SD 0.3)</strong> · <strong>③ ตรวจ:</strong> เส้นระฆังทับฮิสโทแกรมสนิท + <code>=CHISQ.TEST()</code> ได้ p = 0.62 &gt; 0.05 ✓ → สุ่มใช้ได้ด้วย <code>=NORM.INV(RAND(),2.4,0.3)</code> (น้ำหนักติดลบไม่ได้ก็จริง แต่ mean 2.4 / SD 0.3 อยู่ห่างศูนย์ถึง 8SD โอกาสติดลบแทบเป็นศูนย์ — ถ้า SD ใหญ่เทียบ mean ต้องระวัง)</span>
     </div>
+
+    <div class="note tip" style="border-left-color:var(--red)">
+      <span class="lb" style="color:var(--red)">ตัวอย่าง 2 · Poisson — จำนวนออเดอร์ต่อวัน</span>
+      <span class="th-block">นับออเดอร์ย้อนหลัง 60 วัน ข้อมูลเป็น <strong>จำนวนเต็ม</strong> (5, 8, 7, 11, ...) → <strong>① เดา:</strong> จำนวนนับต่อช่วงเวลา → Poisson · <strong>② วัดตัว:</strong> ต้องการค่าเดียว — λ = <code>=AVERAGE(ข้อมูล)</code> ได้ 7.5 ออเดอร์/วัน จบ · <strong>③ ตรวจ:</strong> ลายเซ็นของ Poisson คือ <strong>variance ≈ mean</strong> — เช็กด้วย <code>=VAR.S(ข้อมูล)</code> ควรได้ราว 7.5 ด้วย (ถ้า variance โตกว่า mean มาก เช่น 20 แปลว่ามีอย่างอื่นแฝง เช่น วันธรรมดา/วันหยุดปนกัน → กลับไปแยกช่วงก่อนตามหัวข้อ 2)</span>
+    </div>
+
+    <div class="note tip" style="border-left-color:var(--purple)">
+      <span class="lb" style="color:var(--purple)">ตัวอย่าง 3 · Triangular / Uniform — ไม่มีข้อมูล ใช้ความเห็นผู้เชี่ยวชาญ</span>
+      <span class="th-block">ระบบยังไม่เกิด วัดไม่ได้ — หัวหน้าคลังบอกว่างานแพ็ค "เร็วสุด 2 นาที ช้าสุด 12 ส่วนใหญ่ราวๆ 4" → <strong>① เดา:</strong> รู้ 3 ค่า → Triangular · <strong>② วัดตัว:</strong> ไม่ต้องคำนวณอะไรเลย ใช้ 3 ค่านั้นเป็นพารามิเตอร์ตรงๆ → <strong>Triangular(2, 4, 12)</strong> (ถ้ารู้แค่ต่ำสุด–สูงสุด ใช้ Uniform(2,12)) · <strong>③ ตรวจ:</strong> ไม่มีข้อมูลให้เทียบ → ทำ <strong>sensitivity analysis</strong> แทน: ขยับ mode จาก 4 เป็น 3 หรือ 6 แล้วรันดูว่าคำตอบ (เวลารอ) เปลี่ยนมากไหม ถ้าเปลี่ยนมาก = ต้องรีบหาข้อมูลจริง</span>
+    </div>
+
     <div class="note ask">
-      <span class="lb">📝 การบ้าน / Homework</span>
-      <span class="th-block">เก็บข้อมูลจริง 30–50 ค่า จากระบบรอคิวที่เลือก (เวลาบริการ หรือเวลาระหว่างลูกค้ามาถึง) → ทำฮิสโทแกรม + คำนวณ mean/SD/CV + เดาว่าเป็นการแจกแจงอะไรพร้อมเหตุผล (ส่งต้นครั้งหน้า · ใช้ป้อนโมเดล SimPy ครั้งที่ 3)</span>
-      <span class="en-block">Collect 30–50 real values from your chosen queue system (service or inter-arrival times) → histogram + mean/SD/CV + guess the distribution with reasoning (due next session · feeds the SimPy model in Session 3).</span>
+      <span class="lb">❓ ชวนคิด</span>
+      <span class="th-block">ข้อมูลเวลาบริการชุดหนึ่งมี mean = 6, SD = 5.8, ฮิสโทแกรมเบ้ขวา — ควรเดาการแจกแจงอะไร และขั้น "วัดตัว" ต้องคำนวณอะไรบ้าง? <em>(เฉลย: CV ≈ 0.97 ≈ 1 + เบ้ขวา → Exponential · วัดตัวแค่ mean = 6 ค่าเดียวจบ)</em></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🚫 ตัวอย่าง fit ที่ "ผิด" — ข้อมูล Exponential แต่ดันทาบด้วย Normal</h3>
+    <p class="th-block" style="font-size:.9rem">ข้อมูลชุดเดียวกัน (เวลาบริการแบบ Exponential, mean ≈ 4) — กดสลับดูว่าเส้นสูตรที่ "ถูก" กับ "ผิด" ทาบแล้วต่างกันแค่ไหน</p>
+    <div class="controls">
+      <button class="act" id="wrongBtnE" onclick="drawWrong('expo')">✅ ทาบ Exponential (ถูก)</button>
+      <button class="act amber" id="wrongBtnN" onclick="drawWrong('normal')">🚫 ทาบ Normal (ผิด)</button>
+      <button class="act teal" onclick="newWrongData()">🎲 ข้อมูลใหม่</button>
+    </div>
+    <div class="chartwrap"><canvas id="wrongCanvas" width="860" height="280"></canvas></div>
+    <div class="statgrid" style="grid-template-columns:1fr 1fr">
+      <div class="stat a"><div class="k" id="wrongScoreE">–</div><div class="l th-block">ความต่างเมื่อทาบ Exponential</div></div>
+      <div class="stat b"><div class="k" id="wrongScoreN">–</div><div class="l th-block">ความต่างเมื่อทาบ Normal</div></div>
+    </div>
+    <div class="note tip" id="wrongMsg"></div>
+    <div class="note warn">
+      <span class="lb">⚠️ ทำไม fit ผิดแล้วอันตราย (ไม่ใช่แค่กราฟไม่สวย)</span>
+      <span class="th-block">สังเกต 3 อาการของการทาบ Normal ลงบนข้อมูลนี้: ① <strong>ยอดอยู่ผิดที่</strong> — Normal วางยอดไว้กลาง (ราว 4) แต่ข้อมูลจริงยอดอยู่ชิดซ้าย ② <strong>เส้นล้ำไปฝั่งติดลบ</strong> — ข้อมูลนี้ mean ≈ SD ≈ 4 ทำให้ Normal(4,4) ทำนายว่า ~16% ของเวลาบริการ <strong>ติดลบ</strong> ซึ่งเป็นไปไม่ได้ ③ <strong>หางขวาสั้นเกินจริง</strong> — Normal บอกว่างานที่นาน 12+ นาทีแทบไม่มี ทั้งที่ข้อมูลจริงมีเรื่อยๆ → พอเอาไปรันโมเดล คิวที่จำลองได้จะ <strong>สั้นกว่าความจริงมาก</strong> เพราะคิวเกิดจากหางยาวนี่แหละ (Flaw of Averages ภาคต่อ: คราวนี้ค่าเฉลี่ยถูก แต่รูปร่างผิด ก็พังได้เหมือนกัน) — goodness-of-fit จับอาการพวกนี้ได้: ค่า p จะต่ำมากจนปฏิเสธ Normal</span>
     </div>
   </div>
 </section>
 
-<!-- ===================== S8 QUIZ ===================== -->
+<!-- ===================== S7 LAB1 ===================== -->
+<section id="s7">
+  <h2><span class="num">7</span> Lab 1 — Histogram + สุ่มจากการแจกแจงมาตรฐาน</h2>
+  <p class="lead">เปิด Excel ชีตเปล่า แล้วพิมพ์ตามทีละขั้น — เป้าหมาย: <strong>สร้างข้อมูล ดูรูปร่าง และสุ่มค่าจากการแจกแจงมาตรฐาน</strong> ด้วยมือตัวเอง</p>
+
+  <div class="card">
+    <h3>ขั้นที่ 1 — สร้างข้อมูล Exponential แล้วดูทรงเบ้ขวา</h3>
+    <ol style="font-size:.95rem;line-height:1.9">
+      <li>เซลล์ <code>A1</code> พิมพ์หัวคอลัมน์ <code>เวลาบริการ</code></li>
+      <li>เซลล์ <code>A2</code> พิมพ์ <code>=-4*LN(RAND())</code> แล้วลากลงถึง <code>A151</code> (150 ค่า) — ได้ข้อมูลเวลาบริการจำลองที่ mean ≈ 4 นาที</li>
+      <li>คำนวณสถิติข้างๆ:</li>
+    </ol>
+    <pre>=AVERAGE(A2:A151)   <span class="c">' ควรได้ ≈ 4</span>
+=STDEV.S(A2:A151)   <span class="c">' ควรได้ ≈ 4 ด้วย!</span>
+=STDEV.S(A2:A151)/AVERAGE(A2:A151)  <span class="c">' CV ≈ 1 = ลายเซ็น Exponential</span>
+=MIN(A2:A151)  =MAX(A2:A151)</pre>
+    <ol start="4" style="font-size:.95rem;line-height:1.9">
+      <li>ทำฮิสโทแกรม: เลือก <code>A2:A151</code> → Insert → Chart → <strong>Histogram</strong> → สังเกต <strong>ทรงเบ้ขวา หางยาว</strong></li>
+      <li>คลิกขวาที่แกน X → Format Axis → ปรับ <strong>Number of bins ≈ 12</strong> (√150 ตามหัวข้อ 3)</li>
+    </ol>
+    <div class="note tip">
+      <span class="lb">💡 จุดสังเกต</span>
+      mean ≈ SD ≈ 4 (CV ≈ 1) และหางยาวไปทางขวา — นี่คือเหตุผลที่ "เวลา" ไม่ใช่ Normal
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>ขั้นที่ 2 — เทียบรูปร่าง 3 การแจกแจง</h3>
+    <p style="font-size:.95rem">สร้างอีก 2 คอลัมน์ (ลากลง 150 แถวเท่ากัน) แล้วทำฮิสโทแกรมของแต่ละคอลัมน์เทียบกัน:</p>
+    <pre>=RANDBETWEEN(1,6)          <span class="c">' คอลัมน์ B: Uniform → ทรงแบน</span>
+=NORM.INV(RAND(),120,20)   <span class="c">' คอลัมน์ C: Normal → ทรงระฆังรอบ 120</span></pre>
+    <ol style="font-size:.95rem;line-height:1.9">
+      <li>กด <strong>F9</strong> พร้อมกันหลายๆ ครั้ง — ตัวเลขเปลี่ยนทุกครั้ง แต่ <strong>รูปร่างฮิสโทแกรมคงทรงเดิม</strong>: แต่ละการแจกแจงมี "บุคลิก" ของมัน</li>
+      <li>ลองแก้ SD ของ Normal จาก 20 เป็น 40 → กราฟกระจายกว้างขึ้น เตี้ยลง — SD คือตัวคุมความแปรผัน</li>
+    </ol>
+    <div class="note warn">
+      <span class="lb">⚠️ ระวัง</span>
+      <code>NORM.INV(RAND(),...)</code> ให้ <strong>ค่าติดลบได้</strong> ถ้า mean ต่ำ/SD สูง — ไม่เหมาะกับ "เวลา/จำนวน" ที่ห้ามติดลบ
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S8 LAB2 ===================== -->
 <section id="s8">
-  <h2><span class="num">8</span> Quiz ทบทวน <span class="en" style="font-size:.9rem">/ Review</span></h2>
-  <p class="lead th-block">เลือกคำตอบแล้วดูเฉลยทันที</p>
-  <p class="lead en-block">Pick an answer and see instant feedback.</p>
+  <h2><span class="num">8</span> Lab 2 — สร้าง Empirical Distribution จากศูนย์</h2>
+  <p class="lead"><strong>เริ่มจากชีตเปล่า ไม่ต้องใช้ไฟล์สำเร็จรูป</strong> — สร้างการแจกแจงจากข้อมูลจริงเอง แล้วสอนให้ Excel สุ่มค่าจากมัน</p>
+
+  <div class="note ask" style="font-size:1rem">
+    <span class="lb">🎯 โจทย์ของ Lab นี้</span>
+    เรามี <strong>ลูกเต๋าถ่วงน้ำหนัก</strong> (ไม่ยุติธรรม) อยากรู้ว่ามันมีพฤติกรรมอย่างไร และอยากให้ Excel "ทอยแทนเรา" ได้ — ต้องทำ 2 อย่าง: <strong>(A)</strong> สร้างการแจกแจงจากข้อมูลที่เก็บมา และ <strong>(B)</strong> สุ่มค่าจากการแจกแจงนั้น · นี่คือเทคนิคเดียวกับที่คุณจะใช้กับ <strong>ข้อมูลการบ้าน 30–50 ค่า</strong> เป๊ะๆ แค่เปลี่ยน "หน้าเต๋า" เป็น "เวลาบริการ"
+  </div>
+
+  <div class="card">
+    <h3>ส่วน A — สร้างการแจกแจงเชิงประสบการณ์จากข้อมูลดิบ</h3>
+    <p style="font-size:.95rem"><strong>ขั้น A1 · สร้างข้อมูลดิบ</strong> (จำลองว่าเราไปนั่งจดผลทอย 1,000 ครั้ง):</p>
+    <ol style="font-size:.95rem;line-height:1.9">
+      <li><code>A1</code> พิมพ์ <code>Dice</code> · <code>A2</code> พิมพ์ <code>=RANDBETWEEN(1,6)</code> แล้วลากลงถึง <code>A1001</code></li>
+      <li><strong>ตรึงข้อมูล:</strong> เลือก <code>A2:A1001</code> → Copy → คลิกขวา → Paste Special → <strong>Values</strong> — ไม่งั้นกด F9 ทีไรข้อมูลเปลี่ยนหมด วิเคราะห์ไม่ได้</li>
+    </ol>
+    <div class="note tip">
+      <span class="lb">💡 ข้อมูลจริงไม่ต้องทำขั้นนี้</span>
+      ข้อมูลการบ้านที่จดมาจากหน้างานเป็นตัวเลขนิ่งอยู่แล้ว — ขั้น A1 มีไว้สร้าง "ข้อมูลปลอมที่เหมือนจริง" สำหรับฝึกเท่านั้น
+    </div>
+    <p style="font-size:.95rem"><strong>ขั้น A2 · ตารางความถี่</strong> — นับว่าแต่ละหน้าออกกี่ครั้ง:</p>
+    <pre><span class="c">' C2:C7 พิมพ์เลข 1 ถึง 6</span>
+D2: =COUNTIF($A$2:$A$1001,C2)   <span class="c">' ลากลงถึง D7</span>
+D8: =SUM(D2:D7)                 <span class="c">' ต้องได้ 1000 พอดี — ถ้าไม่ครบแปลว่าช่วงอ้างอิงผิด</span></pre>
+    <p style="font-size:.95rem"><strong>ขั้น A3 · แปลงเป็นความน่าจะเป็น:</strong></p>
+    <pre>E2: =D2/$D$8   <span class="c">' ลากลงถึง E7</span>
+E8: =SUM(E2:E7) <span class="c">' ต้องได้ 1 พอดี</span></pre>
+    <div class="note tip">
+      <span class="lb">👀 สังเกต</span>
+      ความน่าจะเป็นแต่ละหน้า <strong>ไม่เท่ากับ 1/6 = 0.1667 เป๊ะ</strong> (เช่นได้ 0.152, 0.182, ...) เพราะเป็นข้อมูลตัวอย่างจำกัด มี sampling noise — ตาราง E นี้แหละคือ <strong>"การแจกแจงเชิงประสบการณ์"</strong> ของลูกเต๋าลูกนี้: เราไม่อ้างสูตรอะไรเลย ให้ข้อมูลจริงพูดแทน
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>ส่วน B — สุ่มค่าจากการแจกแจงด้วยตารางความน่าจะเป็นสะสม</h3>
+    <p style="font-size:.95rem">ต่อไปใช้ตัวอย่างลูกเต๋าถ่วงน้ำหนักแบบเดียวกับชีตเฉลย: p ของหน้า 1–6 = <strong>0.4 / 0.1 / 0.1 / 0.1 / 0.1 / 0.2</strong></p>
+    <p style="font-size:.95rem"><strong>ขั้น B1 · สร้างตารางสะสมแบบ "ขอบล่าง" (lower bound):</strong> คอลัมน์ G = ขอบล่างสะสม, H = หน้าเต๋า</p>
+    <pre>G2: 0        H2: 1
+G3: =G2+0.4  H3: 2    <span class="c">' ขอบล่างถัดไป = ขอบล่างเดิม + p ของแถวก่อนหน้า</span>
+G4: =G3+0.1  H4: 3    <span class="c">' ลากต่อจนครบ 6 หน้า</span></pre>
+    <div style="overflow-x:auto"><table class="tbl" style="font-size:.88rem">
+      <tr><th>ขอบล่าง (G)</th><th>หน้าเต๋า (H)</th><th>ช่วงของ RAND() ที่ตกลงหน้านี้</th><th>ความกว้างช่วง = p</th></tr>
+      <tr><td>0.0</td><td>1</td><td>[0.0 , 0.4)</td><td>0.4 ← หน้าที่ออกบ่อยสุด ช่วงกว้างสุด</td></tr>
+      <tr><td>0.4</td><td>2</td><td>[0.4 , 0.5)</td><td>0.1</td></tr>
+      <tr><td>0.5</td><td>3</td><td>[0.5 , 0.6)</td><td>0.1</td></tr>
+      <tr><td>0.6</td><td>4</td><td>[0.6 , 0.7)</td><td>0.1</td></tr>
+      <tr><td>0.7</td><td>5</td><td>[0.7 , 0.8)</td><td>0.1</td></tr>
+      <tr><td>0.8</td><td>6</td><td>[0.8 , 1.0)</td><td>0.2</td></tr>
+    </table></div>
+    <div class="note tip">
+      <span class="lb">🔍 ทำไมต้อง "ขอบล่าง"?</span>
+      <code>VLOOKUP(..., TRUE)</code> แบบ approximate match จะหา <strong>ค่าที่ใหญ่ที่สุดที่ยังไม่เกินค่าค้นหา</strong> — เช่นสุ่มได้ <code>RAND() = 0.73</code> → ขอบล่างที่ใหญ่สุดที่ ≤ 0.73 คือ 0.7 → ตอบ <strong>หน้า 5</strong> พอดีตามตาราง · หน้าไหน p มาก ช่วงยิ่งกว้าง โอกาสถูกสุ่มยิ่งเยอะ — ความน่าจะเป็นถูกต้องโดยอัตโนมัติ
+    </div>
+    <p style="font-size:.95rem"><strong>ขั้น B2 · สุ่มจริง:</strong></p>
+    <pre>J2: =VLOOKUP(RAND(), $G$2:$H$7, 2, TRUE)   <span class="c">' ลากลง 500 แถว · กด F9 = ทอยใหม่ทั้งชุด</span></pre>
+    <p style="font-size:.95rem"><strong>ขั้น B3 · พิสูจน์ว่ากลไกถูกต้อง</strong> — นับผลสุ่มย้อนกลับไปเทียบ p ต้นฉบับ:</p>
+    <pre>=COUNTIF($J$2:$J$501,1)/500   <span class="c">' ควรได้ ≈ 0.4</span>
+=COUNTIF($J$2:$J$501,6)/500   <span class="c">' ควรได้ ≈ 0.2</span></pre>
+    <div class="note ask">
+      <span class="lb">❓ ชวนคิด</span>
+      ถ้าเพิ่มจาก 500 เป็น 5,000 แถว ค่าที่นับได้จะใกล้ 0.4 ขึ้นหรือห่างลง? เพราะอะไร? (เกี่ยวกับ "จำนวนรอบ" ที่จะเรียนครั้งที่ 6)
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>วิธีทางเลือก</h3>
+    <div class="note warn">
+      <span class="lb">⚠️ เวอร์ชัน Excel</span>
+      <code>XLOOKUP</code> / <code>IFS</code> / <code>RANDARRAY</code> มีเฉพาะ Excel รุ่นใหม่ (2019/365) — เครื่องรุ่นเก่าใช้ <code>VLOOKUP</code> + <code>RANDBETWEEN</code> แทนได้ทุกอย่าง
+    </div>
+    <div class="note tip">
+      <span class="lb">🔑 กุญแจสำคัญ</span>
+      <code>NORM.INV(RAND(),...)</code>, <code>-mean*LN(RAND())</code> (Lab 1) และ <code>VLOOKUP(RAND(),ตารางสะสม,2,TRUE)</code> (Lab 2) เป็น <strong>เทคนิคเดียวกัน</strong> ชื่อ <strong>Inverse Transform</strong> — ใส่ <code>RAND()</code> เข้าฟังก์ชันผกผันของ CDF แล้วได้ค่าสุ่มตามการแจกแจง (จะเรียนลึกในบทการสร้างค่าสุ่ม)
+    </div>
+    <div class="note tip">
+      <span class="lb">🔗 ใช้กับข้อมูลการบ้านอย่างไร</span>
+      ข้อมูลต่อเนื่องอย่าง "เวลาบริการ" ให้ <strong>จัดกลุ่มเป็นช่วง</strong> ก่อน (เช่น 0–2, 2–4, 4–6 นาที ตามฮิสโทแกรม) แล้วทำขั้น A2→A3→B1→B2 เหมือนเดิมทุกอย่าง — ค่าที่สุ่มได้คือ "ช่วงเวลา" หรือใช้ค่ากลางช่วงแทน
+    </div>
+  </div>
+
+  <!-- Homework bridge from Session 1 -->
+  <div class="hwbox">
+    <h3 class="th-block">📥 การบ้านจากครั้งที่ 1 — ระบบของคุณคือ "ตัวอย่างจริง" ของวันนี้</h3>
+
+    <p style="margin:4px 0 0;font-size:.92rem"><span class="th-block">ครั้งที่แล้วทุกกลุ่มเลือกระบบรอคิว 1 ระบบ (entity / ทรัพยากร / KPI) — เขียนสรุปสั้นๆ ด้านล่าง แล้วตอบคำถามสำคัญของวันนี้: <strong>"โมเดลของคุณต้องการข้อมูลอะไรบ้าง?"</strong> ทุกหัวข้อในคาบนี้จะย้อนกลับมาที่ระบบของคุณ และการบ้านวันนี้ (เก็บข้อมูลจริง 30–50 ค่า) ก็เก็บจากระบบนี้เอง</span></p>
+    <div class="hw-f">
+      <label class="th-block">1️⃣ ระบบที่เลือก + entity / ทรัพยากร / KPI (จากการบ้านครั้งที่ 1)</label>
+      <textarea class="hwsave" data-hw="system" placeholder="เช่น ร้านกาแฟหน้ามอ · entity = ลูกค้า · ทรัพยากร = บาริสต้า 2 คน · KPI = เวลารอเฉลี่ย"></textarea>
+    </div>
+    <div class="hw-f">
+      <label class="th-block">2️⃣ ตัวแปรนำเข้า (input) ที่ต้องเก็บข้อมูล — อะไรบ้างที่ "สุ่ม" ในระบบนี้?</label>
+      <textarea class="hwsave" data-hw="inputs" placeholder="เช่น เวลาระหว่างลูกค้ามาถึง · เวลาบริการต่อคน (สั่ง+จ่าย, รอรับแก้ว)"></textarea>
+    </div>
+    <div class="hw-f">
+      <label class="th-block">3️⃣ จะเก็บอย่างไร ช่วงเวลาไหน (peak/off-peak)? — กลับมาเช็กข้อนี้อีกครั้งหลังจบหัวข้อ 2</label>
+      <textarea class="hwsave" data-hw="plan" placeholder="เช่น จดเวลาที่ลูกค้าเดินเข้าทีละคน ช่วง 7:30–9:00 กับ 13:00–14:00 คนละชุด"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="note ask">
+      <span class="lb">📝 การบ้าน</span>
+      เก็บข้อมูลจริง 30–50 ค่า จากระบบรอคิวที่เลือก (เวลาบริการ หรือเวลาระหว่างลูกค้ามาถึง) → ทำฮิสโทแกรม + คำนวณ mean/SD/CV + เดาว่าเป็นการแจกแจงอะไรพร้อมเหตุผล (ส่งต้นครั้งหน้า · ใช้ป้อนโมเดล SimPy ครั้งที่ 3)
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S9 QUIZ ===================== -->
+<section id="s9">
+  <h2><span class="num">9</span> Quiz ทบทวน 10 ข้อ</h2>
+  <p class="lead th-block">ครอบคลุมทุกหัวข้อของวันนี้ — เลือกคำตอบแล้วดูเฉลยทันที ตอบครบ 10 ข้อจะเห็นคะแนนรวม</p>
+  
   <div class="quiz" id="quiz"></div>
   <div class="scoreband" id="scoreband"></div>
+  <div class="qz-submit-wrap" id="qzSubmitWrap">
+    <button class="act teal" id="qz_btn" onclick="submitQuizScore()"><span class="th-block">📤 ส่งคะแนนเข้า Google Form</span></button>
+    <div class="qz-msg" id="qz_msg"></div>
+    <iframe name="qz_target" id="qz_target" style="display:none" title="hidden"></iframe>
+    <form id="qz_form" action="https://docs.google.com/forms/d/e/1FAIpQLSe6GUkNN8ZaXHrU1uwyvj-nKwJ-9X_4erpcXJnv0r71lmuKyw/formResponse" method="POST" target="qz_target" style="display:none">
+      <input type="hidden" name="entry.2045911396" id="qz_f_student">
+      <input type="hidden" name="entry.1761821107" id="qz_f_score">
+      <input type="hidden" name="fvv" value="1">
+      <input type="hidden" name="pageHistory" value="0">
+    </form>
+  </div>
 </section>
 
 </div>
 
 <footer>
   <div class="notetools">
-    <button onclick="downloadNotes()">⬇️ ดาวน์โหลดโน้ตทั้งหมด (.txt) / Download notes</button>
-    <button onclick="clearNotes()">🗑️ ล้างโน้ตทั้งหมด / Clear all notes</button>
+    <button onclick="downloadNotes()">⬇️ ดาวน์โหลดโน้ตทั้งหมด (.txt)</button>
+    <button onclick="clearNotes()">🗑️ ล้างโน้ตทั้งหมด</button>
   </div>
-  <p style="opacity:.7;font-size:.82rem;margin-top:4px">📝 โน้ตบันทึกอัตโนมัติในเบราว์เซอร์เครื่องนี้ (localStorage) · เปิดไฟล์เดิมครั้งหน้าโน้ตยังอยู่ · Notes auto-save in this browser</p>
+  <p style="opacity:.7;font-size:.82rem;margin-top:4px">📝 โน้ตบันทึกอัตโนมัติในเบราว์เซอร์เครื่องนี้ (localStorage) · เปิดไฟล์เดิมครั้งหน้าโน้ตยังอยู่</p>
   <p class="th-block">สื่อประกอบการบรรยาย — Computer Simulation I ครั้งที่ 2 · Input Analysis · คณะโลจิสติกส์</p>
-  <p class="en-block">Lecture companion — Computer Simulation I, Session 2 · Input Analysis · Faculty of Logistics</p>
+  
   <p style="opacity:.7;font-size:.82rem">อ้างอิง: simMainBook บทที่ 2 &amp; 4 · คู่มืออาจารย์ครั้งที่ 2 · ทุกส่วนโต้ตอบได้ ทบทวนเองที่บ้านได้</p>
 </footer>
 
+<div id="pager">
+  <button id="prevBtn" onclick="pageMove(-1)">◀ ย้อนกลับ</button>
+  <span class="pginfo">หน้า <b id="pgCur">1</b> / <span id="pgTot">1</span></span>
+  <button id="nextBtn" onclick="pageMove(1)">ถัดไป ▶</button>
+</div>
+
 <script>
-/* ============ LANGUAGE ============ */
-function toggleLang(){
-  document.body.classList.toggle('en');
-  var en=document.body.classList.contains('en');
-  document.getElementById('langbtn').textContent=en?'TH':'EN';
-}
 /* ============ PROGRESS + NAV ============ */
 window.addEventListener('scroll',function(){
+  if(document.body.classList.contains('paged'))return;
   var h=document.documentElement, st=h.scrollTop, sh=h.scrollHeight-h.clientHeight;
   document.getElementById('progress').style.width=(st/sh*100)+'%';
   var secs=document.querySelectorAll('section'), cur='';
@@ -468,6 +875,13 @@ function histogram(id,data,color,bins,opts){
     cx.fillStyle=color;
     cx.fillRect(x0+i*barW+1, y0-h, Math.max(1,barW-2), h);
   }
+  if(opts.showCounts){
+    cx.fillStyle='#5b6b7b';cx.font='10px Segoe UI';cx.textAlign='right';
+    cx.fillText('0', x0-6, y0+3);
+    cx.fillText(mxc, x0-6, padT+9);
+    cx.fillText(Math.round(mxc/2), x0-6, (y0+padT)/2+3);
+    cx.textAlign='left';
+  }
   // overlay theoretical density (scaled to counts)
   if(opts.overlay){
     cx.strokeStyle=opts.overlayColor||'#d9534f';cx.lineWidth=2.5;cx.beginPath();
@@ -507,8 +921,8 @@ function runFlaw(){
   var mA=mean(wA), mB=mean(wB);
   document.getElementById('faWaitA').textContent=mA.toFixed(1);
   document.getElementById('faWaitB').textContent=mB.toFixed(1);
-  histogram('faCanvasA',wA,'#2a9d8f',12,{min:0});
-  histogram('faCanvasB',wB,'#e9a93f',12,{min:0});
+  histogram('faCanvasA',wA,'#2a9d8f',12,{min:0,showCounts:true});
+  histogram('faCanvasB',wB,'#e9a93f',12,{min:0,showCounts:true});
   var msg=document.getElementById('faMsg');msg.style.display='block';
   var en=document.body.classList.contains('en');
   var ratio=mA>0?(mB/mA):0;
@@ -571,7 +985,7 @@ function selectDist(d){
     inp.oninput=function(){curParams[p.k]=+inp.value;document.getElementById('dp_'+p.k).textContent=inp.value;sampleDist();};
     div.appendChild(inp);box.appendChild(div);
   });
-  document.getElementById('distInfo').innerHTML='<span class="th-block">'+def.info.th+'</span><span class="en-block">'+def.info.en+'</span>';
+  document.getElementById('distInfo').innerHTML='<span class="th-block">'+def.info.th+'</span>';
   sampleDist();
 }
 function sampleDist(){
@@ -580,6 +994,10 @@ function sampleDist(){
   var bins=def.integer? (Math.max.apply(null,data)+1) : 24;
   if(def.integer){ histogram('distCanvas',data,def.color,Math.min(bins,30),{min:0}); }
   else histogram('distCanvas',data,def.color,24);
+  var m=mean(data), s=sd(data), cv=m?s/m:0;
+  var em=document.getElementById('distMean'); if(em) em.textContent=m.toFixed(2);
+  var es=document.getElementById('distSD'); if(es) es.textContent=s.toFixed(2);
+  var ec=document.getElementById('distCV'); if(ec) ec.textContent=cv.toFixed(2);
 }
 document.querySelectorAll('#distBtns button').forEach(function(b){ b.onclick=function(){selectDist(b.dataset.d);}; });
 
@@ -618,86 +1036,140 @@ var NOTE_PREFIX='comsim2_note_';
     var h=sec.querySelector('h2');
     var title=h?h.textContent.trim():id;
     var box=document.createElement('div');box.className='notebox';
-    box.innerHTML='<div class="nhead"><label>📝 โน้ตของฉัน / My notes — <span style="font-weight:600;color:#5b6b7b">'+title+'</span></label>'+
+    box.innerHTML='<div class="nhead"><label>📝 โน้ตของฉัน — <span style="font-weight:600;color:#5b6b7b">'+title+'</span></label>'+
       '<span class="savemark">บันทึกอัตโนมัติ / auto-save</span></div>'+
-      '<textarea placeholder="พิมพ์สิ่งที่เข้าใจ ข้อสงสัย หรือสิ่งที่อาจารย์เน้น... / Type what you learned, questions, or key points..."></textarea>';
+      '<textarea placeholder="พิมพ์สิ่งที่เข้าใจ ข้อสงสัย หรือสิ่งที่อาจารย์เน้น..."></textarea>';
     sec.appendChild(box);
     var ta=box.querySelector('textarea'),mark=box.querySelector('.savemark'),key=NOTE_PREFIX+id;
     try{ta.value=localStorage.getItem(key)||'';}catch(e){}
     ta.addEventListener('input',function(){
       try{localStorage.setItem(key,ta.value);}catch(e){}
-      mark.textContent='✓ บันทึกแล้ว / saved';mark.classList.add('ok');
-      clearTimeout(ta._t);ta._t=setTimeout(function(){mark.textContent='บันทึกอัตโนมัติ / auto-save';mark.classList.remove('ok');},1400);
+      mark.textContent='✓ บันทึกแล้ว';mark.classList.add('ok');
+      clearTimeout(ta._t);ta._t=setTimeout(function(){mark.textContent='บันทึกอัตโนมัติ';mark.classList.remove('ok');},1400);
     });
   });
 })();
 function downloadNotes(){
   var lines=['โน้ต — Computer Simulation I (ครั้งที่ 2 · Input Analysis)','ดาวน์โหลดเมื่อ: '+new Date().toLocaleString('th-TH'),''];
   var any=false;
+  var hw=document.querySelectorAll('textarea.hwsave');
+  var hwAny=false, hwLines=['■ ระบบของฉัน (การบ้านครั้งที่ 1 → แผนเก็บข้อมูล)'];
+  hw.forEach(function(ta){
+    if(ta.value.trim()){hwAny=true;
+      var lb=ta.closest('.hw-f'); var lab=lb?lb.querySelector('label.th-block'):null;
+      hwLines.push((lab?lab.textContent+' ':'')+'— '+ta.value.trim());}
+  });
+  if(hwAny){any=true;lines=lines.concat(hwLines).concat(['']);}
   document.querySelectorAll('.wrap > section').forEach(function(sec){
-    var ta=sec.querySelector('textarea');var title=(sec.querySelector('h2')||{}).textContent||sec.id;
+    var ta=sec.querySelector('.notebox textarea');var title=(sec.querySelector('h2')||{}).textContent||sec.id;
     var v=ta?ta.value.trim():'';
     if(v){any=true;lines.push('■ '+title.trim());lines.push(v);lines.push('');}
   });
-  if(!any){alert('ยังไม่มีโน้ต / No notes yet');return;}
+  if(!any){alert('ยังไม่มีโน้ต');return;}
   var blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download='โน้ต_ComSim2_'+new Date().toISOString().slice(0,10)+'.txt';
   document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 function clearNotes(){
-  if(!confirm('ลบโน้ตทั้งหมดในเครื่องนี้? / Delete ALL notes on this browser?'))return;
+  if(!confirm('ลบโน้ตทั้งหมดในเครื่องนี้?'))return;
   document.querySelectorAll('.wrap > section').forEach(function(sec){
     try{localStorage.removeItem(NOTE_PREFIX+sec.id);}catch(e){}
-    var ta=sec.querySelector('textarea');if(ta)ta.value='';
+    var ta=sec.querySelector('.notebox textarea');if(ta)ta.value='';
+  });
+  document.querySelectorAll('textarea.hwsave').forEach(function(ta){
+    try{localStorage.removeItem('comsim2_hw_'+ta.dataset.hw);}catch(e){}
+    ta.value='';
   });
 }
 
+/* ============ S1: HOMEWORK BRIDGE (auto-save) ============ */
+(function(){
+  document.querySelectorAll('textarea.hwsave').forEach(function(ta){
+    var key='comsim2_hw_'+ta.dataset.hw;
+    try{ ta.value=localStorage.getItem(key)||''; }catch(e){}
+    ta.addEventListener('input',function(){
+      try{ localStorage.setItem(key,ta.value); }catch(e){}
+    });
+  });
+})();
+
 /* ============ QUIZ ============ */
 var quizData=[
-  {q:{th:'“Flaw of Averages” สอนอะไรเกี่ยวกับ input?',en:'What does the “Flaw of Averages” teach about inputs?'},
-   opts:[{th:'ใช้ค่าเฉลี่ยแทนได้เสมอ ง่ายกว่า',en:'Always replace with the average; it\'s simpler'},
-         {th:'ต้องใช้การแจกแจง เพราะความแปรผันสร้างคิว',en:'Use a distribution — variability creates queues'},
-         {th:'ค่าเฉลี่ยกับการแจกแจงให้ผลเหมือนกัน',en:'Mean and distribution give the same result'},
-         {th:'ยิ่งข้อมูลน้อยยิ่งดี',en:'Less data is better'}],
-   ans:1,fb:{th:'ถูก! ค่าเฉลี่ยเท่ากันแต่ความแปรผันต่างกัน คิวต่างกันมาก',en:'Right! Same mean, different variability → very different queues.'}},
-  {q:{th:'3V ของคุณภาพข้อมูลคือ?',en:'The 3V of data quality are?'},
-   opts:[{th:'Volume, Velocity, Value',en:'Volume, Velocity, Value'},
-         {th:'Quality, Quantity, Variety',en:'Quality, Quantity, Variety'},
-         {th:'Verify, Validate, Value',en:'Verify, Validate, Value'},
-         {th:'Vision, Voice, Volume',en:'Vision, Voice, Volume'}],
-   ans:1,fb:{th:'ถูก! Quality (ถูกต้อง), Quantity (100–200 ตัวอย่าง), Variety (หลายช่วง)',en:'Right! Quality, Quantity (~100–200), Variety (many situations).'}},
-  {q:{th:'ทำไม “เวลาบริการ” มักไม่ควรใช้การแจกแจง Normal?',en:'Why is Normal usually wrong for “service time”?'},
-   opts:[{th:'เพราะ Normal คำนวณยาก',en:'Because Normal is hard to compute'},
-         {th:'เพราะเวลามักเบ้ขวา และ Normal ให้ค่าติดลบได้',en:'Time is right-skewed, and Normal can give negatives'},
-         {th:'เพราะ Normal ใช้ได้กับจำนวนเต็มเท่านั้น',en:'Because Normal only works for integers'},
-         {th:'เพราะเวลาไม่มีความแปรผัน',en:'Because time has no variability'}],
-   ans:1,fb:{th:'ถูก! เวลาเบ้ขวา (Exponential เหมาะกว่า) และเวลาติดลบไม่ได้',en:'Right! Time is right-skewed (Exponential fits) and can\'t be negative.'}},
-  {q:{th:'คู่แฝด Poisson–Exponential หมายความว่าอย่างไร?',en:'What is the Poisson–Exponential twin?'},
-   opts:[{th:'เป็นการแจกแจงเดียวกันชื่อต่างกัน',en:'They are the same distribution, renamed'},
-         {th:'ถ้าจำนวนมาถึง/ชม.เป็น Poisson เวลาระหว่างมาถึงจะเป็น Exponential',en:'If arrivals/hour are Poisson, inter-arrival times are Exponential'},
-         {th:'ทั้งคู่ใช้กับน้ำหนักสินค้า',en:'Both are for product weights'},
-         {th:'ทั้งคู่ให้ค่าติดลบ',en:'Both give negative values'}],
-   ans:1,fb:{th:'ถูก! เหรียญคนละด้านของเรื่องเดียวกัน หัวใจของแบบจำลองแถวคอย',en:'Right! Two sides of the same coin — the heart of queueing.'}},
-  {q:{th:'เทคนิค Inverse Transform (เช่น VLOOKUP(RAND(),สะสม,,1)) ทำอะไร?',en:'What does Inverse Transform (e.g. VLOOKUP(RAND(),cumulative,,1)) do?'},
-   opts:[{th:'เรียงข้อมูลจากน้อยไปมาก',en:'Sorts data ascending'},
-         {th:'ใส่ RAND() เข้าฟังก์ชันผกผันของ CDF เพื่อสุ่มค่าตามการแจกแจง',en:'Feeds RAND() into the inverse CDF to sample from a distribution'},
-         {th:'คำนวณค่าเฉลี่ย',en:'Computes the average'},
-         {th:'ลบ outlier ออก',en:'Removes outliers'}],
-   ans:1,fb:{th:'ถูก! เลข 1 ท้าย VLOOKUP = approximate match หาช่วงที่ค่าตกลงไป',en:'Right! The trailing 1 = approximate match, finds the bracket.'}},
-  {q:{th:'goodness-of-fit (Chi-square/K–S) ตอบคำถามอะไร?',en:'What question does goodness-of-fit (Chi-square/K–S) answer?'},
-   opts:[{th:'ข้อมูลมีกี่ตัว',en:'How many data points there are'},
-         {th:'ความต่างระหว่างข้อมูลกับการแจกแจงที่เลือก มากเกินกว่าจะเป็นเรื่องบังเอิญไหม',en:'Is the gap between data and chosen distribution too large to be chance?'},
-         {th:'ค่าเฉลี่ยเท่าไร',en:'What the mean is'},
-         {th:'ควรเก็บข้อมูลกี่วัน',en:'How many days to collect'}],
-   ans:1,fb:{th:'ถูก! p สูง = เข้ากันดี แต่ต้องเช็กพื้นฐานกายภาพด้วยเสมอ',en:'Right! High p = good fit, but always sanity-check the physical basis.'}}
+  {q:'“Flaw of Averages” สอนอะไรเกี่ยวกับ input?',
+   opts:['ใช้ค่าเฉลี่ยค่าเดียวแทนได้เสมอ เพราะคำนวณง่ายและเร็วกว่ามาก',
+         'ต้องใช้การแจกแจงแทนค่าเฉลี่ย เพราะความแปรผันคือตัวสร้างคิว',
+         'ค่าเฉลี่ยกับการแจกแจงให้ผลการจำลองที่แทบไม่ต่างกันในทางปฏิบัติเกือบทุกกรณี',
+         'ควรเก็บข้อมูลให้น้อยที่สุดเพื่อลดความแปรผันของข้อมูลนำเข้า'],
+   ans:1,fb:'ถูก! ค่าเฉลี่ยเท่ากันแต่ความแปรผันต่างกัน คิวต่างกันมาก'},
+  {q:'3 คุณสมบัติของข้อมูลดีคืออะไร?',
+   opts:['Volume, Velocity, Variety (3V ของ Big Data)',
+         'Quality, Quantity, Variety',
+         'Mean, Median, Mode',
+         'Accuracy, Speed, Cost'],
+   ans:1,fb:'ถูก! Quality (ถูกต้อง), Quantity (100–200 ตัวอย่าง), Variety (หลายช่วง) — คนละเรื่องกับ 3V ของ Big Data (Volume, Velocity, Variety) นะ อย่าสับสน'},
+  {q:'ทำไม “เวลาบริการ” มักไม่ควรใช้การแจกแจง Normal?',
+   opts:['เพราะ Normal มีสูตรซับซ้อนเกินกว่าจะคำนวณใน Excel ได้',
+         'เพราะเวลามักเบ้ขวา และ Normal ยังให้ค่าติดลบออกมาได้',
+         'เพราะ Normal ใช้ได้เฉพาะกับข้อมูลจำนวนเต็มเท่านั้น',
+         'เพราะเวลาบริการไม่มีความแปรผันจึงไม่ต้องใช้การแจกแจง'],
+   ans:1,fb:'ถูก! เวลาเบ้ขวา (Exponential เหมาะกว่า) และเวลาติดลบไม่ได้'},
+  {q:'คู่แฝด Poisson–Exponential หมายความว่าอย่างไร?',
+   opts:['เป็นการแจกแจงตัวเดียวกัน แค่เรียกชื่อต่างกันตามธรรมเนียมของตำราแต่ละเล่มเท่านั้น',
+         'ถ้าจำนวนมาถึงต่อชั่วโมงเป็น Poisson เวลาระหว่างมาถึงเป็น Exponential',
+         'ทั้งคู่ใช้กับน้ำหนักหรือขนาดสินค้าที่กระจายรอบค่าเฉลี่ย',
+         'ทั้งคู่ให้ค่าติดลบได้ จึงห้ามใช้กับตัวแปรที่เป็นเวลาเสมอ'],
+   ans:1,fb:'ถูก! เหรียญคนละด้านของเรื่องเดียวกัน หัวใจของแบบจำลองแถวคอย'},
+  {q:'เทคนิค Inverse Transform (เช่น VLOOKUP(RAND(),สะสม,,1)) ทำอะไร?',
+   opts:['เรียงข้อมูลดิบจากน้อยไปมากเพื่อเตรียมสร้างฮิสโทแกรม',
+         'ใส่ RAND() เข้าฟังก์ชันผกผันของ CDF เพื่อสุ่มค่าตามการแจกแจง',
+         'คำนวณค่าเฉลี่ยและส่วนเบี่ยงเบนมาตรฐานของคอลัมน์ที่เลือก',
+         'คัดกรองค่า outlier ที่ผิดปกติออกจากชุดข้อมูลดิบให้เองโดยอัตโนมัติทุกครั้ง'],
+   ans:1,fb:'ถูก! เลข 1 ท้าย VLOOKUP = approximate match หาช่วงที่ค่าตกลงไป'},
+  {q:'goodness-of-fit (Chi-square/K–S) ตอบคำถามอะไร?',
+   opts:['ข้อมูลที่เก็บมามีจำนวนตัวอย่างมากพอสำหรับการวิเคราะห์หรือไม่',
+         'ความต่างระหว่างข้อมูลกับการแจกแจงที่เลือก มากเกินบังเอิญหรือไม่',
+         'ค่าเฉลี่ยของข้อมูลตัวอย่างตรงกับค่าเฉลี่ยของระบบจริงหรือไม่',
+         'ต้องเก็บข้อมูลเพิ่มอีกกี่วันจึงจะครอบคลุมทุกช่วงเวลาของระบบ'],
+   ans:1,fb:'ถูก! p สูง = เข้ากันดี แต่ต้องเช็กพื้นฐานกายภาพด้วยเสมอ'},
+  {q:'ระบบที่ peak/off-peak ต่างกันมาก (เช่น ร้านกาแฟตอนเช้า vs บ่าย) ควรทำ input model อย่างไร?',
+   opts:['รวมข้อมูลทุกช่วงเวลาเข้าด้วยกันแล้วสรุปเป็นค่าเฉลี่ยและการแจกแจงเพียงชุดเดียว',
+         'เก็บข้อมูลแยกช่วงเวลา แยกวัน แล้วสร้าง input model คนละชุดกัน',
+         'เก็บข้อมูลเฉพาะช่วง peak เพราะเป็นช่วงที่สำคัญที่สุดของระบบ',
+         'เก็บข้อมูลวันเดียวให้มากที่สุดเพื่อประหยัดเวลาในการลงพื้นที่'],
+   ans:1,fb:'ถูก! รวมทุกช่วงเป็นชุดเดียว = โมเดลผิดทั้ง peak และ off-peak — ต้องแยกช่วงและหลายวัน (Variety ใน 3 คุณสมบัติของข้อมูลดี)'},
+  {q:'ข้อมูลเวลาบริการมี mean ≈ 4 และ SD ≈ 4 (CV ≈ 1) ทรงเบ้ขวา — เป็น “ลายเซ็น” ของการแจกแจงใด?',
+   opts:['Normal',
+         'Exponential',
+         'Uniform',
+         'Poisson'],
+   ans:1,fb:'ถูก! Exponential มี mean = SD เสมอ (CV ≈ 1) และหางยาวขวา — เช็กได้ใน Lab ด้วย =AVERAGE กับ =STDEV.S'},
+  {q:'วิธีที่แม่นกว่าในการวัด “เวลาระหว่างลูกค้ามาถึง” คือ?',
+   opts:['จับเวลาช่วงห่างแต่ละช่วงตรงๆ ด้วยนาฬิกาจับเวลาทีละคู่',
+         'จดเวลาที่ลูกค้าแต่ละคนเดินเข้า แล้วค่อยนำมาลบกันทีหลัง',
+         'ประมาณด้วยสายตาแล้วปัดเป็นนาทีเต็มเพื่อให้จดได้ทันเวลา',
+         'สัมภาษณ์พนักงานหน้าร้านว่าปกติลูกค้ามาถี่ประมาณแค่ไหน'],
+   ans:1,fb:'ถูก! บันทึก event time แล้วลบกัน — ลดความผิดพลาดจากการกดจับเวลาไม่ทัน และอย่าปัดเศษตั้งแต่ต้น'},
+  {q:'ระบบยังไม่ถูกสร้าง ไม่มีข้อมูลเลย — ควรทำ input model อย่างไร?',
+   opts:['ใช้ Normal ไปก่อนเสมอ เพราะเป็นการแจกแจงที่พบบ่อยที่สุด',
+         'ใช้ความเห็นผู้เชี่ยวชาญกับ Triangular/Uniform แล้วทำ sensitivity',
+         'หยุดโครงการไว้ก่อน รอระบบจริงสร้างเสร็จแล้วจึงค่อยเก็บข้อมูล',
+         'เลือกการแจกแจงตัวไหนก็ได้แบบสุ่ม เพราะอย่างไรก็ไม่มีทางรู้'],
+   ans:1,fb:'ถูก! Triangular (min/mode/max) และ Uniform (min/max) ต้องรู้พารามิเตอร์น้อย เหมาะกับความเห็นผู้เชี่ยวชาญ — แล้วขยับพารามิเตอร์ดูว่าคำตอบไวแค่ไหน'}
 ];
 (function(){
   var box=document.getElementById('quiz');
   quizData.forEach(function(item,qi){
     var d=document.createElement('div');d.className='q';
-    var h='<div class="qh"><span class="th-block">'+(qi+1)+'. '+item.q.th+'</span><span class="en-block">'+(qi+1)+'. '+item.q.en+'</span></div>';
-    item.opts.forEach(function(o,oi){ h+='<button class="opt" data-q="'+qi+'" data-o="'+oi+'"><span class="th-block">'+o.th+'</span><span class="en-block">'+o.en+'</span></button>'; });
+    var h='<div class="qh">'+(qi+1)+'. '+item.q+'</div>';
+    var order=item.opts.map(function(_,oi){return oi;});
+    for(var k=order.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1));var t=order[k];order[k]=order[j];order[j]=t;}
+    h+='<div class="opts-grid">';
+    order.forEach(function(oi){
+      var o=item.opts[oi];
+      h+='<button class="opt" data-q="'+qi+'" data-o="'+oi+'">'+o+'</button>';
+    });
+    h+='</div>';
     h+='<div class="fb" id="fb'+qi+'"></div>';
     d.innerHTML=h;box.appendChild(d);
   });
@@ -710,22 +1182,174 @@ var quizData=[
     box.querySelectorAll('.opt[data-q="'+qi+'"]').forEach(function(b){ b.disabled=true; if(+b.dataset.o===item.ans)b.classList.add('correct'); });
     if(oi!==item.ans)btn.classList.add('wrong');
     var fb=document.getElementById('fb'+qi);fb.classList.add('show');
-    fb.innerHTML=(oi===item.ans?'✅ ':'❌ ')+'<span class="th-block">'+item.fb.th+'</span><span class="en-block">'+item.fb.en+'</span>';
+    fb.innerHTML=(oi===item.ans?'✅ ':'❌ ')+item.fb;
     if(Object.keys(answered).length===quizData.length){
       var correct=0;
       quizData.forEach(function(it,i){ if(!box.querySelector('.opt[data-q="'+i+'"].wrong'))correct++; });
+      quizScore=correct;
       var band=document.getElementById('scoreband');band.style.display='block';
       var en=document.body.classList.contains('en');
       band.textContent=(en?'Score: ':'คะแนน: ')+correct+' / '+quizData.length+(correct===quizData.length?' 🎉':'');
+      var wrap=document.getElementById('qzSubmitWrap'); if(wrap) wrap.style.display='block';
+      var sName=(document.getElementById('ci_student')||{}).value||'';
+      if(sName){
+        submitQuizScore(true);
+      }else{
+        var qm=document.getElementById('qz_msg');
+        if(qm){
+          qm.className='qz-msg err';
+          qm.textContent = en?'ℹ️ Please check-in first (select your name at the start of class), then press the button below to submit your score.':'ℹ️ ยังไม่ได้เช็คชื่อ — กรุณาเลือกชื่อของคุณที่ส่วน "เช็คชื่อเข้าเรียน" (ก่อนเริ่มหัวข้อ 1) แล้วกดปุ่มด้านล่างเพื่อส่งคะแนน';
+        }
+      }
     }
   });
 })();
+
+/* ============ CHECK-IN + QUIZ SCORE → GOOGLE FORM ============ */
+var ROSTER=["67090002 นายอภิวิชญ์ เฉลิมวงศ์", "67090003 นายนำแสง แก้วบางพูด", "67090004 นายภาณุวิทย์ วัณโณภาศ", "67090005 นางสาววิภาดา แสงศิลา", "67090006 นางสาวอัจฉริยา แพงไทย", "67090007 นางสาวฉันท์สินี ปาวารี", "67090008 นางสาวฐิติมา ไร่วิวัฒน์", "67090009 นางสาวกรกนก สร่างทุกข์", "67090010 นางสาวสุนันทา พรมพานิช", "67090012 นางสาวศศิพร สิมพา", "67090014 นางสาวอาทิตติยา เพ็ชรวิลัย", "67090063 นายเกรียงไกร ศักดาเพชรศิริ", "67090064 นางสาวเกษญาดา คนธรรมศาสตร์", "67090065 นางสาวชนากานต์ ยงยืน", "67090066 นางสาวชนิตา ฮั่นกูล", "67090067 นางสาวชนิษฐา นิลวดี", "67090068 นายชลาธิป อ้นถาวร", "67090069 นางสาวโชติรส แสวงผล", "67090070 นางสาวณัฏฐณิชา บุญสวนสุขฤดี", "67090071 นางสาวณัฐกานต์ กมลเนตร์", "67090072 นางสาวณัฐกานต์ สิงเหาะ", "67090073 นางสาวณัฐญาดา นิยมทอง", "67090074 นางสาวณัฐธยาน์ วงศ์คำ", "67090075 นายธนกฤต มหกิจขจร", "67090076 นางสาวธนภรณ์ แซ่เตียว", "67090077 นางสาวธวัลฤทัย ขำเชย", "67090078 นางสาวธัญชนก วึบชัยภูมิ", "67090079 นายธีรภัทร เหล่าทวีสุข", "67090080 นางสาวนงนภัส กระดุมเงิน", "67090081 นางสาวนะฮ์ดา มหาประทุม", "67090082 นายปฏิพล เจโคกกรวด", "67090083 นางสาวพรนภัส ศิริชัยวัฒนา", "67090084 นางสาวพรปวีณ์ น้อมสมทรัพย์", "67090085 นางสาวพรรณมัย แก้วกุ่ม", "67090086 นางสาวพลอยจันทร์ เรืองจรูญวัฒนา", "67090087 นางสาวเพ็ญนภา ทองยา", "67090088 นางสาวภาคินี สระศิริ", "67090089 นายภาณุวัฒน์ เทียนชัย", "67090090 นางสาวเยาวเรศ จันทฤทธิ์", "67090091 นางสาวรัชตา ชลวิริยะกุล", "67090092 นายศรณ์พงศ์ ปิ่นอนงค์", "67090093 นางสาวศิริลักษณ์ ปานสอน", "67090094 นายศิวัช สุทธิแพทย์", "67090095 นายสินมหัต กลีบมาลี", "67090096 นางสาวสุนิตา แซ่เติ๋น", "67090097 นางสาวสุพิชญา ใจเพียร", "67090098 นางสาวสุภัทชพร สามเตี้ย", "67090230 นายกฤษนัย เติมสุข", "67090232 นายกูฟิตรี เงาะมะเจะ", "67090233 นางสาวจริยา โกมลศรี", "67090234 นายเจษฎา ทองดอนสา", "67090235 นายชุติภาส ทวีคูณ", "67090236 นางสาวณัฐกฤตา โนราช", "67090237 นางสาวณัฐธยาน์ บุญมี", "67090238 นางสาวณัฐธิดา ทรงศิริ", "67090239 นางสาวทอขวัญ เกื้อน้อย", "67090240 นายธนบดี ตรัยวรัญญู", "67090241 นายธนาวิชส์ กาอ่วน", "67090242 นางสาวธัญญรัตน์ แตงชัยภูมิ", "67090243 นายบวรรักษ์ ยอดประทุม", "67090244 นางสาวปนัสยา เพาะนิยม", "67090245 นางสาวปรางค์วลี สีดำ", "67090246 นายปวเรศ แคล่วคล่อง", "67090247 นางสาวพรลภัส เกิดศักดิ์สิทธิ์", "67090248 นายพลช อุบล", "67090249 นางสาวพัชรินทร์ นันธิ", "67090250 นางสาวเพ็ญพิชา แสงประสิทธิ์", "67090251 นางสาวแพรวา นามไพร", "67090252 นางสาวภัทรธิดา จันทชิต", "67090253 นายภูมิพัฒน์ จันทร์วิไชย", "67090254 นางสาวมนณกร อภิธารภูวดล", "67090255 นางสาวรดามณี ประศรีพัฒน์", "67090256 นางสาววรรณพร จินดาธนาคม", "67090257 นางสาววรัชยา บุษบา", "67090258 นางสาววรินทร ดาปาน", "67090259 นายศุภสัณฑ์ ขันสันเทียะ", "67090260 นายสมยศ การเจริญ", "67090261 นางสาวสุรัสวดี ฤทธิ์ชัยภูมิ", "67090262 นางสาวอนุดา เตียวทองธนา"];
+(function(){
+  var sel=document.getElementById('ci_student'); if(!sel)return;
+  ROSTER.forEach(function(name){
+    var o=document.createElement('option'); o.value=name; o.textContent=name; sel.appendChild(o);
+  });
+})();
+function submitCheckin(){
+  var email=(document.getElementById('ci_email').value||'').trim();
+  var student=document.getElementById('ci_student').value;
+  var msg=document.getElementById('ci_msg');
+  var en=document.body.classList.contains('en');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    msg.className='ci-msg err';
+    msg.textContent=en?'⚠️ Please enter a valid email.':'⚠️ กรุณากรอกอีเมลให้ถูกต้อง';
+    return;
+  }
+  if(!student){
+    msg.className='ci-msg err';
+    msg.textContent=en?'⚠️ Please select your name.':'⚠️ กรุณาเลือกชื่อ–รหัสนิสิตของคุณ';
+    return;
+  }
+  document.getElementById('ci_f_email').value=email;
+  document.getElementById('ci_f_student').value=student;
+  document.getElementById('ci_form').submit();
+  var btn=document.getElementById('ci_btn');
+  btn.disabled=true;
+  msg.className='ci-msg ok';
+  msg.textContent=en?'✅ Check-in sent: '+student:'✅ ส่งเช็คชื่อแล้ว: '+student;
+  try{ localStorage.setItem('comsim2_checkin', student+' @ '+new Date().toLocaleString('th-TH')); }catch(e){}
+}
+(function(){
+  try{
+    var prev=localStorage.getItem('comsim2_checkin');
+    if(prev){
+      var msg=document.getElementById('ci_msg');
+      if(msg){ msg.className='ci-msg ok'; msg.textContent='ℹ️ เคยเช็คชื่อจากเครื่องนี้: '+prev; }
+    }
+  }catch(e){}
+})();
+var quizScore=0;
+function submitQuizScore(auto){
+  var student=(document.getElementById('ci_student')||{}).value||'';
+  var msg=document.getElementById('qz_msg');
+  var en=document.body.classList.contains('en');
+  if(!student){
+    msg.className='qz-msg err';
+    msg.textContent=en?'⚠️ Please select your name in the Check-in section (start of class) before submitting.':'⚠️ กรุณาเลือกชื่อของคุณในส่วน "เช็คชื่อเข้าเรียน" (ก่อนเริ่มหัวข้อ 1) ก่อนส่งคะแนน';
+    return;
+  }
+  document.getElementById('qz_f_student').value=student;
+  document.getElementById('qz_f_score').value=quizScore;
+  document.getElementById('qz_form').submit();
+  var btn=document.getElementById('qz_btn'); if(btn) btn.disabled=true;
+  msg.className='qz-msg ok';
+  msg.textContent=(auto?(en?'✅ Score auto-submitted: ':'✅ ส่งคะแนนอัตโนมัติแล้ว: '):(en?'✅ Score submitted: ':'✅ ส่งคะแนนแล้ว: '))+student+' — '+quizScore+'/'+quizData.length;
+  try{ localStorage.setItem('comsim2_quiz', student+' : '+quizScore+'/'+quizData.length+' @ '+new Date().toLocaleString('th-TH')); }catch(e){}
+}
+
+
+/* ============ PAGER ENGINE (หัวข้อละหน้า) ============ */
+var pgPages=[], pgIdx=0;
+function pgInit(){
+  pgPages=Array.prototype.slice.call(document.querySelectorAll('.wrap > section'));
+  if(!pgPages.length) return;
+  var tot=document.getElementById('pgTot'); if(tot) tot.textContent=pgPages.length;
+  document.querySelectorAll('#nav a[href^="#s"]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      goToPageById(a.getAttribute('href').slice(1));
+    });
+  });
+  goToPage(0,true);
+}
+function goToPageById(id){
+  for(var i=0;i<pgPages.length;i++){ if(pgPages[i].id===id){ goToPage(i); return; } }
+}
+function goToPage(i,silent){
+  if(!pgPages.length) return;
+  pgIdx=Math.max(0,Math.min(i,pgPages.length-1));
+  pgPages.forEach(function(s,k){ s.classList.toggle('active',k===pgIdx); });
+  var hero=document.querySelector('header.hero'); if(hero) hero.style.display=(pgIdx===0)?'':'none';
+  var cur=document.getElementById('pgCur'); if(cur) cur.textContent=pgIdx+1;
+  var pb=document.getElementById('prevBtn'), nb=document.getElementById('nextBtn');
+  if(pb) pb.disabled=(pgIdx===0);
+  if(nb) nb.disabled=(pgIdx===pgPages.length-1);
+  document.getElementById('progress').style.width=((pgIdx+1)/pgPages.length*100)+'%';
+  var curId=pgPages[pgIdx].id;
+  document.querySelectorAll('#nav a').forEach(function(a){
+    a.classList.toggle('active', a.getAttribute('href')==='#'+curId);
+  });
+  if(!silent) window.scrollTo(0,0);
+}
+function pageMove(d){ goToPage(pgIdx+d); }
+document.addEventListener('keydown',function(e){
+  var t=e.target.tagName; if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT') return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'){ e.preventDefault(); pageMove(1); }
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); pageMove(-1); }
+});
+
+/* ============ S6: WRONG-FIT DEMO ============ */
+var wrongData=[], wrongMode='expo';
+function wrongMisfit(overlayFn,mx,bins){
+  var bw=mx/bins, counts=new Array(bins).fill(0);
+  wrongData.forEach(function(v){var b=Math.floor(v/bw);if(b>=bins)b=bins-1;if(b<0)b=0;counts[b]++;});
+  var score=0;
+  for(var i=0;i<bins;i++){
+    var xmid=(i+0.5)*bw;
+    var exp=overlayFn(xmid)*bw*wrongData.length;
+    score+=(counts[i]-exp)*(counts[i]-exp);
+  }
+  return Math.round(score);
+}
+function newWrongData(){
+  wrongData=[];for(var i=0;i<200;i++)wrongData.push(expo(4));
+  drawWrong(wrongMode);
+}
+function drawWrong(mode){
+  wrongMode=mode;
+  var m=mean(wrongData), s=sd(wrongData);
+  var mx=Math.max.apply(null,wrongData), bins=16;
+  var expoPdf=function(x){return (1/m)*Math.exp(-x/m);};
+  var normPdf=function(x){return (1/(s*Math.sqrt(2*Math.PI)))*Math.exp(-((x-m)*(x-m))/(2*s*s));};
+  var overlay=(mode==='expo')?expoPdf:normPdf;
+  histogram('wrongCanvas',wrongData,'#1f5f8b',bins,{min:0,max:mx,overlay:overlay,overlayColor:(mode==='expo'?'#2a9d8f':'#d9534f')});
+  document.getElementById('wrongScoreE').textContent=wrongMisfit(expoPdf,mx,bins);
+  document.getElementById('wrongScoreN').textContent=wrongMisfit(normPdf,mx,bins);
+  var be=document.getElementById('wrongBtnE'), bn=document.getElementById('wrongBtnN');
+  if(be&&bn){ be.style.opacity=(mode==='expo')?'1':'.55'; bn.style.opacity=(mode==='normal')?'1':'.55'; }
+  var msg=document.getElementById('wrongMsg');
+  if(msg){
+    msg.innerHTML=(mode==='expo')
+      ? '✅ <strong>Exponential(mean '+m.toFixed(1)+')</strong> — เส้นเขียวเกาะฮิสโทแกรมตลอดแนว: ยอดชิดซ้าย หางลาดยาว ตรงธรรมชาติของข้อมูล'
+      : '🚫 <strong>Normal(mean '+m.toFixed(1)+', SD '+s.toFixed(1)+')</strong> — เส้นแดงยอดไปโด่งอยู่กลางๆ ทั้งที่แท่งสูงสุดอยู่ซ้ายสุด แถมครึ่งซ้ายของระฆังล้ำไปฝั่งค่าติดลบ (มองไม่เห็นในกราฟเพราะแกนเริ่มที่ 0) — ความต่างสูงกว่าแบบ Exponential หลายเท่า';
+  }
+}
 
 /* ============ INIT ============ */
 runFlaw();
 newBinData();
 selectDist('uniform');
 newFitData();
+newWrongData();
+pgInit();
 </script>
 </body>
 </html>
