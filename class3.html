@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computer Simulation I — ครั้งที่ 3 (Interactive)</title>
+<style>
+  :root{
+    --navy:#0f2c4d; --blue:#1f5f8b; --teal:#2a9d8f; --amber:#e9a93f; --red:#d9534f; --purple:#7b5ea7;
+    --bg:#eef2f6; --card:#fff; --line:#dfe5ec; --ink:#1c2733; --muted:#5b6b7b;
+    --soft:#eef7f5; --warn:#fdecea; --code-bg:#0f2330;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:"Segoe UI","Sarabun",Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;}
+  a{color:var(--blue);}
+  #progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--teal),var(--amber));z-index:200;transition:width .1s;}
+  nav{position:fixed;top:0;left:0;right:0;background:rgba(15,44,77,.97);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;gap:6px;padding:8px 14px;overflow-x:auto;box-shadow:0 2px 10px rgba(0,0,0,.15);}
+  nav .brand{color:#fff;font-weight:800;font-size:.95rem;margin-right:10px;white-space:nowrap;}
+  nav a{color:#cdd9e5;text-decoration:none;font-size:.82rem;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:.15s;}
+  nav a:hover,nav a.active{background:var(--teal);color:#fff;}
+  header.hero{position:relative;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:80px 24px 46px;text-align:center;}
+  header.hero h1{margin:0 0 8px;font-size:2.1rem;}
+  header.hero .sub{opacity:.92;font-size:1.05rem;margin:2px 0;}
+  .hero-qr{position:absolute;top:68px;left:14px;z-index:90;background:#fff;border-radius:10px;padding:8px;box-shadow:0 2px 10px rgba(0,0,0,.25);text-align:center;}
+  .hero-qr img,.hero-qr svg{display:block;width:84px;height:84px;}
+  .hero-qr span{display:block;color:var(--navy);font-size:.68rem;font-weight:700;margin-top:4px;line-height:1.3}
+  @media(max-width:560px){.hero-qr{top:62px;left:8px;padding:5px;}.hero-qr img,.hero-qr svg{width:56px;height:56px;}.hero-qr span{font-size:.58rem;}}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px;}
+  .badge{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 15px;font-size:.86rem;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px;}
+  section{padding:44px 0 20px;border-bottom:1px solid var(--line);}
+  section h2{font-size:1.55rem;color:var(--navy);margin:0 0 4px;display:flex;align-items:center;gap:12px;}
+  section h2 .num{background:var(--teal);color:#fff;width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem;flex:0 0 auto;}
+  section .lead{color:var(--muted);margin:0 0 18px;font-size:1rem;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin:16px 0;box-shadow:0 1px 4px rgba(15,44,77,.04);}
+  h3{color:var(--blue);font-size:1.12rem;margin:20px 0 8px;}
+  .en{color:var(--muted);font-style:italic;font-size:.92em;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr;}}
+  .tag{display:inline-block;font-size:.72rem;background:#eef3f8;color:var(--blue);border-radius:6px;padding:2px 9px;font-weight:700;}
+  .note{border-radius:10px;padding:12px 16px;margin:10px 0;font-size:.95rem;}
+  .note.tip{background:var(--soft);border-left:4px solid var(--teal);}
+  .note.warn{background:var(--warn);border-left:4px solid var(--red);}
+  .note.ask{background:#eef3fb;border-left:4px solid var(--blue);}
+  .note .lb{font-weight:800;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px;}
+  .note.tip .lb{color:var(--teal);}.note.warn .lb{color:var(--red);}.note.ask .lb{color:var(--blue);}
+  button.act{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:.92rem;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;}
+  button.act:hover{background:var(--navy);}
+  button.act.amber{background:var(--amber);color:var(--navy);}button.act.amber:hover{background:#d8963a;}
+  button.act.teal{background:var(--teal);}button.act.teal:hover{background:#218a7d;}
+  button.act:disabled{opacity:.4;cursor:not-allowed;}
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin:14px 0;}
+  .ctl{display:flex;flex-direction:column;gap:4px;font-size:.85rem;}
+  .ctl label{font-weight:700;color:var(--navy);}
+  .ctl input[type=range]{width:180px;accent-color:var(--teal);}
+  .ctl input[type=number]{width:100px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;font-family:inherit;}
+  .ctl .val{color:var(--blue);font-weight:800;}
+  .statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:14px 0;}
+  .stat{background:var(--navy);color:#fff;border-radius:12px;padding:14px;text-align:center;}
+  .stat .k{font-size:1.55rem;font-weight:800;line-height:1.1;}
+  .stat .l{font-size:.76rem;opacity:.85;margin-top:3px;}
+  .stat.a{background:var(--teal);}.stat.b{background:var(--amber);color:var(--navy);}.stat.c{background:var(--purple);}
+  canvas{max-width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;}
+  .chartwrap{margin:12px 0;}
+  .legend{font-size:.8rem;color:var(--muted);margin-top:4px;text-align:center;}
+  pre{background:var(--code-bg);color:#e6edf3;border-radius:10px;padding:14px 16px;overflow-x:auto;font-family:Consolas,monospace;font-size:.84rem;line-height:1.6;margin:10px 0;transition:.2s;}
+  pre .c{color:#7fae6b;}pre .k{color:#ff9d6b;}pre .s{color:#9cd6ff;}
+  pre.codehl{outline:3px solid var(--amber);box-shadow:0 0 0 6px rgba(233,169,63,.18);}
+  pre.dim{opacity:.45;}
+  code{background:#eef3f8;padding:1px 6px;border-radius:4px;font-size:.9em;}
+  table.tbl{width:100%;border-collapse:collapse;font-size:.9rem;margin:12px 0;background:#fff;}
+  table.tbl th,table.tbl td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{background:var(--navy);color:#fff;font-weight:600;font-size:.85rem;}
+  table.tbl tr:nth-child(even) td{background:#f7f9fb;}
+  table.tbl input{width:100%;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-family:inherit;font-size:.88rem;background:#fffdf6;}
+  /* event timeline */
+  .clockbox{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:12px 0;}
+  .clock{background:var(--navy);color:#fff;border-radius:12px;padding:12px 22px;font-size:1.6rem;font-weight:800;font-family:Consolas,monospace;min-width:150px;text-align:center;}
+  .clock small{display:block;font-size:.68rem;font-weight:600;opacity:.8;font-family:inherit;}
+  .evlog{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;max-height:230px;overflow-y:auto;font-size:.9rem;margin:10px 0;}
+  .evlog .ev{padding:5px 8px;border-radius:7px;margin:3px 0;background:#f7f9fb;}
+  .evlog .ev.arr{border-left:4px solid var(--blue);}
+  .evlog .ev.svc{border-left:4px solid var(--teal);background:#eef7f5;}
+  .evlog .ev.dep{border-left:4px solid var(--amber);background:#fdf7ea;}
+  .evlog .ev b{font-family:Consolas,monospace;}
+  .qview{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0;}
+  .qview .slot{width:42px;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;}
+  .qview .server{background:var(--teal);color:#fff;border:2px solid #218a7d;}
+  .qview .server.idle{background:#dfe5ec;color:var(--muted);border-color:var(--line);}
+  .qview .qq{background:var(--amber);color:var(--navy);}
+  .qview .lblq{font-size:.8rem;color:var(--muted);font-weight:700;}
+  /* matching game */
+  .match{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;}
+  @media(max-width:560px){.match{grid-template-columns:1fr;}}
+  .match button{background:#f7f9fb;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font-family:inherit;font-size:.9rem;cursor:pointer;text-align:left;transition:.12s;color:var(--ink);}
+  .match button:hover{border-color:var(--blue);}
+  .match button.sel{background:#eef3fb;border-color:var(--blue);font-weight:700;}
+  .match button.done{background:#e6f6ee;border-color:var(--teal);color:#166b56;font-weight:700;cursor:default;}
+  .match button.bad{background:#fdeaea;border-color:var(--red);}
+  .stepbtns{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .stepbtns button{background:#f0f4f8;border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.88rem;color:var(--navy);}
+  .stepbtns button.on{background:var(--purple);color:#fff;border-color:var(--purple);}
+  .stepdesc{background:#fbf7ff;border-left:4px solid var(--purple);border-radius:10px;padding:12px 16px;margin:10px 0;font-size:.95rem;min-height:56px;}
+  /* quiz */
+  .quiz .q{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;}
+  .quiz .q .qh{font-weight:700;margin-bottom:10px;}
+  .quiz .opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 6px;}
+  @media(max-width:560px){.quiz .opts-grid{grid-template-columns:1fr;}}
+  .quiz .opt{display:block;width:100%;height:100%;text-align:left;background:#f7f9fb;border:1.5px solid var(--line);border-radius:9px;padding:10px 14px;margin:0;cursor:pointer;font-size:.92rem;font-family:inherit;transition:.12s;}
+  .quiz .opt:hover{border-color:var(--blue);}
+  .quiz .opt.correct{background:#e6f6ee;border-color:var(--teal);color:#166b56;font-weight:700;}
+  .quiz .opt.wrong{background:#fdeaea;border-color:var(--red);color:#a23;}
+  .quiz .fb{font-size:.88rem;margin-top:8px;padding:8px 12px;border-radius:8px;background:var(--soft);display:none;}
+  .quiz .fb.show{display:block;}
+  .scoreband{background:var(--navy);color:#fff;border-radius:12px;padding:16px;text-align:center;font-weight:700;margin-top:10px;display:none;}
+  footer{background:var(--navy);color:#cdd9e5;padding:30px 24px;font-size:.9rem;text-align:center;}
+  body.paged footer{padding-bottom:110px;} /* กันแถบ pager ด้านล่างบัง footer */
+  .notebox{background:#fffdf6;border:1.5px dashed var(--amber);border-radius:12px;padding:14px 16px;margin:18px 0 4px;}
+  .notebox .nhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .notebox label{font-weight:800;color:#9a6b14;font-size:.92rem;}
+  .notebox .savemark{font-size:.76rem;color:var(--muted);font-weight:700;transition:.2s;}
+  .notebox .savemark.ok{color:var(--teal);}
+  .notebox textarea{width:100%;min-height:80px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:.95rem;line-height:1.6;color:var(--ink);background:#fff;}
+  .notebox textarea:focus{outline:2px solid var(--amber);border-color:var(--amber);}
+  .notetools{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 4px;}
+  .notetools button{background:rgba(255,255,255,.13);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:8px 16px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  .notetools button:hover{background:rgba(255,255,255,.25);}
+  .checkin{background:linear-gradient(135deg,#f0fbf8,#eef3fb);border:2px solid var(--teal);border-radius:16px;padding:22px 24px;margin:16px 0;}
+  .checkin h3{margin:0 0 4px;color:var(--navy);font-size:1.2rem;}
+  .checkin .ci-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;}
+  .checkin .ci-field{flex:1 1 240px;display:flex;flex-direction:column;gap:5px;}
+  .checkin label{font-weight:700;font-size:.85rem;color:var(--navy);}
+  .checkin input,.checkin select{padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:.95rem;background:#fff;width:100%;}
+  .checkin input:focus,.checkin select:focus{outline:2px solid var(--teal);border-color:var(--teal);}
+  .checkin .ci-submit{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:13px 26px;font-weight:800;font-size:1rem;cursor:pointer;font-family:inherit;margin-top:14px;}
+  .checkin .ci-submit:hover{background:#218a7d;}
+  .checkin .ci-submit:disabled{opacity:.5;cursor:not-allowed;}
+  .checkin .ci-msg{margin-top:10px;font-weight:700;font-size:.92rem;min-height:20px;}
+  .checkin .ci-msg.ok{color:#166b56;}
+  .checkin .ci-msg.err{color:var(--red);}
+  .hwbox{background:#fbf7ff;border:2px solid var(--purple);border-radius:16px;padding:20px 24px;margin:16px 0;}
+  .hwbox h3{margin:0 0 6px;color:var(--purple);}
+  .hwbox .hw-f{display:flex;flex-direction:column;gap:5px;margin-top:12px;}
+  .hwbox label{font-weight:700;font-size:.88rem;color:var(--navy);}
+  .hwbox textarea{width:100%;min-height:56px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:.93rem;line-height:1.6;background:#fff;}
+  .hwbox textarea:focus{outline:2px solid var(--purple);border-color:var(--purple);}
+  .qz-submit-wrap{margin-top:14px;text-align:center;display:none;}
+  .qz-msg{margin-top:10px;font-weight:700;font-size:.88rem;min-height:20px;}
+  .qz-msg.ok{color:#166b56;}
+  .qz-msg.err{color:var(--red);}
+  /* ============ PAGER (หัวข้อละหน้า) ============ */
+  body.paged .wrap{padding-top:64px;padding-bottom:104px;min-height:70vh;}
+  body.paged .wrap > section{display:none;border-bottom:none;padding:26px 0 24px;}
+  body.paged .wrap > section.active{display:block;animation:slideIn .34s ease;}
+  @keyframes slideIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  #pager{position:fixed;left:0;right:0;bottom:0;z-index:120;display:flex;align-items:center;justify-content:center;gap:16px;padding:11px 16px;background:rgba(15,44,77,.97);backdrop-filter:blur(6px);box-shadow:0 -2px 14px rgba(0,0,0,.2);}
+  body:not(.paged) #pager{display:none;}
+  #pager button{background:var(--teal);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:.95rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s;min-width:120px;}
+  #pager button:hover:not(:disabled){background:#218a7d;transform:translateY(-1px);}
+  #pager button:disabled{opacity:.32;cursor:not-allowed;}
+  #pager .pginfo{color:#fff;font-weight:700;font-size:.92rem;min-width:110px;text-align:center;}
+  #pager .pginfo b{color:var(--amber);font-size:1.05rem;}
+  @media(max-width:560px){#pager button{min-width:88px;padding:11px 12px;font-size:.86rem;}#pager .pginfo{min-width:90px;font-size:.82rem;}}
+
+  /* [PATCH-COLAB] */
+  .codewrap{position:relative;}
+  .codewrap .copybtn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.14);color:#e6edf3;border:1px solid rgba(255,255,255,.28);border-radius:7px;padding:4px 10px;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;}
+  .codewrap .copybtn:hover{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .codewrap .copybtn.done{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .steplist{list-style:none;counter-reset:cstep;padding:0;margin:10px 0;}
+  .steplist li{counter-increment:cstep;position:relative;padding:10px 12px 10px 46px;margin:8px 0;background:#f7f9fb;border:1px solid var(--line);border-radius:10px;font-size:.93rem;line-height:1.75;}
+  .steplist li::before{content:counter(cstep);position:absolute;left:12px;top:10px;width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;}
+  .cchk{display:flex;align-items:flex-start;gap:9px;background:#fffdf6;border:1.5px dashed var(--amber);border-radius:10px;padding:9px 13px;margin:8px 0;font-size:.9rem;line-height:1.6;cursor:pointer;}
+  .cchk input{margin-top:4px;width:17px;height:17px;accent-color:var(--teal);flex:0 0 auto;cursor:pointer;}
+  .cchk.on{background:#e6f6ee;border-style:solid;border-color:var(--teal);color:#166b56;font-weight:600;}
+  .outbox{background:#f4f7fa;border:1px dashed var(--blue);border-radius:9px;padding:9px 13px;font-family:Consolas,monospace;font-size:.82rem;line-height:1.65;white-space:pre-wrap;color:#24405c;margin:8px 0;}
+  .outbox .ol{display:block;font-weight:700;font-family:inherit;font-size:.72rem;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+  @media(max-width:720px){.steplist li{padding-left:42px;}}
+
+  /* [PATCH-S5] */
+  .plainbox{background:#f4f9f8;border:1.5px solid var(--teal);border-radius:12px;padding:14px 18px;margin:12px 0;font-size:.95rem;line-height:1.9;}
+  .plainbox .pl{display:block;font-weight:800;font-size:.75rem;color:var(--teal);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+  .plainbox ol{margin:0;padding-left:22px;}
+  .plainbox ol li{margin:3px 0;}
+  .plainbox b{color:var(--navy);}
+  .walkcode{background:var(--code-bg);border-radius:10px;padding:10px 0;font-family:Consolas,monospace;font-size:.85rem;overflow-x:auto;margin:10px 0;}
+  .walkcode .wl{padding:4px 16px;color:#7d93a5;white-space:pre;border-left:4px solid transparent;transition:.18s;}
+  .walkcode .wl.done{color:#b9c9d6;}
+  .walkcode .wl.on{background:rgba(233,169,63,.20);color:#fff;border-left-color:var(--amber);font-weight:700;}
+  .wstate{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin:12px 0;}
+  .wcell{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;text-align:center;transition:.18s;}
+  .wcell .wk{font-size:.71rem;color:var(--muted);font-weight:700;line-height:1.4;}
+  .wcell .wv{font-size:1.02rem;font-weight:800;color:var(--navy);font-family:Consolas,monospace;margin-top:2px;word-break:break-word;}
+  .wcell.hi{background:#fff8e6;border-color:var(--amber);}
+  .wnav{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0;}
+  .wnav .wpg{font-size:.85rem;color:var(--muted);font-weight:700;}
+</style>
+</head>
+<body class="paged">
+<div id="progress"></div>
+<nav id="nav">
+  <span class="brand">🖥️ Com Sim I · ครั้งที่ 3</span>
+  <a href="#s0">เริ่มต้น</a>
+  <a href="#s1">เชื่อมโยง</a>
+  <a href="#s2">DES คืออะไร</a>
+  <a href="#s3">Python พื้นฐาน</a>
+  <a href="#s4">SimPy</a>
+  <a href="#s5">โค้ดธนาคาร</a>
+  <a href="#s7">Lab Colab</a>
+  <a href="#s9">Quiz</a>
+</nav>
+
+<header class="hero">
+  <a class="hero-qr" href="https://namchai48.github.io/ComSim/class3" target="_blank" rel="noopener" title="เปิดสื่อครั้งที่ 3 — namchai48.github.io/ComSim/class3">
+    <img src="qr-class3.svg" alt="QR code เข้าสื่อครั้งที่ 3">
+    <span>สแกนเข้าสื่อ</span>
+  </a>
+  <h1>Discrete Event Simulation ด้วย SimPy</h1>
+  <p class="sub">ครั้งที่ 3 — เขียนแบบจำลองคิว–ทรัพยากรด้วย Python (SimPy)</p>
+  <p class="sub" style="font-size:.95rem;opacity:.9">💡 หัวใจ: เวลาในโมเดล "กระโดด" ทีละเหตุการณ์ — entity ไหลผ่าน Resource ที่จำกัด</p>
+  <div class="badges">
+    <span class="badge">⏱️ 4 ชม.</span>
+    <span class="badge">🐍 Python + SimPy (Google Colab)</span>
+    <span class="badge">🎲 กดเล่นได้ทุกส่วน</span>
+  </div>
+</header>
+
+<div class="wrap">
+<div id="storageWarn" style="display:none;background:#fdecea;border:2px solid #d9534f;border-radius:12px;padding:14px 16px;margin:0 0 16px;color:#8a2a26;line-height:1.65">
+  <b>⚠️ เบราว์เซอร์นี้บันทึกโน้ตอัตโนมัติไม่ได้ — โน้ตจะหายเมื่อปิดหน้า</b><br>
+  <span style="font-size:.92rem">มักเกิดจากการเปิดไฟล์ในแอป LINE / Facebook / Messenger หรือใช้โหมดไม่ระบุตัวตน · แนะนำให้กด &ldquo;เปิดในเบราว์เซอร์&rdquo; (Chrome หรือ Safari) แล้วเปิดไฟล์นี้ใหม่ และกดปุ่ม <b>⬇️ ดาวน์โหลดโน้ต</b> ท้ายหน้าก่อนปิดทุกครั้ง</span>
+</div>
+<div id="inappWarn" style="display:none;background:#fff8e6;border:2px solid #e9a93f;border-radius:12px;padding:14px 16px;margin:0 0 16px;color:#7a5410;line-height:1.65">
+  <b>📱 คุณกำลังเปิดไฟล์นี้ในเบราว์เซอร์ภายในแอป</b><br>
+  <span style="font-size:.92rem">โน้ตที่จดไว้อาจหายเมื่อปิดแอป · กรุณากดเมนู (⋯) มุมขวาบน แล้วเลือก &ldquo;เปิดในเบราว์เซอร์&rdquo; / &ldquo;Open in Chrome/Safari&rdquo; ก่อนเริ่มจดโน้ต</span>
+</div>
+
+
+<!-- ===================== S0 INTRO ===================== -->
+<section id="s0">
+  <h2>เริ่มต้นคาบเรียน — วัตถุประสงค์ &amp; เช็คชื่อ</h2>
+
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <h3>🎯 วัตถุประสงค์การเรียนรู้ — เมื่อจบครั้งที่ 3 นักศึกษาจะ...</h3>
+    <ol style="font-size:.95rem;line-height:1.9;margin:8px 0 4px">
+      <li><strong>อธิบายหลักการ Discrete Event Simulation (DES)</strong> ได้ — simulation clock กระโดดทีละเหตุการณ์ ไม่ใช่เดินทีละวินาที (หัวข้อ 2)</li>
+      <li><strong>แมปแนวคิดระบบคิวเข้ากับโค้ด</strong>: entity / event / queue / server ↔ องค์ประกอบของ SimPy (หัวข้อ 4)</li>
+      <li><strong>อ่านและอธิบายโค้ดโมเดลธนาคาร</strong> (Environment, process, Resource, timeout) ได้ทีละบรรทัด (หัวข้อ 5)</li>
+      <li><strong>รันโมเดลบน Google Colab</strong> อ่านผลลัพธ์ เวลารอเฉลี่ย จำนวนที่รับบริการ utilization (หัวข้อ 6 — Lab)</li>
+      <li><strong>ทดลองปรับพารามิเตอร์</strong> (จำนวน tellers, อัตราการมาถึง) แล้วเปรียบเทียบผลอย่างเป็นระบบ (หัวข้อ 6 — Lab)</li>
+    </ol>
+  </div>
+
+  <!-- Check-in -->
+  <div class="checkin">
+    <h3>✅ เช็คชื่อเข้าเรียน — ครั้งที่ 3</h3>
+    <p style="margin:2px 0 0;color:var(--muted);font-size:.9rem">กรอกอีเมลและเลือกชื่อของคุณ แล้วกดส่ง — ข้อมูลจะถูกส่งเข้า Google Form ของอาจารย์ทันที</p>
+    <div class="ci-row">
+      <div class="ci-field">
+        <label>อีเมล *</label>
+        <input type="email" id="ci_email" placeholder="you@go.buu.ac.th" autocomplete="email">
+      </div>
+      <div class="ci-field">
+        <label>เลือกชื่อ–รหัสนิสิต *</label>
+        <select id="ci_student"><option value="">— เลือก —</option></select>
+      </div>
+    </div>
+    <button class="ci-submit" id="ci_btn" onclick="submitCheckin()">📩 ส่งเช็คชื่อ</button>
+    <div class="ci-msg" id="ci_msg"></div>
+    <iframe name="ci_target" id="ci_target" style="display:none" title="hidden"></iframe>
+    <form id="ci_form" action="https://docs.google.com/forms/d/e/1FAIpQLSdsRJ2BYQhxQUuajTpk0gG_GeslesLyISfzmdwGreA0NAHpVQ/formResponse" method="POST" target="ci_target" style="display:none">
+      <input type="hidden" name="emailAddress" id="ci_f_email">
+      <input type="hidden" name="entry.2045911396" id="ci_f_student">
+      <input type="hidden" name="fvv" value="1">
+      <input type="hidden" name="pageHistory" value="0">
+    </form>
+  </div>
+
+  <div class="note ask">
+    <span class="lb">คำถามเปิดคาบ</span>
+    ครั้งที่แล้วเราได้ "การแจกแจง" ของข้อมูลนำเข้า (input distribution) มาแล้ว — วันนี้จะเอาไป <strong>ใส่ในแบบจำลองที่รันได้จริง</strong> ด้วยภาษา Python คิดว่าคอมพิวเตอร์ "จำลองเวลา" 8 ชั่วโมงของธนาคารได้อย่างไรโดยใช้เวลาจริงไม่ถึง 1 วินาที?
+  </div>
+</section>
+
+<!-- ===================== S1 BRIDGE ===================== -->
+<section id="s1">
+  <h2><span class="num">1</span> เชื่อมจากครั้งที่แล้ว &amp; ภาพรวมวันนี้</h2>
+  <p class="lead">Input Analysis ให้ "วัตถุดิบ" — วันนี้เราสร้าง "เครื่องจักร" ที่กินวัตถุดิบนั้น</p>
+
+  <div class="card">
+    <div class="note tip" style="font-size:1.05rem;text-align:center">
+      <span class="lb">🎯 ประโยคเดียวของทั้งคาบ</span>
+      <strong>เวลาในโมเดลจำลอง "กระโดด" ทีละเหตุการณ์</strong> — entity ไหลผ่าน Resource ที่จำกัด ไม่ใช่เดินทีละวินาที
+    </div>
+    <h3>เราอยู่ตรงไหนของวงจร?</h3>
+    <p>ครั้งนี้อยู่ที่ขั้น <strong>"สร้างแบบจำลอง (build model)"</strong> — เอาการแจกแจงจากครั้งที่ 2 มาเขียนเป็นโค้ดที่รันได้จริงด้วย Python/SimPy</p>
+
+    <div style="overflow-x:auto"><table class="tbl" style="font-size:.82rem;white-space:nowrap;text-align:center">
+      <tr>
+        <td>ตั้งปัญหา</td><td>→</td><td>เก็บข้อมูล + Input Analysis<br>(ครั้ง 2)</td><td>→</td>
+        <td style="background:#fff5e0;font-weight:800;color:#9a6b14">สร้างโมเดล<br><span style="font-size:.75rem">📍 เราอยู่ที่นี่ (ครั้ง 3)</span></td><td>→</td>
+        <td>Verify<br>(ครั้ง 4)</td><td>→</td><td>Validate<br>(ครั้ง 5)</td><td>→</td><td>วิเคราะห์<br>(ครั้ง 6)</td>
+      </tr>
+    </table></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="border-top:4px solid var(--amber)">
+      <h3 style="margin-top:0">⬅️ ครั้งที่ 2 ได้อะไรมาแล้ว</h3>
+      <ul style="font-size:.93rem;margin:6px 0">
+        <li>เข้าใจว่า input ต้องเป็น <strong>การแจกแจง</strong> ไม่ใช่ค่าเฉลี่ย (Flaw of Averages)</li>
+        <li>สร้าง histogram + เลือกการแจกแจงมาตรฐาน (Uniform / Triangular / Normal / <strong>Exponential</strong> / Poisson)</li>
+        <li>สุ่มค่าใน Excel ด้วย Inverse Transform: <code>=-4*LN(RAND())</code></li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:4px solid var(--teal)">
+      <h3 style="margin-top:0">➡️ วันนี้ (ครั้งที่ 3)</h3>
+      <ul style="font-size:.93rem;margin:6px 0">
+        <li>หลักการ <strong>Discrete Event Simulation (DES)</strong></li>
+        <li>องค์ประกอบของ <strong>SimPy</strong>: Environment / process / Resource / timeout</li>
+        <li>โมเดลธนาคาร 3 tellers — เขียน รัน อ่านผล ปรับพารามิเตอร์</li>
+        <li>เครื่องมือ: <strong>Python บน Google Colab</strong> (ไม่ต้องติดตั้งอะไรในเครื่อง)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="hwbox">
+    <h3>📥 การบ้านจากครั้งที่ 2 — ตรวจคำทำนาย แล้วใช้เป็น input ของวันนี้</h3>
+    <p style="margin:4px 0 0;font-size:.92rem">ครั้งที่แล้วให้ <strong>ทำนายการแจกแจงล่วงหน้า</strong> แล้วไปเก็บข้อมูลจริง 30–50 ค่า จากระบบที่กลุ่มเลือก — ต้นคาบนี้มาตรวจกันตามที่สัญญาไว้: สร้างฮิสโทแกรมของข้อมูลจริง เทียบ mean / SD / CV กับคำทำนาย แล้วสรุปว่า <strong>การแจกแจงที่ fit ได้จริง</strong> คือตัวไหน เพราะ Lab ท้ายคาบจะให้ <strong>เอาการแจกแจงของกลุ่มคุณใส่แทน</strong> <code>random.expovariate()</code> ในโมเดลธนาคาร</p>
+    <div class="hw-f">
+      <label>คำทำนาย vs ผลจริง + การแจกแจงที่ fit ได้ (เช่น "ร้านกาแฟหน้ามอ — ทำนาย Exponential ✓ ข้อมูลจริง fit ได้ interarrival (เวลาระหว่างการมาถึงของลูกค้าติดกัน) ≈ Exponential mean 3.2 นาที, service ≈ Triangular(1,2,5)")</label>
+      <textarea id="hw_bridge" placeholder="พิมพ์สรุปของกลุ่มที่นี่ (บันทึกอัตโนมัติในเครื่อง)"></textarea>
+    </div>
+    <p style="margin:8px 0 0;font-size:.85rem;color:var(--muted)">💡 เตือนตามครั้งที่ 2: 30–50 ค่าพอสำหรับฝึกวันนี้ — แต่ถ้าจะใช้เป็น input model จริงของโปรเจกต์ ควรเก็บเพิ่มให้ใกล้ 100–200 ค่า</p>
+  </div>
+</section>
+
+<!-- ===================== S2 DES ===================== -->
+<section id="s2">
+  <h2><span class="num">2</span> Discrete Event Simulation — เวลา "กระโดด" ทีละเหตุการณ์</h2>
+  <p class="lead">คอมพิวเตอร์ไม่ได้เดินเวลาไปทีละวินาที — มันข้ามไปยังเหตุการณ์ (event) ถัดไปทันที เพราะระหว่างเหตุการณ์ไม่มีอะไรเปลี่ยนแปลง</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">🧩 ศัพท์หลักของ DES</h3>
+      <table class="tbl">
+        <tr><th>คำศัพท์</th><th>ความหมาย (ตัวอย่างธนาคาร)</th></tr>
+        <tr><td><strong>Entity</strong></td><td>สิ่งที่ไหลผ่านระบบ → <em>ลูกค้า</em></td></tr>
+        <tr><td><strong>Event</strong></td><td>เหตุการณ์ที่เปลี่ยนสถานะระบบ → <em>มาถึง / เริ่มบริการ / ออกจากระบบ</em></td></tr>
+        <tr><td><strong>Server / Resource</strong></td><td>ทรัพยากรจำกัดที่ให้บริการ → <em>teller</em></td></tr>
+        <tr><td><strong>Queue</strong></td><td>คิวที่เกิดเมื่อทรัพยากรไม่ว่าง</td></tr>
+        <tr><td><strong>Simulation clock</strong></td><td>นาฬิกาของโมเดล — กระโดดจาก event หนึ่งไป event ถัดไป</td></tr>
+        <tr><td><strong>State</strong></td><td>สถานะระบบ เช่น จำนวนคนในคิว, teller ว่าง/ไม่ว่าง</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">⏭️ ทำไมต้อง "กระโดด"?</h3>
+      <p style="font-size:.93rem">ถ้าเดินเวลาทีละ 1 วินาที ธนาคาร 8 ชม. = 28,800 รอบคำนวณ ทั้งที่ส่วนใหญ่ "ไม่มีอะไรเกิดขึ้น" — DES จึงเก็บรายการเหตุการณ์อนาคต (future event list) แล้วกระโดดไปยังเหตุการณ์ที่ใกล้ที่สุด อัปเดตสถานะ แล้วกระโดดต่อ</p>
+      <div class="note tip">
+        <span class="lb">เชื่อมกับครั้งที่ 1</span>
+        Monte Carlo ใน Excel สุ่มผลลัพธ์ "ทั้งวัน" ในครั้งเดียว — แต่ DES จำลอง <strong>พลวัตรายเหตุการณ์</strong> จึงตอบคำถามเรื่อง "คิว" และ "เวลารอ" ได้ ซึ่ง Monte Carlo แบบตารางทำไม่ได้
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">🕹️ ลองเล่น: เดินเหตุการณ์เองทีละ event (ธนาคาร 1 teller)</h3>
+    <p style="font-size:.9rem;color:var(--muted);margin:4px 0 8px">ลูกค้า 5 คน มาถึงที่ t = 0, 2, 3, 7, 8 นาที · เวลาบริการ 4, 3, 2, 3, 2 นาที — กด "event ถัดไป" แล้วสังเกตว่านาฬิกา <strong>ไม่เดินทีละนาที</strong></p>
+    <div class="clockbox">
+      <div class="clock"><small>SIMULATION CLOCK (นาที)</small><span id="evClock">—</span></div>
+      <div>
+        <div class="qview" id="evServer"></div>
+        <div class="qview" id="evQueue"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="act teal" id="evNextBtn" onclick="evNext()">⏭️ Event ถัดไป</button>
+      <button class="act amber" onclick="evReset()">🔄 เริ่มใหม่</button>
+    </div>
+    <div class="evlog" id="evLog"><em style="color:var(--muted)">กดปุ่ม "Event ถัดไป" เพื่อเริ่ม...</em></div>
+    <div class="note ask">
+      <span class="lb">สังเกต</span>
+      นาฬิกากระโดด 0 → 2 → 3 → 4 → 7 → 8 → 9 → 12 → 14 — มีแค่ <strong>10 เหตุการณ์ ใน 9 จุดเวลา</strong> (ที่ t=7 มีทั้งลูกค้าเสร็จและมาถึงพร้อมกัน) แทนที่จะคำนวณ 14 นาที × 60 วินาที และนี่คือสิ่งที่ SimPy ทำให้เราอัตโนมัติ
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S3 PYTHON ===================== -->
+<section id="s3">
+  <h2><span class="num">3</span> Python พื้นฐานเท่าที่ต้องใช้วันนี้</h2>
+  <p class="lead">ไม่ต้องเก่ง Python มาก่อน — ใช้แค่ 5 เรื่องนี้ก็อ่านโมเดล SimPy ออก</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">1) ตัวแปร &amp; list</h3>
+<pre><span class="c"># ตัวแปรเก็บค่า / list เก็บหลายค่า</span>
+SERVICE_MEAN = 4.0
+wait_times = []          <span class="c"># list ว่าง</span>
+wait_times.append(2.5)   <span class="c"># เพิ่มค่าเข้า list</span>
+len(wait_times)          <span class="c"># นับจำนวนสมาชิก</span></pre>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">2) ฟังก์ชัน (function)</h3>
+<pre><span class="k">def</span> greet(name):
+    <span class="k">return</span> <span class="s">"สวัสดี "</span> + name
+
+greet(<span class="s">"โลจิสติกส์"</span>)</pre>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">3) loop while</h3>
+<pre>i = 0
+<span class="k">while</span> i &lt; 5:
+    i += 1
+<span class="c"># ใน SimPy: while True = สร้างลูกค้าเรื่อย ๆ
+# จนกว่าเวลาจำลองจะหมด</span></pre>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">4) generator &amp; <code>yield</code> ⭐ สำคัญสุด</h3>
+<pre><span class="k">def</span> customer():
+    <span class="k">yield</span> <span class="s">"รอ teller ว่าง"</span>
+    <span class="k">yield</span> <span class="s">"ใช้เวลาบริการ 4 นาที"</span></pre>
+      <p style="font-size:.9rem;margin:6px 0 0"><code>yield</code> = "หยุดตรงนี้ไว้ก่อน แล้วค่อยกลับมาทำต่อ" — SimPy ใช้กลไกนี้ <strong>พักกระบวนการ</strong> ระหว่างรอคิวหรือรอเวลาบริการ</p>
+    </div>
+    <div class="card" style="grid-column:1/-1">
+      <h3 style="margin-top:0">5) <code>with</code> — ขอใช้ทรัพยากร แล้ว "คืนอัตโนมัติ"</h3>
+<pre><span class="k">with</span> bank.request() <span class="k">as</span> req:   <span class="c"># ขอใช้ teller 1 ตัว</span>
+    <span class="k">yield</span> req                    <span class="c"># รอจนได้</span>
+    ...                          <span class="c"># รับบริการอยู่ในบล็อกนี้</span>
+<span class="c"># ⬅ พ้นบล็อก with = คืน teller ให้คนถัดไปทันที ไม่ต้องเขียนโค้ดคืนเอง</span></pre>
+      <p style="font-size:.9rem;margin:6px 0 0"><code>with ... as ...:</code> คือการ "ยืมของแล้วระบบคืนให้เองเมื่อจบบล็อก" — ถ้าลืมคืน teller ลูกค้าคนถัดไปจะรอตลอดกาล บล็อก <code>with</code> จึงกันบั๊กสำคัญนี้ให้เราอัตโนมัติ (จะเจอบรรทัดนี้ในโค้ดจริงหัวข้อ 5)</p>
+    </div>
+  </div>
+
+
+  <!-- ===== [PATCH-COLAB] แนะนำ + ทดลองใช้ Colab ===== -->
+  <h3 style="font-size:1.3rem;margin:34px 0 6px;padding-top:14px;border-top:2px dashed var(--line)">🧪 ลองใช้ Google Colab เดี๋ยวนี้ (10 นาที) — ซ้อมมือก่อนเจอของจริงในหัวข้อ 6</h3>
+  <p class="lead" style="margin-bottom:14px">อย่าเพิ่งข้าม! ถ้าเปิด Colab เป็นและรันโค้ดสั้น ๆ ได้ตอนนี้ Lab ในหัวข้อ 6 จะเหลือแค่ "คัดลอก–วาง–รัน" เท่านั้น</p>
+
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <h3 style="margin-top:0">Colab คืออะไร และทำไมวิชานี้ใช้</h3>
+    <div class="grid2">
+      <div>
+        <p style="font-size:.94rem;margin:0 0 8px"><strong>Google Colab</strong> คือสมุดโน้ต Python ที่รันอยู่บน <em>เครื่องของ Google</em> ผ่านเบราว์เซอร์ — เหมือน Google Docs แต่แทนที่จะพิมพ์เอกสาร เราพิมพ์โค้ดแล้วกดรัน</p>
+        <ul style="font-size:.92rem;line-height:1.85;margin:0;padding-left:20px">
+          <li><strong>ไม่ต้องติดตั้งอะไรเลย</strong> — ขอแค่มีบัญชี Google และเบราว์เซอร์ (โน้ตบุ๊กเครื่องไหนก็ได้ แม้แต่คอมของคณะ)</li>
+          <li><strong>เซฟอัตโนมัติลง Google Drive</strong> — ส่งลิงก์ให้เพื่อนในกลุ่ม/อาจารย์ดูได้ทันที (การบ้านครั้งนี้ส่งเป็นลิงก์ Colab)</li>
+          <li><strong>ติดตั้งไลบรารีเพิ่มได้</strong> เช่น SimPy ที่เราจะใช้จำลองระบบ</li>
+        </ul>
+      </div>
+      <div>
+        <table class="tbl" style="margin:0">
+          <tr><th style="width:34%">คำศัพท์</th><th>หมายถึง</th></tr>
+          <tr><td><b>Notebook</b></td><td>ไฟล์ 1 ไฟล์ (นามสกุล <code>.ipynb</code>) = สมุด 1 เล่ม</td></tr>
+          <tr><td><b>Cell</b> (เซลล์)</td><td>ช่องพิมพ์โค้ด 1 ช่อง · 1 notebook มีได้หลายเซลล์ · รันทีละเซลล์ได้</td></tr>
+          <tr><td><b>Runtime</b></td><td>เครื่องเสมือนของ Google ที่รันโค้ดให้เรา · จำค่าตัวแปรไว้ข้ามเซลล์</td></tr>
+          <tr><td><b>Shift + Enter</b></td><td>สั่งรันเซลล์ปัจจุบัน แล้วเลื่อนไปเซลล์ถัดไป (ปุ่มที่ใช้บ่อยที่สุด)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">ขั้นตอนเปิด Colab ครั้งแรก</h3>
+    <ol class="steplist">
+      <li>เปิด <a href="https://colab.research.google.com" target="_blank" rel="noopener"><strong>colab.research.google.com</strong></a> แล้วล็อกอินด้วยบัญชี Google (ใช้บัญชีมหาวิทยาลัยได้)</li>
+      <li>กด <strong>+ New notebook</strong> (ถ้ามีหน้าต่างรายการไฟล์เด้งขึ้น ให้กดปุ่มนี้ที่มุมล่างขวา)</li>
+      <li>ตั้งชื่อไฟล์มุมซ้ายบน เช่น <code>ComSim_กลุ่ม3_ทดลอง</code> — ไฟล์จะถูกเซฟใน Google Drive ของคุณอัตโนมัติ</li>
+      <li>คลิกในกล่องสีเทา (นั่นคือ <em>เซลล์</em>) พิมพ์โค้ด แล้วกด <strong>Shift + Enter</strong> หรือกดปุ่ม ▶ ด้านซ้ายของเซลล์</li>
+      <li>ต้องการเซลล์ใหม่: กด <strong>+ Code</strong> ที่แถบบน (หรือปุ่ม + ที่ลอยขึ้นเมื่อเอาเมาส์ชี้ระหว่างเซลล์)</li>
+    </ol>
+    <div class="note tip"><span class="lb">ครั้งแรกจะช้าหน่อย</span>เมื่อรันเซลล์แรก Colab ต้องจองเครื่องให้ก่อน (ใช้เวลา 10–30 วินาที มีวงกลมหมุน ๆ ที่ปุ่ม ▶) — หลังจากนั้นจะรันไวมาก</div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--amber)">
+    <h3 style="margin-top:0">แบบฝึก 3 เซลล์ — ทำตามทีละข้อ แล้วติ๊กช่องเมื่อผ่าน</h3>
+
+    <p style="font-size:.93rem;margin:14px 0 4px"><strong>เซลล์ที่ 1 — พิมพ์ผลลัพธ์ &amp; ตัวแปร</strong> <span class="tag">ทบทวนข้อ 1</span></p>
+    <div class="codewrap"><button class="copybtn" onclick="copyCode(this)">📋 คัดลอก</button><pre><span class="k">print</span>(<span class="s">"สวัสดี Computer Simulation"</span>)
+
+SERVICE_MEAN = 4.0
+NUM_TELLERS  = 3
+<span class="k">print</span>(<span class="s">"เวลาบริการเฉลี่ย"</span>, SERVICE_MEAN, <span class="s">"นาที ต่อ teller"</span>, NUM_TELLERS, <span class="s">"ตัว"</span>)</pre></div>
+    <div class="outbox"><span class="ol">ผลลัพธ์ที่ควรได้</span>สวัสดี Computer Simulation
+เวลาบริการเฉลี่ย 4.0 นาที ต่อ teller 3 ตัว</div>
+    <label class="cchk"><input type="checkbox" data-cchk="c1"><span>เซลล์ที่ 1 รันผ่าน — เห็นข้อความออกมาใต้เซลล์</span></label>
+
+    <p style="font-size:.93rem;margin:20px 0 4px"><strong>เซลล์ที่ 2 — list + while + function + ค่าสุ่ม</strong> <span class="tag">ทบทวนข้อ 1–3</span></p>
+    <div class="codewrap"><button class="copybtn" onclick="copyCode(this)">📋 คัดลอก</button><pre><span class="k">import</span> random, statistics
+random.seed(42)                       <span class="c"># ล็อกค่าสุ่มให้ทุกคนได้ผลเหมือนกัน</span>
+
+wait_times = []                       <span class="c"># list ว่าง</span>
+i = 0
+<span class="k">while</span> i &lt; 5:                          <span class="c"># สุ่มเวลารอสมมติ 5 คน</span>
+    wait_times.append(random.expovariate(1/4.0))
+    i += 1
+
+<span class="k">def</span> summary(data):                    <span class="c"># ฟังก์ชันสรุปค่าเฉลี่ย</span>
+    <span class="k">return</span> round(statistics.mean(data), 2)
+
+<span class="k">print</span>(<span class="s">"เวลารอ 5 คน:"</span>, [round(w,2) <span class="k">for</span> w <span class="k">in</span> wait_times])
+<span class="k">print</span>(<span class="s">"เฉลี่ย:"</span>, summary(wait_times), <span class="s">"นาที"</span>)</pre></div>
+    <div class="outbox"><span class="ol">ผลลัพธ์ที่ควรได้ (seed 42 — ต้องตรงเป๊ะทุกเครื่อง)</span>เวลารอ 5 คน: [4.08, 0.1, 1.29, 1.01, 5.33]
+เฉลี่ย: 2.36 นาที</div>
+    <div class="note ask" style="margin-top:8px"><span class="lb">สังเกต</span>ได้เลข <em>ชุดเดียวกัน</em> กับเพื่อนทั้งห้องเพราะ <code>random.seed(42)</code> — ถ้าลบบรรทัดนี้ออกแล้วรันใหม่ ตัวเลขจะเปลี่ยนทุกครั้ง นี่คือเหตุผลที่ Lab หัวข้อ 6 บังคับใช้ seed 42 เพื่อให้เทียบผลกันได้</div>
+    <label class="cchk"><input type="checkbox" data-cchk="c2"><span>เซลล์ที่ 2 รันผ่าน — ได้ตัวเลขตรงกับที่แสดงไว้</span></label>
+
+    <p style="font-size:.93rem;margin:20px 0 4px"><strong>เซลล์ที่ 3 — ติดตั้ง SimPy แล้วลองให้ "นาฬิกากระโดด"</strong> <span class="tag">เชื่อมข้อ 2 &amp; 4</span></p>
+    <div class="codewrap"><button class="copybtn" onclick="copyCode(this)">📋 คัดลอก</button><pre>!pip install simpy -q                 <span class="c"># ⬅ เครื่องหมาย ! = สั่งติดตั้งโปรแกรม ไม่ใช่โค้ด Python</span>
+<span class="k">import</span> simpy
+<span class="k">print</span>(<span class="s">"SimPy version:"</span>, simpy.__version__)
+
+<span class="k">def</span> customer(env, name, arrive_at):
+    <span class="k">yield</span> env.timeout(arrive_at)      <span class="c"># รอจนถึงเวลาที่ลูกค้ามาถึง</span>
+    <span class="k">print</span>(f<span class="s">"{env.now:5.1f} นาที : {name} มาถึงธนาคาร"</span>)
+    <span class="k">yield</span> env.timeout(4)              <span class="c"># ใช้บริการ 4 นาที</span>
+    <span class="k">print</span>(f<span class="s">"{env.now:5.1f} นาที : {name} ออกจากธนาคาร"</span>)
+
+env = simpy.Environment()
+env.process(customer(env, <span class="s">"ลูกค้า A"</span>, 0))
+env.process(customer(env, <span class="s">"ลูกค้า B"</span>, 3))
+env.run()</pre></div>
+    <div class="outbox"><span class="ol">ผลลัพธ์ที่ควรได้</span>SimPy version: 4.x.x
+  0.0 นาที : ลูกค้า A มาถึงธนาคาร
+  3.0 นาที : ลูกค้า B มาถึงธนาคาร
+  4.0 นาที : ลูกค้า A ออกจากธนาคาร
+  7.0 นาที : ลูกค้า B ออกจากธนาคาร</div>
+    <div class="note tip" style="margin-top:8px"><span class="lb">นี่แหละ DES ตัวเป็น ๆ</span>นาฬิกาไม่ได้เดิน 0.1 → 0.2 → 0.3 … แต่ <strong>กระโดด 0 → 3 → 4 → 7</strong> ตรงเวลาที่มีเหตุการณ์เท่านั้น (ตรงกับหัวข้อ 2) และ <code>yield</code> คือจุดที่กระบวนการ "หยุดรอ" (หัวข้อ 4 ข้อ 4) — ลองแก้เลข 3 เป็น 6 แล้วรันใหม่ ดูว่าลำดับเวลาเปลี่ยนอย่างไร</div>
+    <label class="cchk"><input type="checkbox" data-cchk="c3"><span>เซลล์ที่ 3 รันผ่าน — ติดตั้ง SimPy ได้และเห็นเวลากระโดด 0 → 3 → 4 → 7</span></label>
+
+    <div class="note warn" style="margin-top:16px">
+      <span class="lb">3 เรื่องที่ทำให้มือใหม่งงที่สุด</span>
+      <b>1) ลำดับการรันสำคัญกว่าลำดับบรรทัด</b> — Colab จำเฉพาะเซลล์ที่ "กดรันไปแล้ว" ถ้าข้ามเซลล์ที่ประกาศตัวแปรจะขึ้น <code>NameError</code> · แก้ด้วยเมนู <strong>Runtime → Run all</strong> เพื่อรันใหม่ตั้งแต่บนสุด<br>
+      <b>2) รันเซลล์เดิมซ้ำ = ค่าสะสม</b> — ถ้ารันเซลล์ที่ <code>append</code> ซ้ำโดยไม่ล้าง list ข้อมูลจะบวกทบไปเรื่อย ๆ (เจอบ่อยมากในหัวข้อ 6)<br>
+      <b>3) ปิดหน้าไว้นาน runtime จะหลุด</b> — ตัวแปรทั้งหมดหาย ต้อง <strong>Run all</strong> ใหม่ รวมถึง <code>!pip install simpy</code> ด้วย
+    </div>
+  </div>
+
+  <div class="note ask">
+    <span class="lb">พร้อมแล้วสำหรับหัวข้อ 6</span>
+    ถ้าติ๊กครบทั้ง 3 ข้อ แปลว่าเครื่องมือพร้อม — เก็บ notebook นี้ไว้ เพราะ Lab ในหัวข้อ 6 จะใช้ notebook เดิมนี้ต่อได้เลย (แค่เพิ่มเซลล์ใหม่ ไม่ต้องติดตั้ง SimPy ซ้ำ ตราบใดที่ยังไม่ปิดหน้า)
+  </div>
+
+  <div class="note tip">
+    <span class="lb">แหล่งปูพื้น</span>
+    W3Schools Python Tutorial (หัวข้อ Variables, Functions, While Loops, Lists) — อ่านก่อน/หลังคาบได้ที่ <a href="https://www.w3schools.com/python/" target="_blank" rel="noopener">w3schools.com/python</a> · ใช้เวลา ~30 นาทีก็พอสำหรับวิชานี้
+  </div>
+</section>
+
+<!-- ===================== S4 SIMPY ===================== -->
+<section id="s4">
+  <h2><span class="num">4</span> องค์ประกอบของ SimPy — 4 ชิ้นส่วนหลัก</h2>
+  <p class="lead">SimPy คือไลบรารี Discrete Event Simulation ของ Python — โครงสร้างมีแค่ 4 อย่างที่ต้องรู้</p>
+
+  <div class="card">
+    <table class="tbl">
+      <tr><th style="width:180px">องค์ประกอบ SimPy</th><th>ทำหน้าที่</th><th>ในโมเดลธนาคาร</th></tr>
+      <tr><td><code>simpy.Environment()</code></td><td>ตัวจัดการ <strong>เวลาและเหตุการณ์</strong> ทั้งหมด (simulation clock + future event list)</td><td>นาฬิกาของธนาคารจำลอง — อ่านเวลาปัจจุบันได้จาก <code>env.now</code></td></tr>
+      <tr><td><code>env.process(...)</code></td><td>ลงทะเบียน <strong>generator function</strong> (ฟังก์ชันที่มี <code>yield</code>) ให้เป็นกระบวนการในโมเดล</td><td>ลูกค้าแต่ละคน / ตัวปั๊มลูกค้าเข้าระบบ</td></tr>
+      <tr><td><code>simpy.Resource(env, capacity=c)</code></td><td><strong>ทรัพยากรจำกัด</strong> — ถ้าเต็ม ผู้ขอจะต่อคิวอัตโนมัติ (FIFO)</td><td>teller 3 คน (<code>capacity=3</code>)</td></tr>
+      <tr><td><code>yield env.timeout(t)</code></td><td>ให้กระบวนการ <strong>ใช้เวลา t หน่วย</strong> ในโมเดล (ไม่ใช่เวลาจริงของเครื่อง)</td><td>เวลาให้บริการ ~4 นาที / เวลารอลูกค้าคนถัดไปมาถึง</td></tr>
+    </table>
+  </div>
+
+
+  <!-- ===== [PATCH-S4DEMO] โค้ดจิ๋วประกอบองค์ประกอบ ===== -->
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">เห็นทั้ง 4 ชิ้นทำงานพร้อมกันในโค้ด 10 บรรทัด</h3>
+    <p style="font-size:.93rem;margin:0 0 8px">นี่คือโค้ดตัวเดียวกับ <strong>แบบฝึกเซลล์ที่ 3</strong> ที่ทดลองใน Colab ไปแล้วในหัวข้อ 3 — คราวนี้มาดูว่าแต่ละบรรทัดคือองค์ประกอบไหน</p>
+
+    <div class="codewrap"><button class="copybtn" onclick="copyCode(this)">📋 คัดลอก</button><pre><span class="k">def</span> customer(env, name, arrive_at):
+    <span class="k">yield</span> env.timeout(arrive_at)      <span class="c"># รอจนถึงเวลาที่ลูกค้ามาถึง</span>
+    <span class="k">print</span>(f<span class="s">"{env.now:5.1f} นาที : {name} มาถึงธนาคาร"</span>)
+    <span class="k">yield</span> env.timeout(4)              <span class="c"># ใช้บริการ 4 นาที</span>
+    <span class="k">print</span>(f<span class="s">"{env.now:5.1f} นาที : {name} ออกจากธนาคาร"</span>)
+
+env = simpy.Environment()
+env.process(customer(env, <span class="s">"ลูกค้า A"</span>, 0))
+env.process(customer(env, <span class="s">"ลูกค้า B"</span>, 3))
+env.run()</pre></div>
+
+    <table class="tbl">
+      <tr><th style="width:36%">บรรทัดในโค้ด</th><th>คือองค์ประกอบไหน &amp; ทำอะไร</th></tr>
+      <tr><td><code>env = simpy.Environment()</code></td><td><strong>① Environment</strong> — สร้าง "โลกจำลอง" 1 ใบ พร้อมนาฬิกาที่เริ่มนับจาก 0 และปฏิทินเหตุการณ์ที่ยังว่างเปล่า</td></tr>
+      <tr><td><code>env.process(customer(env, "ลูกค้า A", 0))</code></td><td><strong>② process</strong> — ส่งลูกค้า A เข้าไปอยู่ในโลกนี้ · ยังไม่มีอะไรเกิดขึ้น แค่จองคิวไว้ในปฏิทิน · เรียกซ้ำอีกครั้งก็ได้ลูกค้า B (คนละกระบวนการ ต่างคนต่างเดินเรื่องของตัวเอง)</td></tr>
+      <tr><td><code>yield env.timeout(4)</code></td><td><strong>③ timeout + yield</strong> — "หยุดตรงนี้ 4 หน่วยเวลา" · <code>yield</code> คือจุดที่กระบวนการพักไว้ แล้วคืนคิวให้ Environment ไปทำคนอื่นต่อ</td></tr>
+      <tr><td><code>env.run()</code></td><td><strong>เริ่มเดินเครื่อง</strong> — Environment หยิบเหตุการณ์ที่เวลาน้อยสุดออกมา เลื่อนนาฬิกาไปที่เวลานั้น ปลุกกระบวนการที่รออยู่ วนแบบนี้จนปฏิทินหมด (หรือถึงเวลา <code>until=</code>)</td></tr>
+      <tr><td><code>env.now</code></td><td>อ่านเวลาปัจจุบันของโลกจำลอง — ในตัวอย่างนี้คือเลข 0.0 / 3.0 / 4.0 / 7.0 ที่พิมพ์ออกมา</td></tr>
+    </table>
+
+    <div class="note warn">
+      <span class="lb">ยังขาดชิ้นที่ 4: Resource</span>
+      ตัวอย่างนี้ยัง<strong>ไม่มีเคาน์เตอร์จำกัด</strong> — ลูกค้า A และ B จึงรับบริการพร้อมกันได้โดยไม่ต้องรอกันเลย (เหมือนธนาคารมีเคาน์เตอร์ไม่จำกัด) · พอเพิ่ม <code>simpy.Resource(env, capacity=3)</code> เข้าไป ระบบคิวจริง ๆ ถึงจะเกิด — ไปดูกันในหัวข้อ 5
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--purple)">
+    <h3 style="margin-top:0">🎮 เกมจับคู่: แนวคิดระบบคิว ↔ โค้ด SimPy</h3>
+    <p style="font-size:.9rem;color:var(--muted);margin:4px 0 8px">คลิกการ์ดฝั่งซ้าย 1 ใบ แล้วคลิกคู่ที่ถูกต้องฝั่งขวา — จับคู่ให้ครบ 5 คู่</p>
+    <div class="match" id="matchBox"></div>
+    <div class="note tip" id="matchMsg" style="display:none"><span class="lb">เยี่ยม!</span>ครบ 5 คู่ — ตอนนี้คุณแมปแนวคิดกับโค้ดได้แล้ว ไปอ่านโค้ดจริงกันในหัวข้อ 5</div>
+  </div>
+
+  <div class="note warn">
+    <span class="lb">ระวังสับสน</span>
+    <code>yield env.timeout(4)</code> ไม่ได้ทำให้คอมพิวเตอร์รอ 4 นาทีจริง — มันแค่บอก Environment ว่า "กระบวนการนี้จะเสร็จอีก 4 หน่วยเวลาข้างหน้า" แล้ว clock ก็กระโดดไปเลย ทั้งการจำลอง 8 ชั่วโมงจึงรันเสร็จในเสี้ยววินาที
+  </div>
+</section>
+
+<!-- ===================== S5 CODE ===================== -->
+<section id="s5">
+  <h2><span class="num">5</span> โค้ดโมเดลธนาคาร — อ่านทีละบล็อก</h2>
+  <p class="lead">ธนาคาร 3 tellers · ลูกค้ามาเฉลี่ย 30 คน/ชม. (interarrival เฉลี่ย 2 นาที) · บริการเฉลี่ย 4 นาที · เปิด 8 ชม. (480 นาที)</p>
+
+
+  <!-- ===== [PATCH-S5] ปูพื้นก่อนอ่านโค้ด ===== -->
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">ก่อนอ่านโค้ด — เล่าเป็นภาษาคนก่อน 1 รอบ</h3>
+    <p style="font-size:.94rem;margin:0 0 10px">ลองนึกภาพตัวเองเป็น <strong>ลูกค้า 1 คน</strong> ที่เดินเข้าธนาคาร สิ่งที่คุณทำมีแค่ 5 จังหวะ — โค้ดข้างล่างก็เขียนตาม 5 จังหวะนี้เป๊ะ ๆ ไม่มีอะไรมากกว่านั้น</p>
+    <div class="plainbox">
+      <span class="pl">ชีวิตของลูกค้า 1 คน (pseudocode ภาษาไทย)</span>
+      <ol>
+        <li>เดินเข้าธนาคาร → <b>ดูนาฬิกาแล้วจำไว้ว่ามาถึงกี่โมง</b></li>
+        <li><b>หยิบบัตรคิว</b> (ขอใช้เคาน์เตอร์ 1 ช่อง)</li>
+        <li><b>ยืนรอ</b> จนกว่าจะมีเคาน์เตอร์ว่าง — ถ้าว่างอยู่แล้วก็เดินเข้าได้เลย ไม่ต้องรอ</li>
+        <li>พอถึงคิว → <b>จดว่ารอไปกี่นาที</b> (เวลาตอนนี้ − เวลาที่มาถึง)</li>
+        <li><b>รับบริการ</b> ใช้เวลาสุ่ม ๆ ราว 4 นาที แล้ว <b>ลุกออก คืนเคาน์เตอร์</b> ให้คนถัดไป</li>
+      </ol>
+    </div>
+    <div class="note tip" style="margin-top:12px">
+      <span class="lb">อุปมาที่ต้องจำให้ได้แค่ 3 อย่าง</span>
+      🎫 <code>bank.request()</code> = <strong>หยิบบัตรคิว</strong> &nbsp;·&nbsp; ⏸️ <code>yield</code> = <strong>"หยุดตรงนี้ รอก่อน"</strong> &nbsp;·&nbsp; 🚪 <code>with</code> จบบล็อก = <strong>ลุกออกจากเคาน์เตอร์ คืนที่ให้คนอื่นอัตโนมัติ</strong><br>
+      เข้าใจ 3 คำนี้ = อ่านโมเดล SimPy ได้ทุกตัวในวิชานี้
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">พจนานุกรมโค้ด — 4 คำใหม่ที่จะเจอในหน้านี้</h3>
+    <p style="font-size:.9rem;color:var(--muted);margin:0 0 6px">(<code>def</code> · <code>yield</code> · <code>with</code> ผ่านตาไปแล้วในหัวข้อ 3 และในกรอบอุปมาด้านบน)</p>
+    <table class="tbl">
+      <tr><th style="width:34%">เห็นแบบนี้ในโค้ด</th><th>อ่านออกเสียงในใจว่า…</th></tr>
+      <tr><td><code>NUM_TELLERS = 3</code></td><td>"ตั้งค่าจำนวนเคาน์เตอร์ไว้ที่ 3" — ตัวพิมพ์ใหญ่ทั้งหมด = ค่าที่เราตั้งเอง ปรับได้ตอนทดลอง</td></tr>
+      <tr><td><code>env.now</code></td><td>"ตอนนี้นาฬิกาจำลองบอกกี่นาที" (อ่านอย่างเดียว)</td></tr>
+      <tr><td><code>list.append(v)</code></td><td>"หยอดค่า v ลงกล่องเก็บสถิติ" — ไว้เอามาเฉลี่ยตอนจบ</td></tr>
+      <tr><td><code>while True:</code></td><td>"ทำวนไปเรื่อย ๆ ไม่มีวันจบ" — ในที่นี้คือปั๊มลูกค้าเข้าระบบ จนกว่า <code>env.run</code> จะสั่งปิดธนาคาร</td></tr>
+    </table>
+    <div class="note warn" style="margin-top:4px">
+      <span class="lb">อย่ากังวลเรื่องย่อหน้า</span>
+      Python ใช้ <strong>การเยื้อง (indent)</strong> แทนวงเล็บปีกกา — บรรทัดที่เยื้องเข้าไปแปลว่า "อยู่ภายใต้" บรรทัดบน เช่นทุกบรรทัดที่เยื้องใต้ <code>with</code> = ช่วงที่ยัง<em>ครองเคาน์เตอร์อยู่</em> · ตอนคัดลอกโค้ดไป Colab ให้ลากทั้งบล็อก อย่าพิมพ์เองทีละบรรทัด
+    </div>
+  </div>
+
+  <h3 style="font-size:1.2rem;margin:26px 0 2px">ทีนี้มาดูโค้ดจริง — กดดูทีละบล็อก</h3>
+  <div class="card">
+    <div class="stepbtns" id="cwSteps">
+      <button onclick="cwGo(0)" class="on">① Import &amp; พารามิเตอร์</button>
+      <button onclick="cwGo(1)">② ลูกค้า (customer)</button>
+      <button onclick="cwGo(2)">③ ตัวปั๊มลูกค้า (setup)</button>
+      <button onclick="cwGo(3)">④ รันโมเดล</button>
+      <button onclick="cwGo(4)">⑤ อ่านผลลัพธ์</button>
+    </div>
+    <div class="stepdesc" id="cwDesc"></div>
+
+<pre id="cw0">
+<span class="k">import</span> simpy, random, statistics
+
+NUM_TELLERS  = 3      <span class="c"># จำนวน teller (Resource capacity)</span>
+INTERARRIVAL = 2.0    <span class="c"># นาที — เฉลี่ย 30 คน/ชม.</span>
+SERVICE_MEAN = 4.0    <span class="c"># เวลาบริการเฉลี่ย (นาที)</span>
+SIM_TIME     = 480    <span class="c"># 8 ชั่วโมง = 480 นาที</span>
+wait_times = []       <span class="c"># เก็บเวลารอของลูกค้าทุกคน</span>
+</pre>
+<pre id="cw1">
+<span class="k">def</span> customer(env, name, bank):
+    arrive = env.now                      <span class="c"># จดเวลามาถึง</span>
+    <span class="k">with</span> bank.request() <span class="k">as</span> req:        <span class="c"># ขอใช้ teller</span>
+        <span class="k">yield</span> req                        <span class="c"># รอจนได้ teller (ต่อคิวอัตโนมัติ)</span>
+        wait_times.append(env.now - arrive)  <span class="c"># เวลารอ = ตอนได้ - ตอนมา</span>
+        <span class="k">yield</span> env.timeout(random.expovariate(1.0/SERVICE_MEAN))  <span class="c"># รับบริการ</span>
+</pre>
+<pre id="cw2">
+<span class="k">def</span> setup(env):
+    bank = simpy.Resource(env, capacity=NUM_TELLERS)
+    i = 0
+    <span class="k">while</span> True:                          <span class="c"># ปั๊มลูกค้าไปเรื่อย ๆ</span>
+        <span class="k">yield</span> env.timeout(random.expovariate(1.0/INTERARRIVAL))
+        i += 1
+        env.process(customer(env, i, bank))  <span class="c"># ลูกค้าคนที่ i เข้าระบบ</span>
+</pre>
+<pre id="cw3">
+random.seed(42)                <span class="c"># ล็อกค่าสุ่ม → ผลซ้ำได้ (reproducible)</span>
+env = simpy.Environment()      <span class="c"># สร้างนาฬิกา + ตัวจัดการเหตุการณ์</span>
+env.process(setup(env))
+env.run(until=SIM_TIME)        <span class="c"># รันจนถึงนาทีที่ 480</span>
+</pre>
+<pre id="cw4">
+<span class="k">print</span>(<span class="s">"รับบริการ:"</span>, len(wait_times), <span class="s">"คน"</span>)
+<span class="k">print</span>(<span class="s">"เวลารอเฉลี่ย:"</span>, round(statistics.mean(wait_times), 2), <span class="s">"นาที"</span>)
+<span class="k">print</span>(<span class="s">"เวลารอสูงสุด:"</span>, round(max(wait_times), 2), <span class="s">"นาที"</span>)
+<span class="c"># ผลที่ทดสอบแล้ว (seed 42): ลูกค้า ~225 คน, รอเฉลี่ย ~0.7 นาที</span>
+</pre>
+  </div>
+
+
+  <!-- ===== [PATCH-S5] เดินทีละบรรทัด ===== -->
+  <div class="card" style="border-top:4px solid var(--purple)">
+    <h3 style="margin-top:0">🚶 เดินโค้ดทีละบรรทัด — ตามชีวิต "ลูกค้าคนที่ 4"</h3>
+    <p style="font-size:.92rem;color:var(--muted);margin:2px 0 10px">สถานการณ์: ลูกค้าคนที่ 4 เดินเข้าธนาคารตอนนาทีที่ <b>6.0</b> ขณะที่เคาน์เตอร์ทั้ง 3 ช่อง<b>ไม่ว่างเลย</b> — กดปุ่ม "ถัดไป" เพื่อดูว่าโค้ดแต่ละบรรทัดทำอะไร และนาฬิกาขยับอย่างไร</p>
+
+    <div class="walkcode" id="wkCode"></div>
+
+    <div class="stepdesc" id="wkDesc"></div>
+
+    <div class="wstate">
+      <div class="wcell" id="wcNow"><div class="wk">⏱️ env.now (นาที)</div><div class="wv">–</div></div>
+      <div class="wcell" id="wcCust"><div class="wk">👤 ลูกค้าคนที่ 4</div><div class="wv">–</div></div>
+      <div class="wcell" id="wcBusy"><div class="wk">🏦 เคาน์เตอร์ที่ใช้อยู่</div><div class="wv">–</div></div>
+      <div class="wcell" id="wcQ"><div class="wk">🧍 คนยืนรอในคิว</div><div class="wv">–</div></div>
+      <div class="wcell" id="wcW"><div class="wk">📋 wait_times</div><div class="wv">–</div></div>
+    </div>
+
+    <div class="wnav">
+      <button class="act" id="wkPrev" onclick="wkGo(wkI-1)">◀ ย้อนกลับ</button>
+      <button class="act teal" id="wkNext" onclick="wkGo(wkI+1)">ถัดไป ▶</button>
+      <button class="act amber" onclick="wkGo(0)">↺ เริ่มใหม่</button>
+      <span class="wpg" id="wkPg"></span>
+    </div>
+
+    <div class="note ask" id="wkEnd" style="display:none">
+      <span class="lb">สรุปสิ่งที่เพิ่งเห็น</span>
+      โค้ด 6 บรรทัดนี้ = ชีวิตลูกค้า 1 คน · SimPy จะ "เล่นซ้ำ" ขั้นตอนชุดนี้ให้ลูกค้า<strong>ทุกคน</strong>ที่เข้ามาในวัน (ราว 225 คน) พร้อม ๆ กัน โดยแต่ละคนมีนาฬิกาของตัวเองค้างอยู่คนละบรรทัด — สิ่งที่เราต้องเขียนมีแค่ "ชีวิตของคนเดียว" เท่านั้น ที่เหลือ Environment จัดการให้หมด
+    </div>
+  </div>
+  <div class="note tip">
+    <span class="lb">จุดเชื่อมครั้งที่ 2</span>
+    <code>random.expovariate(1.0/SERVICE_MEAN)</code> คือการสุ่มจากการแจกแจง <strong>Exponential</strong> mean = 4 — เหมือน <code>=-4*LN(RAND())</code> ใน Excel เป๊ะ ๆ · ถ้ากลุ่มคุณ fit ได้การแจกแจงอื่น ดูตารางแปลง Excel → Python ในหัวข้อ 6
+  </div>
+  <div class="note ask">
+    <span class="lb">ชวนคิดก่อนรัน</span>
+    โหลดระบบ (traffic intensity) ρ = (อัตรามาถึง × เวลาบริการ) ÷ จำนวน teller = (0.5 คน/นาที × 4 นาที) ÷ 3 ≈ <strong>0.67</strong> → teller ว่างงานราว 1 ใน 3 ของเวลา เดาได้เลยว่าคิวจะสั้น — ไปพิสูจน์กันด้วยโค้ดจริงใน Lab (หัวข้อ 6)
+  </div>
+</section>
+
+<!-- ===================== S7 LAB ===================== -->
+<section id="s7">
+  <h2><span class="num">6</span> Lab — เขียนและรันจริงบน Google Colab</h2>
+  <p class="lead">เป้าหมาย: รันโมเดลธนาคารได้ · เพิ่มตัววัด · ปรับพารามิเตอร์ตอบโจทย์ระดับบริการ (service level)</p>
+
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <h3 style="margin-top:0">ขั้นที่ 1 — เตรียมเครื่องมือ (5 นาที)</h3>
+    <ol style="font-size:.94rem;line-height:1.9">
+      <li>กลับไปที่ <strong>notebook เดิม</strong>ที่ซ้อมมือไว้ในหัวข้อ 3 (ติดตั้ง SimPy ไปแล้ว ไม่ต้องติดตั้งซ้ำ) — ถ้าปิดไปแล้วหรือ runtime หลุด ให้เปิด <a href="https://colab.research.google.com" target="_blank" rel="noopener">Colab</a> ใหม่แล้วรัน <code>!pip install simpy</code> ก่อน</li>
+      <li>เพิ่มเซลล์ใหม่ → คัดลอกโค้ดโมเดลธนาคารจากหัวข้อ 5 ทั้ง 5 บล็อกมาวางรวมกันในเซลล์เดียว → รัน → ควรได้ <code>รับบริการ: ~225 คน</code></li>
+    </ol>
+    <div class="note tip"><span class="lb">เช็คพอยต์ 1</span>ถ้าได้ตัวเลขใกล้ ๆ "225 คน / รอเฉลี่ย 0.7 นาที" (seed 42) แสดงว่าโมเดลทำงานถูกต้อง</div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--red)">
+    <h3 style="margin-top:0">🚑 ติดปัญหา? — Error ที่เจอบ่อยใน Colab</h3>
+    <table class="tbl">
+      <tr><th style="width:40%">อาการ</th><th>สาเหตุ &amp; วิธีแก้</th></tr>
+      <tr><td><code>ModuleNotFoundError: No module named 'simpy'</code></td><td>ยังไม่รันเซลล์ <code>!pip install simpy</code> หรือ Colab เพิ่ง restart runtime — รันเซลล์ pip ใหม่ก่อนแล้วค่อยรันโมเดล</td></tr>
+      <tr><td><code>IndentationError</code> / <code>SyntaxError</code></td><td>Python เข้มงวดเรื่องย่อหน้า — บรรทัดใน <code>def</code>, <code>with</code>, <code>while</code> ต้องเยื้องเท่ากัน (4 เว้นวรรค) ตรวจว่าคัดลอกโค้ดมาครบทุกบรรทัดและไม่มีเว้นวรรคเกิน</td></tr>
+      <tr><td>รันซ้ำแล้วจำนวนลูกค้า "เพิ่มขึ้นเรื่อย ๆ" (450, 675, ...)</td><td>⚠️ เจอบ่อยที่สุด! <code>wait_times</code> สะสมค่าจากรอบก่อนเพราะรันเฉพาะเซลล์ล่าง — ต้องรันเซลล์ที่ประกาศ <code>wait_times = []</code> ใหม่ทุกครั้ง (ง่ายสุด: รวมโค้ดทั้งหมดไว้เซลล์เดียว หรือใช้ Runtime → Run all)</td></tr>
+      <tr><td>ใช้ seed 42 แต่ผลไม่ตรง ~225 คน</td><td>ตรวจว่า <code>random.seed(42)</code> อยู่ <em>ก่อน</em> <code>env.run(...)</code> และรันทั้งเซลล์ใหม่จากบนลงล่าง — ถ้าเรียกสุ่มค่าอื่นแทรกก่อนรัน ลำดับค่าสุ่มจะเลื่อน</td></tr>
+    </table>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">ขั้นที่ 2 — เพิ่มตัววัด: time in system &amp; utilization</h3>
+    <p style="font-size:.92rem">เพิ่มโค้ดส่วนที่ไฮไลต์เข้าไปในโมเดลเดิม:</p>
+<pre>
+system_times = []                 <span class="c"># ⬅ เพิ่ม: เวลาในระบบ (รอ + รับบริการ)</span>
+busy_time = 0.0                   <span class="c"># ⬅ เพิ่ม: เวลาทำงานรวมของ teller</span>
+
+<span class="k">def</span> customer(env, name, bank):
+    <span class="k">global</span> busy_time
+    arrive = env.now
+    <span class="k">with</span> bank.request() <span class="k">as</span> req:
+        <span class="k">yield</span> req
+        wait_times.append(env.now - arrive)
+        st = random.expovariate(1.0/SERVICE_MEAN)
+        busy_time += min(st, SIM_TIME - env.now)  <span class="c"># ⬅ เพิ่ม (นับเฉพาะช่วงก่อนธนาคารปิด)</span>
+        <span class="k">yield</span> env.timeout(st)
+    system_times.append(env.now - arrive)   <span class="c"># ⬅ เพิ่ม</span>
+
+<span class="c"># ---- หลัง env.run(...) ----</span>
+<span class="k">print</span>(<span class="s">"เวลาในระบบเฉลี่ย:"</span>, round(statistics.mean(system_times),2), <span class="s">"นาที"</span>)
+<span class="k">print</span>(<span class="s">"utilization ≈"</span>, round(busy_time/(NUM_TELLERS*SIM_TIME),3))
+<span class="k">print</span>(<span class="s">"คนในคิวเฉลี่ย Lq ≈"</span>, round(sum(wait_times)/SIM_TIME,2))  <span class="c"># Little's law</span>
+</pre>
+    <div class="note tip">
+      <span class="lb">ทำไม Lq = ผลรวมเวลารอ ÷ เวลาทั้งหมด?</span>
+      นี่คือ <strong>Little's Law</strong> ในรูปที่ใช้งานจริง — ลูกค้าที่รอ 3 นาทีจะ "นับเป็นคนในคิว" อยู่ 3 นาที ดังนั้นผลรวมเวลารอของทุกคน = จำนวนคน-นาทีที่คิวสะสมไว้ทั้งวัน หารด้วย 480 นาที = จำนวนคนในคิว <em>เฉลี่ย ณ ขณะใดขณะหนึ่ง</em> (สูตรทฤษฎีคือ Lq = λ × Wq — ลองแทนค่าเช็คดูได้ว่าตรงกัน)
+    </div>
+    <div class="note warn">
+      <span class="lb">busy_time ต้องตัดที่เวลาปิด</span>
+      ลูกค้าที่เริ่มรับบริการใกล้นาทีที่ 480 อาจใช้เวลาบริการ "เลย" เวลาปิดไป — ถ้าบวก <code>st</code> เต็ม ๆ utilization จะเกินจริง (บางกรณีเกิน 100%!) จึงใช้ <code>min(st, SIM_TIME - env.now)</code> นับเฉพาะส่วนที่อยู่ในช่วงจำลอง
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--amber)">
+    <h3 style="margin-top:0">ขั้นที่ 3 — ทดลอง 4 สถานการณ์ แล้วบันทึกผลลงตาราง</h3>
+    <p style="font-size:.92rem">โจทย์ธุรกิจ: ผู้จัดการธนาคารตั้งเป้า <strong>เวลาในระบบเฉลี่ย &lt; 15 นาที</strong> แม้ลูกค้าจะเพิ่มขึ้น 10% — ใช้ seed 42 ทุกรอบเพื่อเทียบกันได้</p>
+    <table class="tbl">
+      <tr><th>สถานการณ์</th><th>Tellers</th><th>IAT</th><th>ลูกค้า (คน)</th><th>Wq เฉลี่ย</th><th>เวลาในระบบ</th><th>Utilization</th><th>ผ่านเป้า?</th></tr>
+      <tr><td>① ฐาน (base case)</td><td>3</td><td>2.00</td>
+        <td><input data-lab="a1"></td><td><input data-lab="a2"></td><td><input data-lab="a3"></td><td><input data-lab="a4"></td><td><input data-lab="a5" placeholder="✔/✘"></td></tr>
+      <tr><td>② ลูกค้า +10%</td><td>3</td><td>1.82</td>
+        <td><input data-lab="b1"></td><td><input data-lab="b2"></td><td><input data-lab="b3"></td><td><input data-lab="b4"></td><td><input data-lab="b5" placeholder="✔/✘"></td></tr>
+      <tr><td>③ เพิ่ม teller</td><td>4</td><td>1.82</td>
+        <td><input data-lab="c1"></td><td><input data-lab="c2"></td><td><input data-lab="c3"></td><td><input data-lab="c4"></td><td><input data-lab="c5" placeholder="✔/✘"></td></tr>
+      <tr><td>④ กลุ่มออกแบบเอง</td><td><input data-lab="d0" style="width:52px"></td><td><input data-lab="d00" style="width:60px"></td>
+        <td><input data-lab="d1"></td><td><input data-lab="d2"></td><td><input data-lab="d3"></td><td><input data-lab="d4"></td><td><input data-lab="d5" placeholder="✔/✘"></td></tr>
+    </table>
+    <p style="font-size:.85rem;color:var(--muted)">ตารางนี้บันทึกอัตโนมัติในเครื่องของคุณ (localStorage) — ปิดแล้วเปิดใหม่ข้อมูลยังอยู่</p>
+    <div class="note ask">
+      <span class="lb">คำถามสรุป Lab</span>
+      ทางเลือกไหน "คุ้ม" กว่ากัน ระหว่างเพิ่ม teller (ต้นทุนค่าจ้าง) กับปล่อยให้ลูกค้ารอนาน (ต้นทุนเสียลูกค้า)? เขียนเหตุผลสั้น ๆ ในช่องโน้ตท้ายหัวข้อนี้ — แนวคิดนี้จะกลับมาอีกครั้งตอนโปรเจกต์
+    </div>
+  </div>
+
+
+
+  <div class="card" style="border-top:4px solid var(--red)">
+    <h3 style="margin-top:0">ขั้นที่ 4 — หาจุดวิกฤต: แก้ค่าในโค้ดแล้วดูคิว "ระเบิด"</h3>
+    <p style="font-size:.92rem">แก้เฉพาะบรรทัด <code>INTERARRIVAL</code> ในเซลล์พารามิเตอร์ แล้วกด <strong>Runtime → Run all</strong> ใหม่ทุกครั้ง (ใช้ seed 42 เหมือนเดิม) · ค่อย ๆ ลดลงตามตาราง แล้วจดเวลารอที่ได้</p>
+    <table class="tbl">
+      <tr><th>ρ (โหลดระบบ)</th><th>ตั้ง INTERARRIVAL =</th><th>Wq ตามทฤษฎี</th><th>Wq ที่กลุ่มรันได้</th></tr>
+      <tr><td>0.67 (ฐาน)</td><td>2.000</td><td>≈ 1.8 นาที</td><td><input data-lab="k1"></td></tr>
+      <tr><td>0.80</td><td>1.667</td><td>≈ 4.3 นาที</td><td><input data-lab="k2"></td></tr>
+      <tr><td>0.90</td><td>1.481</td><td>≈ 10.9 นาที</td><td><input data-lab="k3"></td></tr>
+      <tr><td>0.95</td><td>1.404</td><td>≈ 24.0 นาที</td><td><input data-lab="k4"></td></tr>
+      <tr><td>0.99</td><td>1.347</td><td>≈ 129 นาที</td><td><input data-lab="k5"></td></tr>
+    </table>
+    <div class="note warn">
+      <span class="lb">ข้อคิดสำคัญ — คิวไม่ได้เพิ่มเป็นเส้นตรง</span>
+      จาก ρ 0.90 → 0.99 ลูกค้ามาถี่ขึ้นเพียง <strong>10%</strong> (อัตรามาถึง 0.675 → 0.7425 คน/นาที) แต่เวลารอพุ่งจาก 11 นาทีเป็น <strong>129 นาที (12 เท่า)</strong> เพราะสูตรเวลารอมีพจน์ <strong>1/(1−ρ)</strong> อยู่ · และถ้า <strong>ρ ≥ 1</strong> ระบบจะไม่มีวันนิ่ง คิวยาวขึ้นเรื่อย ๆ ทั้งวัน<br>
+      นี่คือเหตุผลที่ต้องทำ simulation แทนการคิดจากค่าเฉลี่ย และเป็นเหตุผลที่<strong>ห้ามวางแผนกำลังคนไว้ที่ utilization 90–95%</strong> แม้จะดู "คุ้มค่าจ้าง" ที่สุดก็ตาม<br>
+      <span style="font-size:.88rem;color:var(--muted)">หมายเหตุ: ค่าที่รันได้จริง 1 รอบจะไม่ตรงทฤษฎีเป๊ะ — ยิ่ง ρ สูงยิ่งเหวี่ยงมาก เพราะรันเดียวคือตัวอย่างสุ่มเพียง 1 ค่า (ครั้งที่ 6 จะเรียนวิธีจัดการเรื่องนี้ด้วย replication)</span>
+    </div>
+  </div>
+
+  <!-- ===== [PATCH-DIST] ตารางแปลงการแจกแจง → Python ===== -->
+  <div class="card" style="border-top:4px solid var(--purple)">
+    <h3 style="margin-top:0">📚 ตารางแปลง: ผล fit จากครั้งที่ 2 → โค้ด Python</h3>
+    <p style="font-size:.93rem;margin:0 0 10px">การบ้านครั้งนี้ต้องเปลี่ยนโมเดลธนาคารให้เป็น<strong>ระบบของกลุ่มคุณ</strong> — จุดที่ต้องแก้คือค่าที่ใส่ใน <code>env.timeout(...)</code> ให้ตรงกับการแจกแจงที่ fit ได้จริง · ใช้ตารางนี้คู่กับผล Chi-square ของกลุ่ม (การแจกแจงหลัก 5 ตัวเดียวกับครั้งที่ 2)</p>
+
+    <table class="tbl">
+      <tr><th style="width:14%">การแจกแจง</th><th style="width:21%">ใช้กับอะไร</th><th style="width:18%">พารามิเตอร์ที่ fit ได้</th><th style="width:21%">Excel (ครั้งที่ 2)</th><th>Python</th></tr>
+
+      <tr><td><b>Uniform</b></td>
+        <td>รู้แค่ช่วงต่ำสุด–สูงสุด ไม่มีข้อมูลอื่น (ประมาณคร่าว ๆ)</td>
+        <td>a = min, b = max<br>mean = (a+b)/2</td>
+        <td><code>=a+(b-a)*RAND()</code></td>
+        <td><code>random.uniform(a, b)</code></td></tr>
+
+      <tr><td><b>Triangular</b></td>
+        <td>ข้อมูลน้อย ใช้ความเห็นผู้เชี่ยวชาญ: min / mode / max</td>
+        <td>a = min, c = mode, b = max<br>mean = (a+c+b)/3</td>
+        <td>ต้องเขียนสูตรเงื่อนไขยาว</td>
+        <td><code>random.triangular(a, b, c)</code><br><span style="color:var(--red);font-size:.85em">⚠️ ลำดับคือ <b>low, high, mode</b> — mode อยู่ท้าย ไม่ใช่ตรงกลาง</span></td></tr>
+
+      <tr><td><b>Normal</b></td>
+        <td>ค่าลอยรอบค่าเฉลี่ยแบบสมมาตร เช่น น้ำหนัก/ขนาดสินค้า ยอดรวมต่อวัน</td>
+        <td>mean (μ), SD (σ)</td>
+        <td><code>=NORM.INV(RAND(), mean, sd)</code></td>
+        <td><code>random.normalvariate(mean, sd)</code><br><span style="color:var(--red);font-size:.85em">⚠️ ให้ค่าติดลบได้ — ไม่เหมาะกับ "เวลา" ถ้าจำเป็นต้องใช้ ให้ครอบด้วย <code>max()</code></span></td></tr>
+
+      <tr><td><b>Exponential</b></td>
+        <td>เวลาระหว่างเหตุการณ์ที่เกิดแบบสุ่มไร้ความจำ — โดยเฉพาะ <b>เวลาระหว่างลูกค้ามาถึง</b></td>
+        <td>mean อย่างเดียว (λ = 1/mean)</td>
+        <td><code>=-mean*LN(RAND())</code></td>
+        <td><code>random.expovariate(1.0/mean)</code><br><span style="color:var(--red);font-size:.85em">⚠️ ต้องใส่ <b>1/mean</b> ไม่ใช่ mean</span></td></tr>
+
+      <tr><td><b>Poisson</b></td>
+        <td><b>จำนวนนับ</b>ต่อช่วงเวลา เช่น ลูกค้ากี่คน/ชม. ออเดอร์กี่รายการ/วัน (ไม่ใช่ค่าเวลา)</td>
+        <td>λ = จำนวนเฉลี่ยต่อช่วง</td>
+        <td>ไม่มีฟังก์ชันผกผันโดยตรง — ใช้ตาราง lookup สะสมความน่าจะเป็น หรือประมาณด้วย <code>=BINOM.INV(n, λ/n, RAND())</code> (n ใหญ่ ๆ เช่น 1000)</td>
+        <td><code>numpy.random.poisson(lam)</code><br><span style="font-size:.85em">โมดูล <code>random</code> ไม่มีให้ ต้อง <code>import numpy as np</code></span></td></tr>
+    </table>
+
+    <div class="note warn">
+      <span class="lb">Poisson กับ Exponential คือเรื่องเดียวกัน — คนละมุมมอง</span>
+      ถ้า<strong>จำนวนลูกค้าต่อชั่วโมง</strong>เป็น Poisson(30) แล้ว <strong>เวลาระหว่างลูกค้าสองคน</strong>จะเป็น Exponential ที่มี mean = 60/30 = 2 นาที โดยอัตโนมัติ · ใน SimPy เราสร้างลูกค้าทีละคน จึงใช้ <b>Exponential</b> เสมอ — อย่าเผลอเอา Poisson ไปใส่ <code>env.timeout()</code> (Poisson ใช้ตอนสรุปผลหรือกำหนดจำนวนงานต่อรอบเท่านั้น)
+    </div>
+
+    <h3>โค้ดพร้อมใช้ — ก๊อปไปวางแล้วเปิดเฉพาะบรรทัดที่กลุ่มคุณ fit ได้</h3>
+    <div class="codewrap"><button class="copybtn" onclick="copyCode(this)">📋 คัดลอก</button><pre><span class="k">import</span> random
+
+<span class="c"># ---------- 1) เวลาระหว่างการมาถึง (interarrival) ----------</span>
+<span class="k">def</span> next_arrival():
+    <span class="k">return</span> random.expovariate(1.0/INTERARRIVAL)   <span class="c"># Exponential: ใส่ 1/mean</span>
+
+<span class="c"># ---------- 2) เวลาบริการ — เลือกใช้แบบใดแบบหนึ่งตามผล fit ----------</span>
+<span class="k">def</span> service_time():
+    <span class="c"># --- Exponential (mean = 4 นาที) ---</span>
+    <span class="k">return</span> random.expovariate(1.0/4.0)
+
+    <span class="c"># --- Uniform (3 ถึง 7 นาที) ---
+    # return random.uniform(3, 7)
+
+    # --- Triangular (min 2, max 9, mode 4) ---
+    # return random.triangular(2, 9, 4)          ⚠️ low, high, mode
+
+    # --- Normal (mean 5, SD 1.5) — ต้องกันค่าติดลบเสมอ ---
+    # return max(0.1, random.normalvariate(5, 1.5))</span>
+
+<span class="c"># ---------- 3) นำไปใช้ในโมเดล ----------</span>
+<span class="k">yield</span> env.timeout(service_time())   <span class="c"># แทนที่ random.expovariate(...) เดิมในโค้ดหัวข้อ 5</span></pre></div>
+
+    <div class="note tip">
+      <span class="lb">ตรวจก่อนส่ง — 3 ข้อ</span>
+      <b>1)</b> ค่าที่ใส่ใน <code>env.timeout()</code> ต้อง <strong>เป็นบวกเสมอ</strong> — Normal ที่ SD กว้างจะให้ค่าติดลบแล้วโปรแกรม error ทันที<br>
+      <b>2)</b> <strong>ตรวจค่าเฉลี่ยที่สุ่มได้ ว่าตรงกับข้อมูลจริง</strong> — รัน <code>print(statistics.mean([service_time() for _ in range(10000)]))</code> แล้วเทียบกับค่าเฉลี่ยจากข้อมูลที่เก็บมา ถ้าเพี้ยนแปลว่าใส่พารามิเตอร์ผิดตำแหน่ง (นี่คือเทคนิค Verification ที่จะเรียนเต็ม ๆ ครั้งหน้า)<br>
+      <b>3)</b> <strong>หน่วยต้องตรงกันทั้งโมเดล</strong> — ถ้า interarrival เป็นนาที เวลาบริการก็ต้องเป็นนาที (ข้อมูลที่จับมาเป็นวินาทีต้องหาร 60 ก่อน)
+    </div>
+  </div>
+
+  <div class="hwbox">
+    <h3>📤 การบ้านครั้งที่ 3 (เตรียมเข้าครั้งที่ 4 — Verification)</h3>
+    <ol style="font-size:.93rem;line-height:1.8;margin:8px 0">
+      <li>แก้โมเดลธนาคารให้เป็น <strong>ระบบของกลุ่มคุณ</strong>: เปลี่ยนพารามิเตอร์/การแจกแจงตามข้อมูลจริงที่เก็บมา (การบ้านครั้งที่ 2)</li>
+      <li>รัน 1 ครั้ง (seed 42) บันทึก: จำนวน entity, เวลารอเฉลี่ย, เวลาในระบบเฉลี่ย, utilization<br><span style="font-size:.86rem;color:var(--muted)">⚠️ จำไว้: 1 รัน = ตัวอย่างสุ่มเพียง 1 ค่า ยังสรุปจริงจังไม่ได้ — ครั้งที่ 6 (Output Analysis) จะเรียนว่าทำไมต้องรันหลาย replication แล้วดูช่วงความเชื่อมั่น</span></li>
+      <li>จดสิ่งที่ "ดูแปลก ๆ" หรือไม่แน่ใจว่าถูก — ครั้งหน้าเราจะเรียนวิธีตรวจ (verify) อย่างเป็นระบบ</li>
+    </ol>
+    <div class="hw-f">
+      <label>ลิงก์ Colab notebook ของกลุ่ม + ผลรันครั้งแรก (บันทึกอัตโนมัติในเครื่อง)</label>
+      <textarea id="hw_out" placeholder="วางลิงก์ + สรุปผลที่นี่"></textarea>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S9 QUIZ ===================== -->
+<section id="s9">
+  <h2><span class="num">7</span> Quiz ทบทวน 10 ข้อ</h2>
+  <p class="lead">ตอบครบทุกข้อแล้วระบบจะสรุปคะแนนและส่งเข้า Google Form อัตโนมัติ (ต้องเช็คชื่อก่อน)</p>
+
+  <button class="act amber" onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSdfy3cNKm_NeYSpkP1Vxox7HmXPbKalgoCaxB53EbWk6m1h3g/viewform?usp=dialog','_blank')">📝 ประเมินความพึงพอใจสื่อการสอน</button>
+
+  <div class="quiz" id="quiz"></div>
+  <div class="scoreband" id="scoreband"></div>
+  <div class="qz-submit-wrap" id="qzSubmitWrap">
+    <button class="act teal" id="qz_btn" onclick="submitQuizScore()">📤 ส่งคะแนนเข้า Google Form</button>
+    <div class="qz-msg" id="qz_msg"></div>
+    <iframe name="qz_target" id="qz_target" style="display:none" title="hidden"></iframe>
+    <form id="qz_form" action="https://docs.google.com/forms/d/e/1FAIpQLSfG6oB14dEiqu-hWzWlcDAm6cmiii-h-0at7xPKF02QpToM1A/formResponse" method="POST" target="qz_target" style="display:none">
+      <input type="hidden" name="entry.2045911396" id="qz_f_student">
+      <input type="hidden" name="entry.1761821107" id="qz_f_score">
+      <input type="hidden" name="fvv" value="1">
+      <input type="hidden" name="pageHistory" value="0">
+    </form>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--navy);margin-top:26px">
+    <h3 style="margin-top:0">📚 สรุป &amp; แหล่งเรียนรู้เพิ่มเติม</h3>
+    <ul style="font-size:.93rem;line-height:1.9">
+      <li><strong>4 องค์ประกอบ SimPy</strong>: Environment (เวลา/เหตุการณ์) · process (generator + <code>yield</code>) · Resource (ทรัพยากรจำกัด + คิวอัตโนมัติ) · timeout (เวลาในโมเดล)</li>
+      <li>เอกสาร SimPy: <a href="https://simpy.readthedocs.io" target="_blank" rel="noopener">simpy.readthedocs.io</a> — อ่าน Basic Concepts + ตัวอย่าง <em>Bank Renege</em> และ <em>Carwash</em></li>
+      <li>ปูพื้น Python: <a href="https://www.w3schools.com/python/" target="_blank" rel="noopener">W3Schools</a> (Variables, Functions, While Loops, Lists)</li>
+      <li>หัวข้อเสริมสำหรับคนอยากลึก: ทฤษฎีแถวคอย M/M/1, M/M/c — เทียบสูตรทฤษฎีกับผล simulation ของคุณ</li>
+      <li><strong>ครั้งหน้า (ครั้งที่ 4)</strong>: Verification — เทคนิคตรวจว่าโมเดลที่เขียน "ถูกต้องตามที่ตั้งใจ" (trace, extreme test, ปิดความสุ่ม)</li>
+    </ul>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<div id="pager">
+  <button id="pgPrev" onclick="goPage(-1)">← ก่อนหน้า</button>
+  <div class="pginfo" id="pgInfo"></div>
+  <button id="pgNext" onclick="goPage(1)">ถัดไป →</button>
+</div>
+
+<footer>
+  <div>Computer Simulation I · ครั้งที่ 3 จาก 6 — Discrete Event Simulation ด้วย Python / SimPy · คณะโลจิสติกส์</div>
+  <div class="notetools">
+    <button onclick="downloadNotes()">⬇️ ดาวน์โหลดโน้ตทั้งหมด (.txt)</button>
+    <button onclick="clearNotes()">🗑️ ล้างโน้ต</button>
+  </div>
+  <div style="font-size:.8rem;opacity:.85;margin-top:8px;line-height:1.55">
+    💡 โน้ตถูกบันทึกไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น (localStorage) — ถ้าเปลี่ยนเครื่อง เปลี่ยนเบราว์เซอร์ ล้างข้อมูลเบราว์เซอร์ หรือเปิดผ่านแอป LINE/Drive โน้ตอาจหาย<br>
+    <b>ก่อนปิดหน้า ควรกด ⬇️ ดาวน์โหลดโน้ตทั้งหมด (.txt) เก็บไว้ทุกครั้ง</b>
+  </div>
+</footer>
+
+<script>
+
+/* ============ [PATCH] STORAGE HEALTH + AUTOSAVE FLUSH ============ */
+var LS_OK=(function(){try{var k='__lstest__';localStorage.setItem(k,'1');var v=localStorage.getItem(k);localStorage.removeItem(k);return v==='1';}catch(e){return false;}})();
+var PENDING={};
+function showWarn(id){var el=document.getElementById(id);if(el)el.style.display='block';}
+function lsSet(k,v){try{localStorage.setItem(k,v);return true;}catch(e){LS_OK=false;showWarn('storageWarn');return false;}}
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function flushPending(){for(var k in PENDING){if(Object.prototype.hasOwnProperty.call(PENDING,k))lsSet(k,PENDING[k]);}PENDING={};}
+window.addEventListener('pagehide',flushPending);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')flushPending();});
+window.addEventListener('beforeunload',function(ev){
+  flushPending();
+  if(!LS_OK&&hasAnyNote()){ev.preventDefault();ev.returnValue='';return '';}
+});
+function hasAnyNote(){
+  var found=false;
+  document.querySelectorAll('.notebox textarea, textarea[id^="hw_"]').forEach(function(t){if(t.value&&t.value.trim())found=true;});
+  return found;
+}
+(function(){
+  var ua=navigator.userAgent||'';
+  var inApp=/Line\/|FBAN|FBAV|Instagram|MicroMessenger|KAKAOTALK/i.test(ua);
+  if(!LS_OK)showWarn('storageWarn');
+  else if(inApp)showWarn('inappWarn');
+})();
+/* ============ PROGRESS + NAV ============ */
+function updateProgress(){
+  if(document.body.classList.contains('paged')){
+    var pct=(curPage+1)/PAGES.length*100;
+    document.getElementById('progress').style.width=pct+'%';
+  }else{
+    var h=document.documentElement, st=h.scrollTop, sh=h.scrollHeight-h.clientHeight;
+    document.getElementById('progress').style.width=(sh>0?st/sh*100:0)+'%';
+  }
+}
+window.addEventListener('scroll',function(){ if(!document.body.classList.contains('paged'))updateProgress(); });
+
+
+/* ============ S2: EVENT TIMELINE ============ */
+var EV_EVENTS=[
+ {t:0, type:'arr', msg:'ลูกค้า C1 มาถึง → teller ว่าง เริ่มบริการทันที (จะเสร็จ t=4)', server:'C1', q:[]},
+ {t:2, type:'arr', msg:'ลูกค้า C2 มาถึง → teller ไม่ว่าง เข้าคิว (คิว 1 คน)', server:'C1', q:['C2']},
+ {t:3, type:'arr', msg:'ลูกค้า C3 มาถึง → เข้าคิวต่อ (คิว 2 คน)', server:'C1', q:['C2','C3']},
+ {t:4, type:'dep', msg:'C1 เสร็จ ออกจากระบบ → C2 ออกจากคิว เริ่มบริการ (รอไป 2 นาที · จะเสร็จ t=7)', server:'C2', q:['C3']},
+ {t:7, type:'dep', msg:'C2 เสร็จ ออกจากระบบ → C3 เริ่มบริการ (รอไป 4 นาที · จะเสร็จ t=9)', server:'C3', q:[]},
+ {t:7, type:'arr', msg:'ลูกค้า C4 มาถึงพอดี → เข้าคิว (คิว 1 คน)', server:'C3', q:['C4']},
+ {t:8, type:'arr', msg:'ลูกค้า C5 มาถึง → เข้าคิว (คิว 2 คน)', server:'C3', q:['C4','C5']},
+ {t:9, type:'dep', msg:'C3 เสร็จ → C4 เริ่มบริการ (รอไป 2 นาที · จะเสร็จ t=12)', server:'C4', q:['C5']},
+ {t:12,type:'dep', msg:'C4 เสร็จ → C5 เริ่มบริการ (รอไป 4 นาที · จะเสร็จ t=14)', server:'C5', q:[]},
+ {t:14,type:'dep', msg:'C5 เสร็จ — ระบบว่าง จบการจำลอง ✅ (เวลารอรวมของทุกคน = 12 นาที)', server:null, q:[]}
+];
+var evIdx=-1;
+function evRender(){
+  var e=evIdx>=0?EV_EVENTS[evIdx]:null;
+  document.getElementById('evClock').textContent=e?('t = '+e.t):'—';
+  var sv=document.getElementById('evServer');
+  sv.innerHTML='<span class="lblq">Teller:</span>'+(e&&e.server?'<span class="slot server">'+e.server+'</span>':'<span class="slot server idle">ว่าง</span>');
+  var qv=document.getElementById('evQueue');
+  var qh='<span class="lblq">คิว:</span>';
+  if(e&&e.q.length){e.q.forEach(function(c){qh+='<span class="slot qq">'+c+'</span>';});}
+  else qh+='<span style="font-size:.82rem;color:var(--muted)">— ว่าง —</span>';
+  qv.innerHTML=qh;
+}
+function evNext(){
+  if(evIdx>=EV_EVENTS.length-1)return;
+  evIdx++;
+  var e=EV_EVENTS[evIdx];
+  var log=document.getElementById('evLog');
+  if(evIdx===0)log.innerHTML='';
+  var d=document.createElement('div');d.className='ev '+e.type;
+  d.innerHTML='<b>t='+e.t+'</b> · '+e.msg;
+  log.appendChild(d);log.scrollTop=log.scrollHeight;
+  evRender();
+  if(evIdx>=EV_EVENTS.length-1)document.getElementById('evNextBtn').disabled=true;
+}
+function evReset(){
+  evIdx=-1;document.getElementById('evNextBtn').disabled=false;
+  document.getElementById('evLog').innerHTML='<em style="color:var(--muted)">กดปุ่ม "Event ถัดไป" เพื่อเริ่ม...</em>';
+  evRender();
+}
+
+/* ============ S4: MATCHING GAME ============ */
+var MATCH_PAIRS=[
+ ['ตัวเดินเวลา + จัดการเหตุการณ์ทั้งหมดของโมเดล','simpy.Environment()'],
+ ['ลูกค้า 1 คนไหลผ่านระบบ (generator ที่มี yield)','env.process(customer(...))'],
+ ['teller 3 คน — ถ้าไม่ว่าง ผู้ขอต่อคิวอัตโนมัติ','simpy.Resource(env, capacity=3)'],
+ ['ใช้เวลาบริการ ~4 นาทีในโมเดล','yield env.timeout(random.expovariate(1/4))'],
+ ['เวลาปัจจุบันของ simulation clock','env.now']
+];
+var mSel=null, mDone=0;
+function buildMatch(){
+  var box=document.getElementById('matchBox');box.innerHTML='';mSel=null;mDone=0;
+  var left=MATCH_PAIRS.map(function(p,i){return {t:p[0],pair:i,side:'L'};});
+  var right=MATCH_PAIRS.map(function(p,i){return {t:p[1],pair:i,side:'R'};});
+  right.sort(function(){return Math.random()-.5;});
+  for(var i=0;i<MATCH_PAIRS.length;i++){
+    box.appendChild(matchBtn(left[i]));
+    box.appendChild(matchBtn(right[i]));
+  }
+}
+function matchBtn(o){
+  var b=document.createElement('button');
+  b.textContent=(o.side==='R'?'💻 ':'🧩 ')+o.t;
+  if(o.side==='R'){b.style.fontFamily='Consolas,monospace';b.style.fontSize='.82rem';}
+  b.dataset.pair=o.pair;b.dataset.side=o.side;
+  b.onclick=function(){matchClick(b);};
+  return b;
+}
+function matchClick(b){
+  if(b.classList.contains('done'))return;
+  if(!mSel){mSel=b;b.classList.add('sel');return;}
+  if(mSel===b){b.classList.remove('sel');mSel=null;return;}
+  if(mSel.dataset.side===b.dataset.side){mSel.classList.remove('sel');mSel=b;b.classList.add('sel');return;}
+  if(mSel.dataset.pair===b.dataset.pair){
+    mSel.classList.remove('sel');mSel.classList.add('done');b.classList.add('done');mSel=null;mDone++;
+    if(mDone===MATCH_PAIRS.length)document.getElementById('matchMsg').style.display='block';
+  }else{
+    var a=mSel;a.classList.remove('sel');a.classList.add('bad');b.classList.add('bad');mSel=null;
+    setTimeout(function(){a.classList.remove('bad');b.classList.remove('bad');},450);
+  }
+}
+
+/* ============ S5: CODE WALKTHROUGH ============ */
+var CW_DESCS=[
+ '<strong>① Import &amp; พารามิเตอร์</strong> — เรียกใช้ simpy (ตัวเครื่อง DES), random (สุ่มค่า), statistics (สรุปผล) แล้วประกาศพารามิเตอร์ของระบบไว้บนสุด <em>แยกจากตรรกะ</em> เพื่อให้ปรับค่าทดลองได้ง่าย — นิสัยที่ดีของนักสร้างโมเดล',
+ '<strong>② customer — ชีวิตของลูกค้า 1 คน</strong> — จดเวลามาถึง (env.now) → ขอ teller (request) → <code>yield req</code> คือ "รอจนได้" ถ้า teller เต็ม SimPy จะจับต่อคิวให้อัตโนมัติ → พอได้แล้วคำนวณเวลารอ → <code>yield env.timeout(...)</code> คือรับบริการตามเวลาสุ่ม Exponential',
+ '<strong>③ setup — ตัวปั๊มลูกค้าเข้าระบบ</strong> — สร้าง Resource (teller 3 คน) แล้ววนลูป while True: รอเวลา interarrival แบบสุ่ม → สร้างลูกค้าคนใหม่เข้าระบบ ทำไปเรื่อย ๆ จนกว่าเวลาจำลองจะหมด (env.run จะตัดจบเอง)',
+ '<strong>④ รันโมเดล</strong> — <code>random.seed(42)</code> ล็อกลำดับค่าสุ่มให้ทุกคนได้ผลเหมือนกัน (สำคัญมากตอน debug และตอนเทียบสถานการณ์) → สร้าง Environment → ลงทะเบียน setup → รันถึงนาทีที่ 480',
+ '<strong>⑤ อ่านผลลัพธ์</strong> — สรุปจาก list ที่เก็บไว้: จำนวนลูกค้า, เวลารอเฉลี่ย, เวลารอสูงสุด — ค่าที่ได้ (seed 42): ~225 คน รอเฉลี่ย ~0.7 นาที ↔ ตรงกับที่เดาไว้จาก ρ ≈ 0.67 ว่าคิวจะสั้น'
+];
+function cwGo(i){
+  for(var k=0;k<5;k++){
+    var p=document.getElementById('cw'+k);
+    p.classList.toggle('codehl',k===i);
+    p.classList.toggle('dim',k!==i);
+    document.querySelectorAll('#cwSteps button')[k].classList.toggle('on',k===i);
+  }
+  document.getElementById('cwDesc').innerHTML=CW_DESCS[i];
+}
+
+/* ============ PER-SECTION NOTES ============ */
+var NOTE_PREFIX='comsim3_note_';
+(function(){
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    var id=sec.id;
+    var box=document.createElement('div');box.className='notebox';
+    box.innerHTML='<div class="nhead"><label>📝 โน้ตของฉัน — หัวข้อนี้</label><span class="savemark">ยังไม่บันทึก</span></div><textarea placeholder="จดสิ่งที่ได้เรียนรู้ คำถาม หรือไอเดียสำหรับระบบของกลุ่ม..."></textarea>';
+    sec.appendChild(box);
+    var ta=box.querySelector('textarea'),mark=box.querySelector('.savemark'),key=NOTE_PREFIX+id;
+    try{var saved=localStorage.getItem(key);if(saved){ta.value=saved;mark.textContent='บันทึกแล้ว ✓';mark.classList.add('ok');}}catch(e){}
+    var tm=null;
+    ta.addEventListener('input',function(){
+      mark.textContent='กำลังพิมพ์...';mark.classList.remove('ok');
+      PENDING[key]=ta.value;                       /* [PATCH] กันข้อความหายถ้าปิดหน้าก่อนครบ 600ms */
+      clearTimeout(tm);
+      tm=setTimeout(function(){
+        var ok=lsSet(key,ta.value);
+        if(ok){delete PENDING[key];mark.textContent='บันทึกแล้ว ✓';mark.classList.add('ok');}
+        else{mark.textContent='บันทึกไม่ได้ ✗ กรุณาดาวน์โหลดโน้ต';mark.classList.remove('ok');mark.style.color='#d9534f';}
+      },600);
+    });
+  });
+})();
+function downloadNotes(){
+  var out='Computer Simulation I — ครั้งที่ 3 (SimPy) — โน้ตของฉัน\nดาวน์โหลดเมื่อ: '+new Date().toLocaleString('th-TH')+'\n\n';
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    var ta=sec.querySelector('.notebox textarea');
+    var title=(sec.querySelector('h2')||{}).textContent||sec.id;
+    if(ta&&ta.value.trim())out+='== '+title.trim()+' ==\n'+ta.value.trim()+'\n\n';
+  });
+  var hw1=document.getElementById('hw_bridge'),hw2=document.getElementById('hw_out');
+  if(hw1&&hw1.value.trim())out+='== การบ้านครั้งที่ 2 (สรุประบบกลุ่ม) ==\n'+hw1.value.trim()+'\n\n';
+  if(hw2&&hw2.value.trim())out+='== การบ้านครั้งที่ 3 (Colab + ผลรัน) ==\n'+hw2.value.trim()+'\n\n';
+  var blob=new Blob([out],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='โน้ต_ComSim_ครั้งที่3.txt';a.click();URL.revokeObjectURL(a.href);
+}
+function clearNotes(){
+  if(!confirm('ล้างโน้ตทุกหัวข้อของครั้งที่ 3?'))return;
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    try{localStorage.removeItem(NOTE_PREFIX+sec.id);}catch(e){}
+    var ta=sec.querySelector('.notebox textarea');if(ta)ta.value='';
+    var mk=sec.querySelector('.notebox .savemark');if(mk){mk.textContent='ยังไม่บันทึก';mk.classList.remove('ok');}
+  });
+}
+
+/* ============ HOMEWORK AUTOSAVE ============ */
+['hw_bridge','hw_out'].forEach(function(id){
+  var ta=document.getElementById(id);if(!ta)return;
+  var v=lsGet('comsim3_'+id);if(v)ta.value=v;
+  ta.addEventListener('input',function(){lsSet('comsim3_'+id,ta.value);});
+});
+/* lab table autosave */
+document.querySelectorAll('input[data-lab]').forEach(function(inp){
+  var key='comsim3_lab_'+inp.dataset.lab;
+  var v=lsGet(key);if(v)inp.value=v;
+  inp.addEventListener('input',function(){lsSet(key,inp.value);});
+});
+
+/* ============ QUIZ ============ */
+var quizData=[
+ {q:'ใน Discrete Event Simulation "simulation clock" เดินอย่างไร?',
+  opts:['เดินไปข้างหน้าทีละ 1 วินาทีเท่ากันจนจบการจำลอง',
+        'กระโดดจากเหตุการณ์หนึ่งไปยังเหตุการณ์ถัดไปทันที',
+        'เดินตามเวลาจริงของเครื่องคอมพิวเตอร์ที่ใช้รันโมเดล',
+        'เดินถอยหลังจากเวลาสิ้นสุดกลับมายังเวลาเริ่มต้นระบบ'],
+  ans:1,fb:'ถูก! ระหว่างเหตุการณ์ไม่มีอะไรเปลี่ยนแปลง โมเดลจึงข้ามไป event ถัดไปได้เลย — นี่คือเหตุผลที่จำลอง 8 ชม. เสร็จในเสี้ยววินาที'},
+ {q:'องค์ประกอบใดของ SimPy ทำหน้าที่ "เดินเวลาและจัดการเหตุการณ์ทั้งหมด"?',
+  opts:['simpy.Environment()','simpy.Resource(env, 3)','yield env.timeout(4.0)','random.expovariate(2)'],
+  ans:0,fb:'ถูก! Environment คือหัวใจของโมเดล — เก็บ simulation clock (อ่านได้จาก env.now) และ future event list'},
+ {q:'`simpy.Resource(env, capacity=3)` ในโมเดลธนาคารแทนอะไร?',
+  opts:['ลูกค้า 3 คนแรกที่เดินเข้ามาถึงในระบบ','teller 3 คนที่ให้บริการพร้อมกันได้','เวลาบริการเฉลี่ย 3 นาทีต่อลูกค้า 1 คน','ความยาวคิวสูงสุดที่รองรับได้ 3 คน'],
+  ans:1,fb:'ถูก! capacity=3 หมายถึงทรัพยากรรองรับผู้ใช้พร้อมกันได้ 3 ราย — คนที่ 4 ขึ้นไปต้องรอคิว (SimPy จัดคิว FIFO ให้อัตโนมัติ)'},
+ {q:'บรรทัด `with bank.request() as req:` ตามด้วย `yield req` หมายความว่าอย่างไร?',
+  opts:['ลูกค้าขอใช้ teller และหยุดรอจนกว่าจะได้ teller ว่าง',
+        'ลูกค้ายกเลิกการรอคิวแล้วเดินออกจากธนาคารไปทันที',
+        'ระบบสร้าง teller คนใหม่เพิ่มเข้ามาให้บริการชั่วคราว',
+        'ระบบพิมพ์คำขอของลูกค้าออกทางหน้าจอเพื่อตรวจสอบ'],
+  ans:0,fb:'ถูก! request() คือการ "จองทรัพยากร" และ yield req คือ "หยุดรอจนได้" — โค้ด 2 บรรทัดนี้คือกลไกคิวทั้งหมดของโมเดล'},
+ {q:'`yield env.timeout(4)` ทำอะไร?',
+  opts:['หยุดกระบวนการนี้ 4 หน่วยเวลาในโมเดล แล้วค่อยทำต่อ',
+        'หยุดเครื่องคอมพิวเตอร์จริง 4 วินาทีเพื่อรอผลคำนวณ',
+        'สั่งให้การจำลองทั้งหมดจบการทำงานภายใน 4 นาทีจริง',
+        'ลบลูกค้า 4 คนแรกที่ต่อแถวอยู่ออกจากคิวของระบบ'],
+  ans:0,fb:'ถูก! timeout ใช้เวลา "ของโมเดล" ไม่ใช่เวลาจริง — Environment แค่จดว่ากระบวนการนี้จะตื่นอีกครั้งที่ env.now + 4'},
+ {q:'`random.expovariate(1.0/4.0)` สุ่มค่าจากการแจกแจงใด และ mean เท่าไร?',
+  opts:['Exponential ที่มี mean = 4','Exponential ที่มี mean = 0.25','Normal ที่มี mean = 4, SD = 1','Uniform ช่วงระหว่าง 0 ถึง 4'],
+  ans:0,fb:'ถูก! อาร์กิวเมนต์ของ expovariate คือ rate (λ) = 1/mean — ใส่ 1/4 จึงได้ mean = 4 นาที เหมือน =-4*LN(RAND()) ใน Excel'},
+ {q:'entity ในโมเดลธนาคารคืออะไร?',
+  opts:['ลูกค้าที่ไหลผ่านระบบตั้งแต่มาถึงจนออกไป','teller ที่ประจำเคาน์เตอร์คอยให้บริการ','อาคารธนาคารพร้อมเคาน์เตอร์บริการทั้งหมด','ตัวเลขเวลารอของลูกค้าที่เก็บไว้ใน list'],
+  ans:0,fb:'ถูก! entity = สิ่งที่ไหลผ่านระบบ (ลูกค้า/งาน/พัสดุ) ส่วน teller คือ Resource ที่ให้บริการ'},
+ {q:'เราใส่ `random.seed(42)` ก่อนรันเพื่ออะไร?',
+  opts:['ให้ลำดับค่าสุ่มซ้ำเดิมทุกครั้ง ผลรันจึงเทียบกันได้',
+        'ให้ค่าสุ่มมีค่าเฉลี่ยเท่ากับ 42 พอดีทุกการแจกแจง',
+        'ให้โมเดลรันได้เร็วขึ้นกว่าเดิมประมาณ 42 เท่าตัว',
+        'จำกัดจำนวนลูกค้าที่อยู่ในระบบไม่ให้มีเกินกว่า 42 คน'],
+  ans:0,fb:'ถูก! seed ล็อกลำดับตัวเลขสุ่ม (pseudo-random) — จำเป็นมากตอน debug และตอนเปรียบเทียบสถานการณ์อย่างยุติธรรม'},
+ {q:'เวลารอคิว (waiting time) ของลูกค้าคำนวณจากอะไรในโค้ด?',
+  opts:['เวลาที่ได้เริ่มใช้ teller ลบด้วยเวลาที่มาถึงระบบ',
+        'เวลาบริการที่สุ่มจาก expovariate ของลูกค้าคนนั้น',
+        'เวลาจำลอง SIM_TIME หารด้วยจำนวนลูกค้าทั้งหมด',
+        'เวลาที่ออกจากระบบ ลบด้วยเวลาบริการเฉลี่ยรวม'],
+  ans:0,fb:'ถูก! หลัง yield req แปลว่า "เพิ่งได้ teller" — env.now ณ จุดนั้น ลบเวลามาถึง = เวลาที่ยืนรอคิวพอดี'},
+ {q:'ถ้าเพิ่ม tellers จาก 3 → 4 (อย่างอื่นเท่าเดิม) ผลที่คาดหวังคือ?',
+  opts:['เวลารอเฉลี่ยลดลง แต่ utilization ต่อ teller ลดลงด้วย',
+        'เวลารอเฉลี่ยเพิ่มขึ้น เพราะระบบซับซ้อนขึ้นกว่าเดิมมาก',
+        'ทุกค่าคงเดิม เพราะจำนวนลูกค้าที่เข้ามาเท่าเดิมทุกอย่าง',
+        'utilization เพิ่มขึ้น เพราะ teller ทุกคนทำงานหนักขึ้น'],
+  ans:0,fb:'ถูก! เพิ่มกำลังบริการ → คิวสั้นลง แต่ teller แต่ละคนว่างมากขึ้น — การตัดสินใจจริงจึงต้องชั่งต้นทุนค่าจ้างกับระดับบริการ'}
+];
+var quizScore=0;
+(function(){
+  var box=document.getElementById('quiz');
+  quizData.forEach(function(item,qi){
+    var d=document.createElement('div');d.className='q';
+    var h='<div class="qh">'+(qi+1)+'. '+item.q+'</div>';
+    var order=item.opts.map(function(_,oi){return oi;});
+    for(var k=order.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1));var t=order[k];order[k]=order[j];order[j]=t;}
+    h+='<div class="opts-grid">';
+    order.forEach(function(oi){
+      h+='<button class="opt" data-q="'+qi+'" data-o="'+oi+'">'+item.opts[oi]+'</button>';
+    });
+    h+='</div><div class="fb" id="fb'+qi+'"></div>';
+    d.innerHTML=h;box.appendChild(d);
+  });
+  var answered={};
+  box.addEventListener('click',function(e){
+    var btn=e.target.closest('.opt');if(!btn)return;
+    var qi=+btn.dataset.q, oi=+btn.dataset.o;
+    if(answered[qi])return; answered[qi]=true;
+    var item=quizData[qi];
+    box.querySelectorAll('.opt[data-q="'+qi+'"]').forEach(function(b){ b.disabled=true; if(+b.dataset.o===item.ans)b.classList.add('correct'); });
+    if(oi!==item.ans)btn.classList.add('wrong');
+    var fb=document.getElementById('fb'+qi);fb.classList.add('show');
+    fb.innerHTML=(oi===item.ans?'✅ ':'❌ ')+item.fb;
+    if(Object.keys(answered).length===quizData.length){
+      var correct=0;
+      quizData.forEach(function(it,i){ if(!box.querySelector('.opt[data-q="'+i+'"].wrong'))correct++; });
+      quizScore=correct;
+      var band=document.getElementById('scoreband');band.style.display='block';
+      band.textContent='คะแนน: '+correct+' / '+quizData.length+(correct===quizData.length?' 🎉':'');
+      var wrap=document.getElementById('qzSubmitWrap'); if(wrap) wrap.style.display='block';
+      var sName=(document.getElementById('ci_student')||{}).value||'';
+      if(sName){
+        submitQuizScore(true);
+      }else{
+        var qm=document.getElementById('qz_msg');
+        if(qm){
+          qm.className='qz-msg err';
+          qm.textContent='ℹ️ ยังไม่ได้เช็คชื่อ — กรุณาเลือกชื่อของคุณที่ส่วน "เช็คชื่อเข้าเรียน" (หน้าเริ่มต้น) แล้วกดปุ่มด้านบนเพื่อส่งคะแนน';
+        }
+      }
+    }
+  });
+})();
+
+/* ============ CHECK-IN + QUIZ SCORE → GOOGLE FORM ============ */
+var ROSTER=["67090002 นายอภิวิชญ์ เฉลิมวงศ์", "67090003 นายนำแสง แก้วบางพูด", "67090004 นายภาณุวิทย์ วัณโณภาศ", "67090005 นางสาววิภาดา แสงศิลา", "67090006 นางสาวอัจฉริยา แพงไทย", "67090007 นางสาวฉันท์สินี ปาวารี", "67090008 นางสาวฐิติมา ไร่วิวัฒน์", "67090009 นางสาวกรกนก สร่างทุกข์", "67090010 นางสาวสุนันทา พรมพานิช", "67090012 นางสาวศศิพร สิมพา", "67090014 นางสาวอาทิตติยา เพ็ชรวิลัย", "67090063 นายเกรียงไกร ศักดาเพชรศิริ", "67090064 นางสาวเกษญาดา คนธรรมศาสตร์", "67090065 นางสาวชนากานต์ ยงยืน", "67090066 นางสาวชนิตา ฮั่นกูล", "67090067 นางสาวชนิษฐา นิลวดี", "67090068 นายชลาธิป อ้นถาวร", "67090069 นางสาวโชติรส แสวงผล", "67090070 นางสาวณัฏฐณิชา บุญสวนสุขฤดี", "67090071 นางสาวณัฐกานต์ กมลเนตร์", "67090072 นางสาวณัฐกานต์ สิงเหาะ", "67090073 นางสาวณัฐญาดา นิยมทอง", "67090074 นางสาวณัฐธยาน์ วงศ์คำ", "67090075 นายธนกฤต มหกิจขจร", "67090076 นางสาวธนภรณ์ แซ่เตียว", "67090077 นางสาวธวัลฤทัย ขำเชย", "67090078 นางสาวธัญชนก วึบชัยภูมิ", "67090079 นายธีรภัทร เหล่าทวีสุข", "67090080 นางสาวนงนภัส กระดุมเงิน", "67090081 นางสาวนะฮ์ดา มหาประทุม", "67090082 นายปฏิพล เจโคกกรวด", "67090083 นางสาวพรนภัส ศิริชัยวัฒนา", "67090084 นางสาวพรปวีณ์ น้อมสมทรัพย์", "67090085 นางสาวพรรณมัย แก้วกุ่ม", "67090086 นางสาวพลอยจันทร์ เรืองจรูญวัฒนา", "67090087 นางสาวเพ็ญนภา ทองยา", "67090088 นางสาวภาคินี สระศิริ", "67090089 นายภาณุวัฒน์ เทียนชัย", "67090090 นางสาวเยาวเรศ จันทฤทธิ์", "67090091 นางสาวรัชตา ชลวิริยะกุล", "67090092 นายศรณ์พงศ์ ปิ่นอนงค์", "67090093 นางสาวศิริลักษณ์ ปานสอน", "67090094 นายศิวัช สุทธิแพทย์", "67090095 นายสินมหัต กลีบมาลี", "67090096 นางสาวสุนิตา แซ่เติ๋น", "67090097 นางสาวสุพิชญา ใจเพียร", "67090098 นางสาวสุภัทชพร สามเตี้ย", "67090230 นายกฤษนัย เติมสุข", "67090232 นายกูฟิตรี เงาะมะเจะ", "67090233 นางสาวจริยา โกมลศรี", "67090234 นายเจษฎา ทองดอนสา", "67090235 นายชุติภาส ทวีคูณ", "67090236 นางสาวณัฐกฤตา โนราช", "67090237 นางสาวณัฐธยาน์ บุญมี", "67090238 นางสาวณัฐธิดา ทรงศิริ", "67090239 นางสาวทอขวัญ เกื้อน้อย", "67090240 นายธนบดี ตรัยวรัญญู", "67090241 นายธนาวิชส์ กาอ่วน", "67090242 นางสาวธัญญรัตน์ แตงชัยภูมิ", "67090243 นายบวรรักษ์ ยอดประทุม", "67090244 นางสาวปนัสยา เพาะนิยม", "67090245 นางสาวปรางค์วลี สีดำ", "67090246 นายปวเรศ แคล่วคล่อง", "67090247 นางสาวพรลภัส เกิดศักดิ์สิทธิ์", "67090248 นายพลช อุบล", "67090249 นางสาวพัชรินทร์ นันธิ", "67090250 นางสาวเพ็ญพิชา แสงประสิทธิ์", "67090251 นางสาวแพรวา นามไพร", "67090252 นางสาวภัทรธิดา จันทชิต", "67090253 นายภูมิพัฒน์ จันทร์วิไชย", "67090254 นางสาวมนณกร อภิธารภูวดล", "67090255 นางสาวรดามณี ประศรีพัฒน์", "67090256 นางสาววรรณพร จินดาธนาคม", "67090257 นางสาววรัชยา บุษบา", "67090258 นางสาววรินทร ดาปาน", "67090259 นายศุภสัณฑ์ ขันสันเทียะ", "67090260 นายสมยศ การเจริญ", "67090261 นางสาวสุรัสวดี ฤทธิ์ชัยภูมิ", "67090262 นางสาวอนุดา เตียวทองธนา"];
+(function(){
+  var sel=document.getElementById('ci_student'); if(!sel)return;
+  ROSTER.forEach(function(name){
+    var o=document.createElement('option'); o.value=name; o.textContent=name; sel.appendChild(o);
+  });
+  try{
+    var prev=localStorage.getItem('comsim3_checkin');
+    if(prev){
+      var msg=document.getElementById('ci_msg');
+      if(msg){ msg.className='ci-msg ok'; msg.textContent='ℹ️ เคยเช็คชื่อจากเครื่องนี้: '+prev; }
+    }
+  }catch(e){}
+})();
+function submitCheckin(){
+  var email=(document.getElementById('ci_email').value||'').trim();
+  var student=document.getElementById('ci_student').value;
+  var msg=document.getElementById('ci_msg');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    msg.className='ci-msg err';
+    msg.textContent='⚠️ กรุณากรอกอีเมลให้ถูกต้อง';
+    return;
+  }
+  if(!student){
+    msg.className='ci-msg err';
+    msg.textContent='⚠️ กรุณาเลือกชื่อ–รหัสนิสิตของคุณ';
+    return;
+  }
+  document.getElementById('ci_f_email').value=email;
+  document.getElementById('ci_f_student').value=student;
+  document.getElementById('ci_form').submit();
+  var btn=document.getElementById('ci_btn');
+  btn.disabled=true;
+  msg.className='ci-msg ok';
+  msg.textContent='✅ ส่งเช็คชื่อแล้ว: '+student;
+  try{ localStorage.setItem('comsim3_checkin', student+' @ '+new Date().toLocaleString('th-TH')); }catch(e){}
+}
+function submitQuizScore(auto){
+  var student=(document.getElementById('ci_student')||{}).value||'';
+  var msg=document.getElementById('qz_msg');
+  if(!student){
+    msg.className='qz-msg err';
+    msg.textContent='⚠️ กรุณาเลือกชื่อของคุณในส่วน "เช็คชื่อเข้าเรียน" (หน้าเริ่มต้น) ก่อนส่งคะแนน';
+    return;
+  }
+  document.getElementById('qz_f_student').value=student;
+  document.getElementById('qz_f_score').value=quizScore;
+  document.getElementById('qz_form').submit();
+  var btn=document.getElementById('qz_btn'); if(btn) btn.disabled=true;
+  msg.className='qz-msg ok';
+  msg.textContent=(auto?'✅ ส่งคะแนนอัตโนมัติแล้ว: ':'✅ ส่งคะแนนแล้ว: ')+student+' — '+quizScore+'/'+quizData.length;
+  try{ localStorage.setItem('comsim3_quiz', student+' : '+quizScore+'/'+quizData.length+' @ '+new Date().toLocaleString('th-TH')); }catch(e){}
+}
+
+/* ============ PAGER ============ */
+var PAGES=[].slice.call(document.querySelectorAll('.wrap > section'));
+var curPage=0;
+function showPage(i){
+  curPage=Math.max(0,Math.min(PAGES.length-1,i));
+  PAGES.forEach(function(s,k){s.classList.toggle('active',k===curPage);});
+  document.getElementById('pgInfo').innerHTML='หน้า <b>'+(curPage+1)+'</b> / '+PAGES.length;
+  document.getElementById('pgPrev').disabled=(curPage===0);
+  document.getElementById('pgNext').disabled=(curPage===PAGES.length-1);
+  var id=PAGES[curPage].id;
+  document.querySelectorAll('nav a').forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+id);});
+  var hero=document.querySelector('header.hero');
+  if(hero)hero.style.display=(curPage===0)?'':'none';
+  updateProgress();
+  window.scrollTo({top:0});
+}
+function goPage(d){ showPage(curPage+d); }
+document.querySelectorAll('nav a').forEach(function(a){
+  a.addEventListener('click',function(e){
+    if(!document.body.classList.contains('paged'))return;
+    e.preventDefault();
+    var id=a.getAttribute('href').slice(1);
+    var idx=PAGES.findIndex(function(s){return s.id===id;});
+    if(idx>=0)showPage(idx);
+  });
+});
+document.addEventListener('keydown',function(e){
+  if(!document.body.classList.contains('paged'))return;
+  if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='ArrowRight')goPage(1);
+  if(e.key==='ArrowLeft')goPage(-1);
+});
+/* ============ INIT ============ */
+buildMatch();
+evRender();
+cwGo(0);
+showPage(0);
+
+/* ============ [PATCH-COLAB] COPY CODE + CHECKPOINT ============ */
+function copyCode(btn){
+  var pre=btn.parentNode.querySelector('pre');if(!pre)return;
+  var txt=pre.innerText.replace(/\u00a0/g,' ');
+  function done(){btn.textContent='✓ คัดลอกแล้ว';btn.classList.add('done');setTimeout(function(){btn.textContent='📋 คัดลอก';btn.classList.remove('done');},1800);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done,function(){fallback(txt,done);});
+  }else{fallback(txt,done);}
+}
+function fallback(txt,cb){
+  var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');cb();}catch(e){alert('คัดลอกอัตโนมัติไม่ได้ — กรุณาลากเลือกโค้ดแล้วกด Ctrl+C');}
+  document.body.removeChild(ta);
+}
+(function(){
+  document.querySelectorAll('input[data-cchk]').forEach(function(b){
+    var key='comsim3_cchk_'+b.dataset.cchk;
+    if(lsGet(key)==='1')b.checked=true;
+    b.closest('.cchk').classList.toggle('on',b.checked);
+    b.addEventListener('change',function(){
+      lsSet(key,b.checked?'1':'0');
+      b.closest('.cchk').classList.toggle('on',b.checked);
+    });
+  });
+})();
+
+
+/* ============ [PATCH-S5] LINE-BY-LINE WALKTHROUGH ============ */
+var WK_LINES=[
+ 'def customer(env, name, bank):',
+ '    arrive = env.now',
+ '    with bank.request() as req:',
+ '        yield req',
+ '        wait_times.append(env.now - arrive)',
+ '        yield env.timeout(random.expovariate(1.0/SERVICE_MEAN))',
+ '    # ⬅ พ้นบล็อก with = คืนเคาน์เตอร์อัตโนมัติ'
+];
+var WK=[
+ {ln:0,d:'<strong>บรรทัด 1 — ประกาศ "ขั้นตอนของลูกค้า 1 คน"</strong><br>ยังไม่มีอะไรเกิดขึ้น แค่บอก Python ว่า “ต่อไปนี้คือสิ่งที่ลูกค้าคนหนึ่งต้องทำ” · ในวงเล็บคือของที่ลูกค้าต้องรู้จัก: <code>env</code> (นาฬิกา), <code>name</code> (ชื่อ/หมายเลข), <code>bank</code> (แถวเคาน์เตอร์)<br><span style="color:var(--muted)">ตอนนี้ SimPy เพิ่งเรียกใช้ขั้นตอนนี้ให้ “ลูกค้าคนที่ 4” ที่นาทีที่ 6.0</span>',
+  now:'6.0',cust:'เพิ่งเข้าประตู',busy:'3 / 3 (เต็ม)',q:'0 คน',w:'[0.0, 0.0, 0.9]',hi:''},
+ {ln:1,d:'<strong>บรรทัด 2 — จดเวลาที่มาถึง</strong><br><code>arrive = env.now</code> อ่านว่า “แอบดูนาฬิกาแล้วจดใส่กระดาษชื่อ <code>arrive</code>” · ตอนนี้ <code>arrive = 6.0</code> · ต้องจดไว้ เพราะเดี๋ยวจะเอาไปลบเพื่อหาว่ารอไปกี่นาที',
+  now:'6.0',cust:'จดเวลา arrive = 6.0',busy:'3 / 3 (เต็ม)',q:'0 คน',w:'[0.0, 0.0, 0.9]',hi:'wcNow'},
+ {ln:2,d:'<strong>บรรทัด 3 — หยิบบัตรคิว</strong><br><code>bank.request()</code> = ยื่นขอใช้เคาน์เตอร์ 1 ช่อง · คำว่า <code>with ... as req:</code> คือสัญญาว่า “ยืมแล้วจะคืนให้เองเมื่อจบย่อหน้านี้” — เราจึงไม่ต้องเขียนโค้ดคืนเคาน์เตอร์เอง (จุดที่มือใหม่ลืมบ่อยที่สุด)',
+  now:'6.0',cust:'ยื่นขอเคาน์เตอร์',busy:'3 / 3 (เต็ม)',q:'0 คน',w:'[0.0, 0.0, 0.9]',hi:''},
+ {ln:3,d:'<strong>บรรทัด 4 — ยืนรอ ⏸️ (จุดสำคัญที่สุด)</strong><br><code>yield req</code> = “หยุดอยู่ตรงนี้จนกว่าจะได้เคาน์เตอร์” · เคาน์เตอร์เต็มทั้ง 3 → ลูกค้าคนที่ 4 <strong>ต่อคิวอัตโนมัติ</strong> (SimPy จัดคิวแบบมาก่อนได้ก่อนให้เอง เราไม่ต้องเขียนโค้ดคิวเลย)<br>⏭️ ไม่มีเหตุการณ์อะไรระหว่างนาทีที่ 6.0–7.5 นาฬิกาจึง <strong>กระโดดข้าม</strong> ไปที่ 7.5 ทันที ตอนที่ลูกค้าคนที่ 2 ทำธุระเสร็จและเคาน์เตอร์ว่างลง',
+  now:'6.0 → 7.5',cust:'⏳ ยืนรอในคิว',busy:'3 / 3 → ว่าง 1 ช่อง',q:'1 คน → 0 คน',w:'[0.0, 0.0, 0.9]',hi:'wcQ'},
+ {ln:4,d:'<strong>บรรทัด 5 — จดว่ารอไปกี่นาที</strong><br><code>env.now - arrive</code> = 7.5 − 6.0 = <strong>1.5 นาที</strong> แล้ว <code>.append(...)</code> หยอดค่านี้ลงกล่อง <code>wait_times</code> · กล่องนี้แหละที่ตอนจบจะถูกเอามาเฉลี่ยเป็น “เวลารอเฉลี่ย”<br><span style="color:var(--muted)">สังเกต: ถ้าตอนมาถึงมีเคาน์เตอร์ว่างอยู่แล้ว บรรทัด 4 จะไม่รอเลย ค่าที่จดได้จะเป็น 0.0 (เหมือน 2 ค่าแรกในกล่อง)</span>',
+  now:'7.5',cust:'ได้เคาน์เตอร์แล้ว · รอไป 1.5 นาที',busy:'3 / 3',q:'0 คน',w:'[0.0, 0.0, 0.9, <b>1.5</b>]',hi:'wcW'},
+ {ln:5,d:'<strong>บรรทัด 6 — นั่งรับบริการ ⏸️</strong><br><code>random.expovariate(1.0/4.0)</code> สุ่มเวลาบริการจากการแจกแจง Exponential ค่าเฉลี่ย 4 นาที — รอบนี้สุ่มได้ <strong>5.2 นาที</strong> · <code>yield env.timeout(5.2)</code> = “หยุดรออีก 5.2 นาทีค่อยทำต่อ” นาฬิกากระโดด 7.5 → <strong>12.7</strong><br>⚠️ คอมพิวเตอร์ไม่ได้รอจริง 5.2 นาที — มันแค่จดลงปฏิทินเหตุการณ์แล้วข้ามไปทันที',
+  now:'7.5 → 12.7',cust:'💬 กำลังรับบริการ (5.2 นาที)',busy:'3 / 3',q:'0 คน',w:'[0.0, 0.0, 0.9, 1.5]',hi:'wcNow'},
+ {ln:6,d:'<strong>จบบล็อก <code>with</code> — ลุกออก คืนเคาน์เตอร์ 🚪</strong><br>ไม่มีโค้ดสั่ง “คืน” เลยสักบรรทัด แต่พอ<strong>ย่อหน้าจบ</strong> Python คืนเคาน์เตอร์ให้อัตโนมัติ → คนถัดไปในคิวได้ใช้ต่อทันที · ลูกค้าคนที่ 4 ออกจากระบบที่นาทีที่ 12.7 รวมอยู่ในธนาคาร 6.7 นาที (รอ 1.5 + บริการ 5.2)<br><span style="color:var(--muted)">ถ้าลืมคืน (เขียนโค้ดเองโดยไม่ใช้ <code>with</code>) คิวจะค้างตลอดกาล — เป็นบั๊กคลาสสิกของโมเดลระบบคิว</span>',
+  now:'12.7',cust:'✅ ออกจากธนาคาร',busy:'2 / 3 (ว่าง 1)',q:'0 คน',w:'[0.0, 0.0, 0.9, 1.5]',hi:'wcBusy'}
+];
+var wkI=0;
+(function(){
+  var box=document.getElementById('wkCode');
+  if(!box)return;
+  WK_LINES.forEach(function(t,i){
+    var d=document.createElement('div');d.className='wl';d.id='wl'+i;d.textContent=t;box.appendChild(d);
+  });
+  wkGo(0);
+})();
+function wkGo(i){
+  if(i<0||i>=WK.length)return;
+  wkI=i;var s=WK[i];
+  WK_LINES.forEach(function(_,k){
+    var el=document.getElementById('wl'+k);if(!el)return;
+    el.classList.toggle('on',k===s.ln);
+    el.classList.toggle('done',k<s.ln);
+  });
+  document.getElementById('wkDesc').innerHTML=s.d;
+  var map={wcNow:s.now,wcCust:s.cust,wcBusy:s.busy,wcQ:s.q,wcW:s.w};
+  for(var id in map){
+    var c=document.getElementById(id);
+    c.querySelector('.wv').innerHTML=map[id];
+    c.classList.toggle('hi',s.hi===id);
+  }
+  document.getElementById('wkPg').textContent='ขั้นที่ '+(i+1)+' / '+WK.length;
+  document.getElementById('wkPrev').disabled=(i===0);
+  document.getElementById('wkNext').disabled=(i===WK.length-1);
+  document.getElementById('wkEnd').style.display=(i===WK.length-1)?'block':'none';
+}
+
+</script>
+</body>
+</html>
