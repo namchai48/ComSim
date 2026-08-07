@@ -1,0 +1,1942 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computer Simulation I — ครั้งที่ 4 · คิวรถที่ dock (Verification)</title>
+<style>
+  :root{
+    --navy:#0f2c4d; --blue:#1f5f8b; --teal:#2a9d8f; --amber:#e9a93f; --red:#d9534f; --purple:#7b5ea7;
+    --bg:#eef2f6; --card:#fff; --line:#dfe5ec; --ink:#1c2733; --muted:#5b6b7b;
+    --soft:#eef7f5; --warn:#fdecea; --code-bg:#0f2330;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:"Segoe UI","Sarabun",Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;}
+  a{color:var(--blue);}
+  #progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--teal),var(--amber));z-index:200;transition:width .1s;}
+  nav{position:fixed;top:0;left:0;right:0;background:rgba(15,44,77,.97);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;gap:6px;padding:8px 14px;overflow-x:auto;box-shadow:0 2px 10px rgba(0,0,0,.15);}
+  nav .brand{color:#fff;font-weight:800;font-size:.95rem;margin-right:10px;white-space:nowrap;}
+  nav a{color:#cdd9e5;text-decoration:none;font-size:.82rem;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:.15s;}
+  nav a:hover,nav a.active{background:var(--teal);color:#fff;}
+  nav .modebtn{margin-left:auto;background:var(--amber);color:var(--navy);border:none;font-weight:800;border-radius:7px;padding:6px 12px;cursor:pointer;font-size:.82rem;white-space:nowrap;font-family:inherit;}
+  header.hero{position:relative;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:80px 24px 46px;text-align:center;}
+  header.hero h1{margin:0 0 8px;font-size:2.1rem;}
+  header.hero .sub{opacity:.92;font-size:1.05rem;margin:2px 0;}
+  .hero-qr{position:absolute;top:68px;left:14px;z-index:90;background:#fff;border-radius:10px;padding:8px;box-shadow:0 2px 10px rgba(0,0,0,.25);text-align:center;}
+  .hero-qr img,.hero-qr svg{display:block;width:84px;height:84px;}
+  .hero-qr span{display:block;color:var(--navy);font-size:.68rem;font-weight:700;margin-top:4px;line-height:1.3}
+  @media(max-width:560px){.hero-qr{top:62px;left:8px;padding:5px;}.hero-qr img,.hero-qr svg{width:56px;height:56px;}.hero-qr span{font-size:.58rem;}}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px;}
+  .badge{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 15px;font-size:.86rem;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px;}
+  section{padding:44px 0 20px;border-bottom:1px solid var(--line);}
+  section h2{font-size:1.55rem;color:var(--navy);margin:0 0 4px;display:flex;align-items:center;gap:12px;}
+  section h2 .num{background:var(--teal);color:#fff;width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem;flex:0 0 auto;}
+  section .lead{color:var(--muted);margin:0 0 18px;font-size:1rem;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin:16px 0;box-shadow:0 1px 4px rgba(15,44,77,.04);}
+  h3{color:var(--blue);font-size:1.12rem;margin:20px 0 8px;}
+  .en{color:var(--muted);font-style:italic;font-size:.92em;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr;}}
+  .tag{display:inline-block;font-size:.72rem;background:#eef3f8;color:var(--blue);border-radius:6px;padding:2px 9px;font-weight:700;}
+  .note{border-radius:10px;padding:12px 16px;margin:10px 0;font-size:.95rem;}
+  .note.tip{background:var(--soft);border-left:4px solid var(--teal);}
+  .note.warn{background:var(--warn);border-left:4px solid var(--red);}
+  .note.ask{background:#eef3fb;border-left:4px solid var(--blue);}
+  .note .lb{font-weight:800;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px;}
+  .note.tip .lb{color:var(--teal);}.note.warn .lb{color:var(--red);}.note.ask .lb{color:var(--blue);}
+  button.act{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:.92rem;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;}
+  button.act:hover{background:var(--navy);}
+  button.act.amber{background:var(--amber);color:var(--navy);}button.act.amber:hover{background:#d8963a;}
+  button.act.teal{background:var(--teal);}button.act.teal:hover{background:#218a7d;}
+  button.act.red{background:var(--red);}button.act.red:hover{background:#b8433f;}
+  button.act:disabled{opacity:.4;cursor:not-allowed;}
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin:14px 0;}
+  .ctl{display:flex;flex-direction:column;gap:4px;font-size:.85rem;}
+  .ctl label{font-weight:700;color:var(--navy);}
+  .ctl input[type=range]{width:180px;accent-color:var(--teal);}
+  .ctl input[type=number]{width:100px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;font-family:inherit;}
+  .ctl .val{color:var(--blue);font-weight:800;}
+  .ctl input[type=checkbox]{width:20px;height:20px;accent-color:var(--teal);}
+  .statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:14px 0;}
+  .stat{background:var(--navy);color:#fff;border-radius:12px;padding:14px;text-align:center;}
+  .stat .k{font-size:1.55rem;font-weight:800;line-height:1.1;}
+  .stat .l{font-size:.76rem;opacity:.85;margin-top:3px;}
+  .stat.a{background:var(--teal);}.stat.b{background:var(--amber);color:var(--navy);}.stat.c{background:var(--purple);}.stat.d{background:var(--red);}
+  canvas{max-width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;}
+  .legend{font-size:.8rem;color:var(--muted);margin-top:4px;text-align:center;}
+  pre{background:var(--code-bg);color:#e6edf3;border-radius:10px;padding:14px 16px;overflow-x:auto;font-family:Consolas,monospace;font-size:.84rem;line-height:1.6;margin:10px 0;transition:.2s;}
+  pre .c{color:#7fae6b;}pre .k{color:#ff9d6b;}pre .s{color:#9cd6ff;}
+  code{background:#eef3f8;padding:1px 6px;border-radius:4px;font-size:.9em;}
+  table.tbl{width:100%;border-collapse:collapse;font-size:.9rem;margin:12px 0;background:#fff;}
+  table.tbl th,table.tbl td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{background:var(--navy);color:#fff;font-weight:600;font-size:.85rem;}
+  table.tbl tr:nth-child(even) td{background:#f7f9fb;}
+  table.tbl input{width:100%;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-family:inherit;font-size:.88rem;background:#fffdf6;}
+  /* trace log */
+  .evlog{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;max-height:260px;overflow-y:auto;font-size:.88rem;margin:10px 0;font-family:Consolas,monospace;}
+  .evlog .ev{padding:4px 8px;border-radius:7px;margin:3px 0;background:#f7f9fb;}
+  .evlog .ev.arr{border-left:4px solid var(--blue);}
+  .evlog .ev.svc{border-left:4px solid var(--teal);background:#eef7f5;}
+  .evlog .ev.dep{border-left:4px solid var(--amber);background:#fdf7ea;}
+  .evlog .ev b{font-family:Consolas,monospace;}
+  /* matching game */
+  .match{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;}
+  @media(max-width:560px){.match{grid-template-columns:1fr;}}
+  .match button{background:#f7f9fb;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font-family:inherit;font-size:.9rem;cursor:pointer;text-align:left;transition:.12s;color:var(--ink);}
+  .match button:hover{border-color:var(--blue);}
+  .match button.sel{background:#eef3fb;border-color:var(--blue);font-weight:700;}
+  .match button.done{background:#e6f6ee;border-color:var(--teal);color:#166b56;font-weight:700;cursor:default;}
+  .match button.bad{background:#fdeaea;border-color:var(--red);}
+  .stepbtns{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .stepbtns button{background:#f0f4f8;border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.88rem;color:var(--navy);}
+  .stepbtns button.on{background:var(--purple);color:#fff;border-color:var(--purple);}
+  .stepdesc{background:#fbf7ff;border-left:4px solid var(--purple);border-radius:10px;padding:12px 16px;margin:10px 0;font-size:.95rem;min-height:56px;}
+  /* sorting game (V vs V) */
+  .sortcard{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0;}
+  .sortcard .st{font-size:.94rem;margin-bottom:10px;}
+  .sortcard .sbtns{display:flex;gap:10px;flex-wrap:wrap;}
+  .sortcard .sbtns button{flex:1 1 140px;background:#f7f9fb;border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-family:inherit;font-weight:700;font-size:.88rem;cursor:pointer;transition:.12s;color:var(--navy);}
+  .sortcard .sbtns button:hover{border-color:var(--blue);}
+  .sortcard .sbtns button.correct{background:#e6f6ee;border-color:var(--teal);color:#166b56;}
+  .sortcard .sbtns button.wrong{background:#fdeaea;border-color:var(--red);color:#a23;}
+  .sortcard .sfb{display:none;font-size:.85rem;margin-top:8px;padding:8px 12px;border-radius:8px;background:var(--soft);}
+  .sortcard .sfb.show{display:block;}
+  /* bug hunt */
+  pre.bughunt{cursor:default;}
+  pre.bughunt .bl{display:block;padding:1px 6px;border-radius:5px;cursor:pointer;transition:.12s;}
+  pre.bughunt .bl:hover{background:rgba(255,255,255,.09);}
+  pre.bughunt .bl.found{background:rgba(42,157,143,.25);outline:1.5px solid var(--teal);}
+  pre.bughunt .bl.no{background:rgba(217,83,79,.28);}
+  .bugfb{background:#fbf7ff;border-left:4px solid var(--purple);border-radius:10px;padding:10px 14px;margin:8px 0;font-size:.9rem;display:none;}
+  .bugfb.show{display:block;}
+  /* checklist */
+  .chk{list-style:none;padding:0;margin:12px 0;}
+  .chk li{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;margin:8px 0;font-size:.92rem;transition:.15s;}
+  .chk li.on{background:#e6f6ee;border-color:var(--teal);}
+  .chk input[type=checkbox]{width:20px;height:20px;accent-color:var(--teal);margin-top:3px;flex:0 0 auto;cursor:pointer;}
+  /* quiz */
+  .quiz .q{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;}
+  .quiz .q .qh{font-weight:700;margin-bottom:10px;}
+  .quiz .opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 6px;}
+  @media(max-width:560px){.quiz .opts-grid{grid-template-columns:1fr;}}
+  .quiz .opt{display:block;width:100%;height:100%;text-align:left;background:#f7f9fb;border:1.5px solid var(--line);border-radius:9px;padding:10px 14px;margin:0;cursor:pointer;font-size:.92rem;font-family:inherit;transition:.12s;}
+  .quiz .opt:hover{border-color:var(--blue);}
+  .quiz .opt.correct{background:#e6f6ee;border-color:var(--teal);color:#166b56;font-weight:700;}
+  .quiz .opt.wrong{background:#fdeaea;border-color:var(--red);color:#a23;}
+  .quiz .fb{font-size:.88rem;margin-top:8px;padding:8px 12px;border-radius:8px;background:var(--soft);display:none;}
+  .quiz .fb.show{display:block;}
+  .scoreband{background:var(--navy);color:#fff;border-radius:12px;padding:16px;text-align:center;font-weight:700;margin-top:10px;display:none;}
+  footer{background:var(--navy);color:#cdd9e5;padding:30px 24px;font-size:.9rem;text-align:center;}
+  .notebox{background:#fffdf6;border:1.5px dashed var(--amber);border-radius:12px;padding:14px 16px;margin:18px 0 4px;}
+  .notebox .nhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .notebox label{font-weight:800;color:#9a6b14;font-size:.92rem;}
+  .notebox .savemark{font-size:.76rem;color:var(--muted);font-weight:700;transition:.2s;}
+  .notebox .savemark.ok{color:var(--teal);}
+  .notebox textarea{width:100%;min-height:80px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:.95rem;line-height:1.6;color:var(--ink);background:#fff;}
+  .notebox textarea:focus{outline:2px solid var(--amber);border-color:var(--amber);}
+  .notetools{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 4px;}
+  .notetools button{background:rgba(255,255,255,.13);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:8px 16px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  .notetools button:hover{background:rgba(255,255,255,.25);}
+  .checkin{background:linear-gradient(135deg,#f0fbf8,#eef3fb);border:2px solid var(--teal);border-radius:16px;padding:22px 24px;margin:16px 0;}
+  .checkin h3{margin:0 0 4px;color:var(--navy);font-size:1.2rem;}
+  .checkin .ci-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;}
+  .checkin .ci-field{flex:1 1 240px;display:flex;flex-direction:column;gap:5px;}
+  .checkin label{font-weight:700;font-size:.85rem;color:var(--navy);}
+  .checkin input,.checkin select{padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:.95rem;background:#fff;width:100%;}
+  .checkin input:focus,.checkin select:focus{outline:2px solid var(--teal);border-color:var(--teal);}
+  .checkin .ci-submit{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:13px 26px;font-weight:800;font-size:1rem;cursor:pointer;font-family:inherit;margin-top:14px;}
+  .checkin .ci-submit:hover{background:#218a7d;}
+  .checkin .ci-submit:disabled{opacity:.5;cursor:not-allowed;}
+  .checkin .ci-msg{margin-top:10px;font-weight:700;font-size:.92rem;min-height:20px;}
+  .checkin .ci-msg.ok{color:#166b56;}
+  .checkin .ci-msg.err{color:var(--red);}
+  .hwbox{background:#fbf7ff;border:2px solid var(--purple);border-radius:16px;padding:20px 24px;margin:16px 0;}
+  .hwbox h3{margin:0 0 6px;color:var(--purple);}
+  .hwbox .hw-f{display:flex;flex-direction:column;gap:5px;margin-top:12px;}
+  .hwbox label{font-weight:700;font-size:.88rem;color:var(--navy);}
+  .hwbox .hw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px;}
+  .hwbox input[type=text]{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:.93rem;background:#fff;}
+  .hwbox input[type=text]:focus{outline:2px solid var(--purple);border-color:var(--purple);}
+  .hwbox textarea{width:100%;min-height:56px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:.93rem;line-height:1.6;background:#fff;}
+  .hwbox textarea:focus{outline:2px solid var(--purple);border-color:var(--purple);}
+  .qz-submit-wrap{margin-top:14px;text-align:center;display:none;}
+  .qz-msg{margin-top:10px;font-weight:700;font-size:.88rem;min-height:20px;}
+  .qz-msg.ok{color:#166b56;}
+  .qz-msg.err{color:var(--red);}
+  /* ============ PAGER (หัวข้อละหน้า) ============ */
+  body.paged .wrap{padding-top:64px;padding-bottom:104px;min-height:70vh;}
+  body.paged .wrap > section{display:none;border-bottom:none;padding:26px 0 24px;}
+  body.paged .wrap > section.active{display:block;animation:slideIn .34s ease;}
+  @keyframes slideIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  #pager{position:fixed;left:0;right:0;bottom:0;z-index:120;display:flex;align-items:center;justify-content:center;gap:16px;padding:11px 16px;background:rgba(15,44,77,.97);backdrop-filter:blur(6px);box-shadow:0 -2px 14px rgba(0,0,0,.2);}
+  body:not(.paged) #pager{display:none;}
+  #pager button{background:var(--teal);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:.95rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s;min-width:120px;}
+  #pager button:hover:not(:disabled){background:#218a7d;transform:translateY(-1px);}
+  #pager button:disabled{opacity:.32;cursor:not-allowed;}
+  #pager .pginfo{color:#fff;font-weight:700;font-size:.92rem;min-width:110px;text-align:center;}
+  #pager .pginfo b{color:var(--amber);font-size:1.05rem;}
+  @media(max-width:560px){#pager button{min-width:88px;padding:11px 12px;font-size:.86rem;}#pager .pginfo{min-width:90px;font-size:.82rem;}}
+
+  /* ============ [PATCH-PDF] ปุ่ม + สไตล์สำหรับส่งออก PDF ============ */
+  .pdfbtn{background:var(--amber);color:#3a2a00;border:none;border-radius:8px;padding:7px 14px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:.15s;margin-left:auto;}
+  .pdfbtn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+  .printnote,.printonly{display:none;}
+  #pdfHint{position:fixed;inset:0;background:rgba(15,44,77,.92);color:#fff;z-index:9999;display:none;align-items:center;justify-content:center;padding:24px;}
+  #pdfHint .box{max-width:520px;background:#fff;color:var(--ink);border-radius:14px;padding:24px 26px;line-height:1.7;}
+  #pdfHint h3{margin:0 0 10px;color:var(--navy);font-size:1.15rem;}
+  #pdfHint ol{margin:8px 0 14px;padding-left:20px;font-size:.94rem;}
+  #pdfHint button{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:800;font-size:.92rem;cursor:pointer;font-family:inherit;margin-right:8px;}
+  #pdfHint button.ghost{background:#e6ecf2;color:var(--navy);}
+
+  @media print{
+    @page{size:A4;margin:14mm 12mm;}
+    html,body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    body.paged .wrap > section{display:block!important;animation:none!important;border-bottom:1px solid var(--line);padding:18px 0 14px;}
+    header.hero{display:block!important;}
+    #nav,#pager,#progress,#pdfHint,iframe,.copybtn,.stepbtns,.wnav,.notetools,.qz-submit-wrap,#scoreband,#storageWarn,#inappWarn,.savemark,.evctl,button{display:none!important;}
+    .quiz .opts-grid{display:none!important;}
+    .quiz .fb{display:none!important;}
+    .printnote,.printonly{display:block!important;}
+    .printnote{white-space:pre-wrap;background:#fffdf6;border:1px solid #e9a93f;border-radius:8px;padding:10px 12px;font-size:.9rem;min-height:18px;}
+    .notebox textarea,textarea{display:none!important;}
+    input{border:none!important;background:transparent!important;font-weight:700;padding:0!important;}
+    pre{white-space:pre-wrap!important;word-break:break-word;opacity:1!important;outline:none!important;box-shadow:none!important;}
+    pre,.card,.note,.notebox,table,.q,figure{page-break-inside:avoid;break-inside:avoid;}
+    section h2,section h3{page-break-after:avoid;break-after:avoid;}
+    section{page-break-before:auto;}
+    a{color:var(--navy)!important;text-decoration:none;}
+    .hero-qr{position:static!important;display:inline-block;margin-bottom:8px;}
+
+    /* [PATCH-PDF2] ตัดส่วนที่ไม่จำเป็น/ใช้งานใน PDF ไม่ได้ ออกจากเอกสารพิมพ์ */
+    .checkin,.pdf-skip{display:none!important;}
+
+    /* [PATCH-PDF2] เว้นคอลัมน์ขวา ~1 ใน 4 ของหน้าไว้จดโน้ตด้วยลายมือ ในทุกหน้าที่พิมพ์ */
+    .wrap{
+      max-width:100%!important;
+      margin:0!important;
+      padding:0 27% 0 0!important;
+      box-sizing:border-box;
+      position:relative;
+      background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 26px,var(--line) 26px,var(--line) 27px);
+      background-position:right top;
+      background-size:24% 100%;
+      background-repeat:no-repeat;
+    }
+    .wrap::before{
+      content:"📝 พื้นที่จดโน้ต";
+      position:absolute;
+      top:0;right:0;width:24%;
+      text-align:center;
+      font-size:.74rem;font-weight:800;color:var(--muted);
+      padding-bottom:5px;margin-bottom:6px;
+      border-bottom:1px solid var(--line);
+    }
+  }
+  .copybtn{margin:6px 0 8px;}
+</style>
+</head>
+<body class="paged">
+<div id="progress"></div>
+<nav id="nav">
+  <span class="brand">🚚 Com Sim I · ครั้งที่ 4</span>
+  <a href="#s0">โจทย์</a>
+  <a href="#s1">ขอบเขตวันนี้</a>
+  <a href="#s2">KPI คลัง</a>
+  <a href="#s3">V vs V</a>
+  <a href="#s4">7 วิธี</a>
+  <a href="#s5">โมเดล dock</a>
+  <a href="#s6">Bug Hunt</a>
+  <a href="#s7">ตรวจโมเดลตัวเต็ม</a>
+  <a href="#s8">Lab Colab</a>
+  <a href="#s9">ตรวจกันเองในกลุ่ม</a>
+  <a href="#s10">Quiz</a>
+  <button class="pdfbtn" onclick="exportPDF()" title="ส่งออกเนื้อหาทั้งหมดเป็น PDF">📄 บันทึกเป็น PDF</button>
+</nav>
+
+<header class="hero">
+  <a class="hero-qr" href="https://namchai48.github.io/ComSim/class4" target="_blank" rel="noopener" title="เปิดสื่อครั้งที่ 4 — namchai48.github.io/ComSim/class4">
+    <svg viewBox="0 0 33 33" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="QR code เข้าสื่อครั้งที่ 4"><rect width="33" height="33" fill="#fff"/><g fill="#0f2c4d"><rect x="2" y="2" width="7" height="1"/><rect x="12" y="2" width="2" height="1"/><rect x="16" y="2" width="1" height="1"/><rect x="19" y="2" width="1" height="1"/><rect x="24" y="2" width="7" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="10" y="3" width="3" height="1"/><rect x="16" y="3" width="1" height="1"/><rect x="18" y="3" width="1" height="1"/><rect x="24" y="3" width="1" height="1"/><rect x="30" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="4" y="4" width="3" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="14" y="4" width="1" height="1"/><rect x="24" y="4" width="1" height="1"/><rect x="26" y="4" width="3" height="1"/><rect x="30" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="4" y="5" width="3" height="1"/><rect x="8" y="5" width="1" height="1"/><rect x="10" y="5" width="2" height="1"/><rect x="13" y="5" width="3" height="1"/><rect x="18" y="5" width="2" height="1"/><rect x="21" y="5" width="2" height="1"/><rect x="24" y="5" width="1" height="1"/><rect x="26" y="5" width="3" height="1"/><rect x="30" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="4" y="6" width="3" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="14" y="6" width="1" height="1"/><rect x="18" y="6" width="1" height="1"/><rect x="20" y="6" width="3" height="1"/><rect x="24" y="6" width="1" height="1"/><rect x="26" y="6" width="3" height="1"/><rect x="30" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="12" y="7" width="3" height="1"/><rect x="18" y="7" width="3" height="1"/><rect x="24" y="7" width="1" height="1"/><rect x="30" y="7" width="1" height="1"/><rect x="2" y="8" width="7" height="1"/><rect x="10" y="8" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="16" y="8" width="1" height="1"/><rect x="18" y="8" width="1" height="1"/><rect x="20" y="8" width="1" height="1"/><rect x="22" y="8" width="1" height="1"/><rect x="24" y="8" width="7" height="1"/><rect x="10" y="9" width="2" height="1"/><rect x="14" y="9" width="1" height="1"/><rect x="16" y="9" width="3" height="1"/><rect x="20" y="9" width="1" height="1"/><rect x="22" y="9" width="1" height="1"/><rect x="2" y="10" width="1" height="1"/><rect x="8" y="10" width="1" height="1"/><rect x="10" y="10" width="3" height="1"/><rect x="14" y="10" width="3" height="1"/><rect x="19" y="10" width="2" height="1"/><rect x="22" y="10" width="3" height="1"/><rect x="27" y="10" width="3" height="1"/><rect x="3" y="11" width="4" height="1"/><rect x="9" y="11" width="6" height="1"/><rect x="17" y="11" width="5" height="1"/><rect x="25" y="11" width="2" height="1"/><rect x="28" y="11" width="2" height="1"/><rect x="3" y="12" width="2" height="1"/><rect x="6" y="12" width="4" height="1"/><rect x="11" y="12" width="3" height="1"/><rect x="15" y="12" width="1" height="1"/><rect x="17" y="12" width="3" height="1"/><rect x="22" y="12" width="4" height="1"/><rect x="2" y="13" width="1" height="1"/><rect x="4" y="13" width="4" height="1"/><rect x="9" y="13" width="3" height="1"/><rect x="14" y="13" width="1" height="1"/><rect x="16" y="13" width="1" height="1"/><rect x="18" y="13" width="1" height="1"/><rect x="20" y="13" width="1" height="1"/><rect x="26" y="13" width="2" height="1"/><rect x="3" y="14" width="1" height="1"/><rect x="5" y="14" width="1" height="1"/><rect x="8" y="14" width="1" height="1"/><rect x="10" y="14" width="1" height="1"/><rect x="13" y="14" width="2" height="1"/><rect x="18" y="14" width="1" height="1"/><rect x="22" y="14" width="1" height="1"/><rect x="24" y="14" width="2" height="1"/><rect x="30" y="14" width="1" height="1"/><rect x="2" y="15" width="1" height="1"/><rect x="4" y="15" width="2" height="1"/><rect x="7" y="15" width="1" height="1"/><rect x="11" y="15" width="2" height="1"/><rect x="14" y="15" width="1" height="1"/><rect x="16" y="15" width="7" height="1"/><rect x="24" y="15" width="3" height="1"/><rect x="29" y="15" width="2" height="1"/><rect x="3" y="16" width="3" height="1"/><rect x="8" y="16" width="2" height="1"/><rect x="11" y="16" width="2" height="1"/><rect x="14" y="16" width="2" height="1"/><rect x="17" y="16" width="2" height="1"/><rect x="20" y="16" width="1" height="1"/><rect x="22" y="16" width="2" height="1"/><rect x="25" y="16" width="4" height="1"/><rect x="6" y="17" width="1" height="1"/><rect x="11" y="17" width="2" height="1"/><rect x="18" y="17" width="1" height="1"/><rect x="21" y="17" width="1" height="1"/><rect x="23" y="17" width="3" height="1"/><rect x="28" y="17" width="1" height="1"/><rect x="30" y="17" width="1" height="1"/><rect x="2" y="18" width="3" height="1"/><rect x="6" y="18" width="4" height="1"/><rect x="12" y="18" width="1" height="1"/><rect x="15" y="18" width="1" height="1"/><rect x="19" y="18" width="1" height="1"/><rect x="27" y="18" width="2" height="1"/><rect x="2" y="19" width="3" height="1"/><rect x="7" y="19" width="1" height="1"/><rect x="12" y="19" width="1" height="1"/><rect x="14" y="19" width="1" height="1"/><rect x="16" y="19" width="7" height="1"/><rect x="24" y="19" width="3" height="1"/><rect x="28" y="19" width="3" height="1"/><rect x="2" y="20" width="3" height="1"/><rect x="6" y="20" width="3" height="1"/><rect x="12" y="20" width="4" height="1"/><rect x="17" y="20" width="1" height="1"/><rect x="21" y="20" width="3" height="1"/><rect x="26" y="20" width="2" height="1"/><rect x="30" y="20" width="1" height="1"/><rect x="2" y="21" width="1" height="1"/><rect x="4" y="21" width="1" height="1"/><rect x="6" y="21" width="1" height="1"/><rect x="9" y="21" width="3" height="1"/><rect x="14" y="21" width="1" height="1"/><rect x="17" y="21" width="1" height="1"/><rect x="21" y="21" width="3" height="1"/><rect x="26" y="21" width="1" height="1"/><rect x="2" y="22" width="1" height="1"/><rect x="4" y="22" width="1" height="1"/><rect x="6" y="22" width="1" height="1"/><rect x="8" y="22" width="2" height="1"/><rect x="12" y="22" width="2" height="1"/><rect x="17" y="22" width="10" height="1"/><rect x="28" y="22" width="3" height="1"/><rect x="10" y="23" width="2" height="1"/><rect x="14" y="23" width="1" height="1"/><rect x="16" y="23" width="1" height="1"/><rect x="19" y="23" width="2" height="1"/><rect x="22" y="23" width="1" height="1"/><rect x="26" y="23" width="2" height="1"/><rect x="2" y="24" width="7" height="1"/><rect x="12" y="24" width="1" height="1"/><rect x="14" y="24" width="1" height="1"/><rect x="17" y="24" width="3" height="1"/><rect x="21" y="24" width="2" height="1"/><rect x="24" y="24" width="1" height="1"/><rect x="26" y="24" width="3" height="1"/><rect x="2" y="25" width="1" height="1"/><rect x="8" y="25" width="1" height="1"/><rect x="12" y="25" width="2" height="1"/><rect x="18" y="25" width="1" height="1"/><rect x="22" y="25" width="1" height="1"/><rect x="26" y="25" width="1" height="1"/><rect x="29" y="25" width="1" height="1"/><rect x="2" y="26" width="1" height="1"/><rect x="4" y="26" width="3" height="1"/><rect x="8" y="26" width="1" height="1"/><rect x="11" y="26" width="3" height="1"/><rect x="15" y="26" width="2" height="1"/><rect x="18" y="26" width="2" height="1"/><rect x="21" y="26" width="7" height="1"/><rect x="29" y="26" width="1" height="1"/><rect x="2" y="27" width="1" height="1"/><rect x="4" y="27" width="3" height="1"/><rect x="8" y="27" width="1" height="1"/><rect x="12" y="27" width="2" height="1"/><rect x="15" y="27" width="1" height="1"/><rect x="17" y="27" width="2" height="1"/><rect x="20" y="27" width="1" height="1"/><rect x="27" y="27" width="2" height="1"/><rect x="30" y="27" width="1" height="1"/><rect x="2" y="28" width="1" height="1"/><rect x="4" y="28" width="3" height="1"/><rect x="8" y="28" width="1" height="1"/><rect x="11" y="28" width="4" height="1"/><rect x="16" y="28" width="5" height="1"/><rect x="22" y="28" width="1" height="1"/><rect x="24" y="28" width="6" height="1"/><rect x="2" y="29" width="1" height="1"/><rect x="8" y="29" width="1" height="1"/><rect x="11" y="29" width="1" height="1"/><rect x="13" y="29" width="1" height="1"/><rect x="15" y="29" width="3" height="1"/><rect x="21" y="29" width="1" height="1"/><rect x="23" y="29" width="2" height="1"/><rect x="27" y="29" width="2" height="1"/><rect x="30" y="29" width="1" height="1"/><rect x="2" y="30" width="7" height="1"/><rect x="10" y="30" width="1" height="1"/><rect x="14" y="30" width="1" height="1"/><rect x="16" y="30" width="1" height="1"/><rect x="19" y="30" width="1" height="1"/><rect x="23" y="30" width="1" height="1"/><rect x="25" y="30" width="1" height="1"/><rect x="28" y="30" width="1" height="1"/></g></svg>
+    <span>สแกนเข้าสื่อ</span>
+  </a>
+  <h1>คิวรถบรรทุกที่ dock — ควรเพิ่มช่องขนถ่ายไหม?</h1>
+  <p class="sub">ครั้งที่ 4 · Verification — ตรวจโมเดลให้เชื่อได้ ก่อนเอาตัวเลขไปเสนอผู้บริหาร</p>
+  <p class="sub" style="font-size:.95rem;opacity:.9">💡 หัวใจ: โมเดลที่ยังไม่ได้ตรวจ = ความเห็นที่ใส่ตัวเลขให้ดูน่าเชื่อ</p>
+  <div class="badges">
+    <span class="badge">⏱️ 4 ชม.</span>
+    <span class="badge">🐍 Python / SimPy</span>
+    <span class="badge">🚚 เคส: คลังสินค้าจริง</span>
+    <span class="badge">💰 ตัดสินใจด้วยเงิน</span>
+  </div>
+</header>
+
+<div class="wrap">
+<div id="storageWarn" style="display:none;background:#fdecea;border:2px solid #d9534f;border-radius:12px;padding:14px 16px;margin:0 0 16px;color:#8a2a26;line-height:1.65">
+  <b>⚠️ เบราว์เซอร์นี้บันทึกโน้ตอัตโนมัติไม่ได้ — โน้ตจะหายเมื่อปิดหน้า</b><br>
+  <span style="font-size:.92rem">มักเกิดจากการเปิดไฟล์ในแอป LINE / Facebook / Messenger หรือใช้โหมดไม่ระบุตัวตน · แนะนำให้กด &ldquo;เปิดในเบราว์เซอร์&rdquo; (Chrome หรือ Safari) แล้วเปิดไฟล์นี้ใหม่ และกดปุ่ม <b>⬇️ ดาวน์โหลดโน้ต</b> ท้ายหน้าก่อนปิดทุกครั้ง</span>
+</div>
+<div id="inappWarn" style="display:none;background:#fff8e6;border:2px solid #e9a93f;border-radius:12px;padding:14px 16px;margin:0 0 16px;color:#7a5410;line-height:1.65">
+  <b>📱 คุณกำลังเปิดไฟล์นี้ในเบราว์เซอร์ภายในแอป</b><br>
+  <span style="font-size:.92rem">โน้ตที่จดไว้อาจหายเมื่อปิดแอป · กรุณากดเมนู (⋯) มุมขวาบน แล้วเลือก &ldquo;เปิดในเบราว์เซอร์&rdquo; / &ldquo;Open in Chrome/Safari&rdquo; ก่อนเริ่มจดโน้ต</span>
+</div>
+
+
+<!-- ===================== S0 INTRO ===================== -->
+<section id="s0">
+  <h2>เริ่มต้นคาบเรียน — เช็คชื่อ</h2>
+
+  <div class="card" style="border-top:4px solid var(--amber)">
+    <h3 style="margin-top:0">🚚 สถานการณ์ — คลังสินค้าแห่งหนึ่ง</h3>
+    <p style="font-size:.97rem;margin:8px 0">
+      คลังรับรถบรรทุกเข้ามาขนถ่ายสินค้าประมาณ <strong>60–65 คันต่อกะ</strong> (กะละ 8 ชั่วโมง = 480 นาที) ปัจจุบันมี <strong>ประตูขนถ่าย (dock) 3 ช่อง</strong><br>
+      สัญญากับบริษัทขนส่งระบุว่า ถ้ารถอยู่ในคลังนานเกิน <strong>45 นาที</strong> คลังต้องจ่ายค่าปรับ <strong>detention 2,500 บาท/ชั่วโมง</strong> ตามส่วน<br>
+      หัวหน้ากะบอกว่า <em>"ช่วงบ่ายรถล้น จอดรอกันเต็มลาน"</em> แต่<strong>ไม่มีตัวเลขยืนยัน</strong> — ผู้จัดการคลังจึงยังไม่กล้าอนุมัติงบ
+    </p>
+    <div class="note warn" style="margin:10px 0 0">
+      <span class="lb">คำถามที่ต้องตอบให้ผู้จัดการภายในสิ้นสัปดาห์</span>
+      <table class="tbl" style="margin:8px 0 0">
+        <tr><th style="width:90px">ทางเลือก</th><th>ทำอะไร</th><th style="width:180px">ต้นทุน</th></tr>
+        <tr><td><b>A</b></td><td>ไม่ทำอะไร — ใช้ dock 3 ช่องเหมือนเดิม</td><td>0 บาท (แต่จ่ายค่าปรับต่อไป)</td></tr>
+        <tr><td><b>B</b></td><td>จ้างทีมเสริมเปิดช่องที่ 4 <strong>ตลอดกะ</strong></td><td>2,400 บาท/วัน · ยกเลิกได้</td></tr>
+        <tr><td><b>C</b></td><td>จ้างทีมเสริมเปิดช่องที่ 4 <strong>เฉพาะช่วงบ่าย</strong> (นาทีที่ 240 เป็นต้นไป)</td><td>1,200 บาท/วัน · ยกเลิกได้</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <h3>🎯 วัตถุประสงค์การเรียนรู้ — เมื่อจบครั้งที่ 4 นักศึกษาจะ...</h3>
+    <ol style="font-size:.95rem;line-height:1.9;margin:8px 0 4px">
+      <li><strong>ตั้งคำถามเชิงตัดสินใจ</strong> ที่วัดผลได้ และระบุ KPI ที่ผู้ตัดสินใจสนใจจริง (หัวข้อ 1–2)</li>
+      <li><strong>อ่านและปรับโมเดลคิวหลายช่องบริการ</strong> ที่ทรัพยากรเปลี่ยนกลางกะ ด้วย SimPy (หัวข้อ 5)</li>
+      <li><strong>แยก Verification กับ Validation</strong> และใช้ 7 วิธีตรวจโมเดล (หัวข้อ 3–4)</li>
+      <li><strong>ตรวจโมเดลจนเชื่อได้</strong> ด้วย output check · ปิดความสุ่ม · trace · extreme test · กฎของ Little (หัวข้อ 6–7)</li>
+      <li><strong>บันทึกหลักฐานการตรวจ</strong>ลงเช็กลิสต์ Verification และระบุจุดที่ยังไม่ผ่านอย่างซื่อสัตย์ (หัวข้อ 9)</li>
+    </ol>
+    <div class="note tip" style="margin-top:10px">
+      <span class="lb">หัวใจของวันนี้</span>
+      โมเดลที่ยังไม่ได้ตรวจ = ความเห็นที่ใส่ตัวเลขให้ดูน่าเชื่อ · <strong>Verification คือสิ่งที่ทำให้เรากล้าเอาตัวเลขไปเสนอผู้บริหาร</strong>
+    </div>
+  </div>
+
+  <!-- Check-in -->
+  <div class="checkin">
+    <h3>✅ เช็คชื่อเข้าเรียน — ครั้งที่ 4</h3>
+    <p style="margin:2px 0 0;color:var(--muted);font-size:.9rem">กรอกอีเมลและเลือกชื่อของคุณ แล้วกดส่ง — ข้อมูลจะถูกส่งเข้า Google Form ของอาจารย์ทันที</p>
+    <div class="ci-row">
+      <div class="ci-field">
+        <label>อีเมล *</label>
+        <input type="email" id="ci_email" placeholder="you@go.buu.ac.th" autocomplete="email">
+      </div>
+      <div class="ci-field">
+        <label>เลือกชื่อ–รหัสนิสิต *</label>
+        <select id="ci_student"><option value="">— เลือก —</option></select>
+      </div>
+    </div>
+    <button class="ci-submit" id="ci_btn" onclick="submitCheckin()">📩 ส่งเช็คชื่อ</button>
+    <div class="ci-msg" id="ci_msg"></div>
+    <div class="note tip" id="ci_note" style="display:none"></div>
+    <iframe name="ci_target" id="ci_target" style="display:none" title="hidden"></iframe>
+    <form id="ci_form" action="https://docs.google.com/forms/d/e/1FAIpQLSd5A5_cwyc2AR8M6Y_yU7L6Q8MqJbM5Uaq5Onwy7WXeV-MkCA/formResponse" method="POST" target="ci_target" style="display:none">
+      <input type="hidden" name="emailAddress" id="ci_f_email">
+      <input type="hidden" name="entry.1463252013" id="ci_f_student">
+      <input type="hidden" name="fvv" value="1">
+      <input type="hidden" name="pageHistory" value="0">
+    </form>
+  </div>
+
+</section>
+
+<!-- ===================== S1 BRIDGE + DECISION FRAME ===================== -->
+<section id="s1">
+  <h2><span class="num">1</span> จากโมเดล → สู่หลักฐานที่เชื่อได้</h2>
+  <p class="lead">ครั้งที่ 3 เราสร้าง "เครื่องจักร" ได้แล้ว — วันนี้ทั้งคาบเราถามคำถามเดียวคือ <strong>"เครื่องจักรนี้เชื่อได้ไหม"</strong></p>
+
+  <div class="grid2">
+    <div class="card" style="border-top:4px solid var(--amber)">
+      <h3 style="margin-top:0">⬅️ ครั้งที่ 3 ได้อะไรมาแล้ว</h3>
+      <ul style="font-size:.93rem;margin:6px 0">
+        <li>หลักการ DES: เวลา "กระโดด" ทีละเหตุการณ์</li>
+        <li>4 องค์ประกอบ SimPy: <code>Environment</code> / <code>process</code> / <code>Resource</code> / <code>timeout</code></li>
+        <li>โมเดลคิวหลายช่องบริการ รันบน Colab ปรับพารามิเตอร์ได้</li>
+        <li><code>random.seed()</code> — ล็อกลำดับค่าสุ่มให้ผลซ้ำได้</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:4px solid var(--teal)">
+      <h3 style="margin-top:0">➡️ วันนี้ (ครั้งที่ 4)</h3>
+      <ul style="font-size:.93rem;margin:6px 0">
+        <li>เปลี่ยนโจทย์เป็น <strong>ระบบโลจิสติกส์จริง</strong> — คิวรถบรรทุกที่ dock</li>
+        <li><strong>KPI ภาษาคลังสินค้า</strong> — ใช้เป็นเครื่องมือตรวจความสมเหตุสมผลของผล</li>
+        <li><strong>Verification</strong> 7 วิธี — ทำให้โมเดลเชื่อถือได้ก่อนเสนอ</li>
+        <li>ปิดท้ายด้วย <strong>Verification Report</strong> ของกลุ่ม — หลักฐานว่าเชื่อโมเดลได้แค่ไหน</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--purple)">
+    <h3 style="margin-top:0">🔄 วงจร "โจทย์ธุรกิจ → โมเดล → หลักฐาน → ข้อเสนอ"</h3>
+    <div class="stepbtns" id="cycleBtns"></div>
+    <div class="stepdesc" id="cycleDesc">กดปุ่มด้านบนเพื่อดูรายละเอียดแต่ละขั้น</div>
+    <div class="note warn" style="margin-top:10px">
+      <span class="lb">ขั้นที่คนข้ามบ่อยที่สุด</span>
+      ขั้นที่ <strong>4 (ตรวจโมเดล)</strong> — เพราะโมเดลรันได้แล้วมันน่าตื่นเต้น อยากรีบเอาตัวเลขไปบอกคนอื่น · แต่ถ้าข้ามขั้นนี้ ตัวเลขที่เอาไปเสนออาจมาจาก bug ทั้งดุ้น
+    </div>
+  </div>
+
+</section>
+
+<!-- ===================== S2 KPI ===================== -->
+<section id="s2">
+  <h2><span class="num">2</span> KPI ภาษาคลังสินค้า — รู้ว่าวัดอะไร ถึงจะรู้ว่าตัวเลขไหน "ผิดปกติ"</h2>
+  <p class="lead">โมเดลให้ตัวเลขได้เป็นร้อยตัว แต่ผู้จัดการสนใจไม่กี่ตัว — เลือกผิดตั้งแต่ต้น งานทั้งหมดก็เปล่าประโยชน์</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">📊 KPI หลักของงาน dock &amp; คลังสินค้า</h3>
+    <table class="tbl">
+      <tr><th style="width:26%">KPI</th><th style="width:12%">ทิศทางที่ดี</th><th>ความหมายและใครสนใจ</th></tr>
+      <tr><td><strong>Truck turnaround time</strong><br><span class="en">เวลารถอยู่ในคลัง</span></td><td>ต่ำ = ดี</td><td>ตั้งแต่รถมาถึงจนออกจากคลัง (รอ + ขนถ่าย) — <strong>ผูกกับค่าปรับ detention โดยตรง</strong> · บริษัทขนส่งและฝ่ายการเงินสนใจตัวนี้ที่สุด</td></tr>
+      <tr><td><strong>Waiting time</strong><br><span class="en">เวลาจอดรอ</span></td><td>ต่ำ = ดี</td><td>เฉพาะช่วงที่รถ "จอดเฉย ๆ" ยังไม่ได้เข้าช่อง — เป็นเวลาที่ <em>ไม่สร้างมูลค่า</em> เลย · เป็นตัวที่ปรับปรุงได้ด้วยการเพิ่มช่อง</td></tr>
+      <tr><td><strong>Dock utilization</strong><br><span class="en">อัตราใช้งานช่อง</span></td><td>60–85% = เหมาะ</td><td>สัดส่วนเวลาที่ช่องมีงานทำ · <strong>สูงเกิน 90% = ระบบเปราะ</strong> เจอรถมาพร้อมกันทีเดียวคิวพังทันที · ต่ำเกิน 50% = ลงทุนเกินจำเป็น</td></tr>
+      <tr><td><strong>Throughput</strong></td><td>สูง = ดี</td><td>จำนวนรถที่ขนถ่ายเสร็จต่อกะ — ผู้จัดการคลังใช้วัดกำลังการผลิตของคลัง</td></tr>
+      <tr><td><strong>คิวรถค้างสิ้นกะ</strong><br><span class="en">backlog</span></td><td>ต่ำ = ดี</td><td>รถที่ยังไม่ได้ขนถ่ายตอนหมดกะ → ต้องทำ OT หรือดันไปกะถัดไป · <strong>KPI ที่คนลืมรายงานบ่อยที่สุด</strong></td></tr>
+      <tr><td><strong>% รถที่เกิน 45 นาที</strong></td><td>ต่ำ = ดี</td><td>สัดส่วนรถที่ทำให้เกิดค่าปรับ (เกินเวลาผ่อนผัน 45 นาที) — เป็นเกณฑ์ในสัญญา จึงสื่อสารกับผู้บริหารง่ายกว่าค่าเฉลี่ย</td></tr>
+      <tr><td><strong>ค่าปรับ detention</strong></td><td>ต่ำ = ดี</td><td>แปลงทุกอย่างข้างบนเป็น <strong>บาท</strong> — ภาษาเดียวที่ใช้เทียบกับเงินลงทุนได้</td></tr>
+    </table>
+  </div>
+
+
+  <div class="note warn">
+    <span class="lb">กับดักที่ทำให้ข้อเสนอถูกตีตก</span>
+    รายงาน <strong>ค่าเฉลี่ยอย่างเดียว</strong> — "เวลาเฉลี่ย 38 นาที ต่ำกว่าเกณฑ์ 45 นาที ไม่ต้องทำอะไร" ฟังดูดี แต่ถ้าค่าสูงสุดคือ 145 นาที และมีรถค้างสิ้นกะ 8 คัน ระบบนี้กำลังมีปัญหาหนัก ·
+    <strong>ต้องรายงาน ค่าเฉลี่ย + ค่าสูงสุด + งานค้าง ควบคู่กันเสมอ</strong>
+  </div>
+</section>
+
+<!-- ===================== S3 V vs V ===================== -->
+<section id="s3">
+  <h2><span class="num">3</span> ทำไมต้องตรวจโมเดล — และ Verification ต่างจาก Validation อย่างไร</h2>
+  <p class="lead">โมเดลที่มี bug จะยังรันได้และให้ตัวเลขหน้าตาน่าเชื่อถือ — นั่นคือสิ่งที่อันตรายที่สุด</p>
+
+  <div class="card" style="border-top:4px solid var(--red)">
+    <p style="font-size:1.35rem;line-height:1.6;margin:14px 0 10px;text-align:center;font-weight:700">💬 <em>"All models are wrong, but some are useful"</em></p>
+    <p style="font-size:1rem;margin:0 0 6px;text-align:center;color:var(--muted)">— George E. P. Box</p>
+    <p style="font-size:1.02rem;line-height:1.7;margin:12px 0 0;text-align:center">เป้าหมายไม่ใช่โมเดลสมบูรณ์แบบ แต่คือ <strong>"ถูกต้องพอสำหรับการตัดสินใจนี้"</strong></p>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="border-top:4px solid var(--teal)">
+      <h3 style="margin-top:0">🔧 Verification <span class="en">(วันนี้)</span></h3>
+      <p style="font-size:1.02rem;margin:6px 0"><strong>"เราสร้างโมเดลถูกวิธีไหม?"</strong><br><span class="en">Did we build the model right?</span></p>
+      <ul style="font-size:.93rem;margin:6px 0">
+        <li>เทียบ: <strong>โค้ด ↔ สิ่งที่เราออกแบบไว้</strong></li>
+        <li>เครื่องมือ: output check, trace, ปิดความสุ่ม, extreme test, กฎของ Little, walkthrough</li>
+        <li>เปรียบ: <em>ตรวจว่าก่อสร้างตรงตามแบบแปลน</em></li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:4px solid var(--amber)">
+      <h3 style="margin-top:0">🌍 Validation <span class="en">(ครั้งหน้า)</span></h3>
+      <p style="font-size:1.02rem;margin:6px 0"><strong>"เราสร้างโมเดลถูกตัวไหม?"</strong><br><span class="en">Did we build the right model?</span></p>
+      <ul style="font-size:.93rem;margin:6px 0">
+        <li>เทียบ: <strong>โมเดล ↔ คลังจริง</strong></li>
+        <li>เครื่องมือ: เทียบข้อมูลจริง, t-test, ถามหัวหน้ากะ, sensitivity</li>
+        <li>เปรียบ: <em>ตรวจว่าแบบแปลนตรงกับความต้องการของผู้ใช้จริง</em></li>
+      </ul>
+    </div>
+  </div>
+
+
+</section>
+
+<!-- ===================== S4 SEVEN WAYS ===================== -->
+<section id="s4">
+  <h2><span class="num">4</span> 7 วิธี Verification — คลังเครื่องมือจับ bug</h2>
+  <p class="lead">แต่ละวิธีเหมาะกับสถานการณ์ต่างกัน นักสร้างโมเดลที่ดีใช้หลายวิธีร่วมกัน</p>
+
+  <div class="note tip">
+    <span class="lb">📖 คำศัพท์ใหม่ในหัวข้อนี้</span>
+    <ul style="margin:6px 0 0;padding-left:20px;font-size:.92rem;line-height:1.9">
+      <li><strong>ρ (rho)</strong> — อัตราส่วน "งานที่ต้องทำ ÷ กำลังการผลิตที่มี" บอกว่าระบบรับไหวหรือไม่ · ρ ≥ 1 = งานเข้าเร็วกว่าที่รับได้ คิวจะยาวขึ้นเรื่อย ๆ ไม่มีวันหยุด (อธิบายละเอียดในหัวข้อ 5)</li>
+      <li><strong>assert</strong> — คำสั่งในโค้ดที่เช็คว่า "เงื่อนไขนี้ต้องเป็นจริงเสมอ" ถ้าเท็จเมื่อไรโปรแกรมจะหยุดทันทีตรงจุดนั้น เหมือนยามเฝ้าคอยดักค่าที่เป็นไปไม่ได้ทางตรรกะ (ตัวอย่างจริงในหัวข้อ 6–8)</li>
+      <li><strong>trace</strong> — การ print เหตุการณ์ทุกอย่างพร้อมเวลาที่เกิดออกมาดูทีละบรรทัด เพื่อไล่เช็คว่าลำดับเหตุการณ์ตรงกับที่ตั้งใจออกแบบไว้ไหม</li>
+      <li><strong>watch</strong> — ค่าที่เราคอยจับตาดูระหว่างรันโมเดล (เช่น ดูใน debugger หรือ log) คล้าย assert แต่แค่เตือน/แสดงผล ไม่หยุดโปรแกรม</li>
+    </ul>
+  </div>
+
+  <div class="card" id="vwList"></div>
+
+
+  <div class="note ask">
+    <span class="lb">คำถามชวนคิด</span>
+    ถ้าโมเดล dock ของคุณรายงาน <strong>utilization ของช่องที่ 4 = 118%</strong> — ควรใช้วิธีไหนไล่หาสาเหตุก่อน? แล้วถ้าโมเดลบอกว่า "เปิดช่องที่ 4 แล้วเวลารอ<strong>เพิ่มขึ้น</strong>" วิธีไหนช่วยยืนยันว่ามี bug?
+  </div>
+</section>
+
+<!-- ===================== S5 MODEL ===================== -->
+<section id="s5">
+  <h2><span class="num">5</span> โมเดล dock — และเทคนิค "คาดผลก่อนรัน"</h2>
+  <p class="lead">ถ้าไม่รู้ว่า "ควรได้เท่าไร" ก็ไม่มีทางรู้ว่าผลที่ได้ "ผิด" — ทำให้โมเดลง่ายจนคำนวณมือได้ก่อน</p>
+
+  <div class="card" style="border-top:4px solid var(--amber)">
+    <h3 style="margin-top:0">✏️ คำนวณมือก่อน — "ช่วงบ่ายรถล้นจริงไหม"</h3>
+    <table class="tbl">
+      <tr><th>ช่วง</th><th>รถเข้า</th><th>งานที่ต้องทำ</th><th>กำลังผลิต (3 ช่อง)</th><th>ρ = งาน ÷ กำลัง</th></tr>
+      <tr><td>เช้า (0–240 น.)</td><td>เฉลี่ยทุก 10 นาที ≈ 24 คัน</td><td>24 × 22 = 528 นาที</td><td>3 × 240 = 720 นาที</td><td><b style="color:var(--teal)">0.73 — สบาย</b></td></tr>
+      <tr><td>บ่าย (240–480 น.)</td><td>เฉลี่ยทุก 6 นาที ≈ 40 คัน</td><td>40 × 22 = 880 นาที</td><td>3 × 240 = 720 นาที</td><td><b style="color:var(--red)">1.22 — รับไม่ไหว!</b></td></tr>
+    </table>
+    <div class="note tip" style="margin-top:8px">
+      <span class="lb">อ่านค่า ρ (rho) ให้เป็น</span>
+      ρ = ปริมาณงาน ÷ กำลังการผลิต · <strong>ρ ≥ 1 = คิวโตขึ้นเรื่อย ๆ ไม่มีวันหยุด</strong> · ρ ≈ 0.85–0.95 = คิวยาวแต่ยังไม่ระเบิด · ρ &lt; 0.7 = สบาย<br>
+      → <strong>หัวหน้ากะพูดถูก</strong> และเรารู้ตั้งแต่ยังไม่รันโมเดลว่า "ปัญหาอยู่ช่วงบ่าย" · ถ้าโมเดลรันออกมาแล้วบอกว่าช่วงบ่ายสบาย <b>= มี bug แน่นอน</b>
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">🐍 โค้ดโมเดล dock <span class="en">(ฉบับถูกต้อง — คัดลอกไปใช้ใน Colab ได้เลย)</span></h3>
+    <p style="font-size:.92rem;margin:4px 0 8px">จุดที่ยากที่สุดคือ <strong>ทางเลือก C: ช่องที่ 4 เปิดกลางกะ</strong> — SimPy เพิ่ม capacity ตรง ๆ ไม่ได้ เราจึงใช้ทริก <em>"จองช่องไว้ก่อน แล้วค่อยปล่อยคืนตอนทีมเสริมมา"</em></p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0">
+      <button class="act teal" onclick="window.open('https://colab.research.google.com','_blank')">🚀 เปิด Google Colab</button>
+      <button class="copybtn act amber" onclick="copyCode('codeDock',this)">📋 คัดลอกโค้ดทั้งหมด</button>
+    </div>
+<pre id="codeDock"><span class="c"># ===== คิวรถบรรทุกที่ประตูขนถ่าย (dock) =====</span>
+<span class="k">import</span> simpy, random
+
+SHIFT      = <span class="s">480</span>    <span class="c"># กะละ 8 ชั่วโมง</span>
+NOON       = <span class="s">240</span>    <span class="c"># เส้นแบ่งเช้า/บ่าย</span>
+IAT_AM     = <span class="s">10</span>     <span class="c"># เช้า: รถเข้าเฉลี่ยทุก 10 นาที</span>
+IAT_PM     = <span class="s">6</span>      <span class="c"># บ่าย: รถเข้าเฉลี่ยทุก 6 นาที (พีค)</span>
+SVC        = (<span class="s">12</span>, <span class="s">20</span>, <span class="s">34</span>)   <span class="c"># เวลาขนถ่าย Triangular(ต่ำสุด, ฐานนิยม, สูงสุด) เฉลี่ย 22</span>
+BASE_DOCKS = <span class="s">3</span>
+EXTRA_FROM = <span class="s">240</span>    <span class="c"># ทีมเสริมเปิดช่องที่ 4 ตั้งแต่นาทีนี้ (None = ไม่มีทีมเสริม)</span>
+
+log = []          <span class="c"># เก็บทุกคัน: (มาถึง, เริ่มขนถ่าย, ออก)</span>
+busy = <span class="s">0.0</span>
+n_arrived = <span class="s">0</span>     <span class="c"># นับรถที่เข้าระบบทั้งหมด (ใช้ตรวจในหัวข้อ 8)</span>
+
+<span class="k">def</span> truck(env, name, dock):
+    <span class="k">global</span> busy
+    arrive = env.now
+    <span class="k">with</span> dock.request() <span class="k">as</span> req:
+        <span class="k">yield</span> req
+        start = env.now
+        s = random.triangular(*SVC)
+        busy += s
+        <span class="k">yield</span> env.timeout(s)
+    log.append((arrive, start, env.now))     <span class="c"># รอ = start - arrive</span>
+
+<span class="k">def</span> arrivals(env, dock):
+    <span class="k">global</span> n_arrived
+    <span class="k">while</span> True:
+        mean = IAT_AM <span class="k">if</span> env.now &lt; NOON <span class="k">else</span> IAT_PM   <span class="c"># อัตราต่างกันตามช่วงเวลา</span>
+        <span class="k">yield</span> env.timeout(random.expovariate(<span class="s">1</span>/mean))
+        <span class="k">if</span> env.now &gt;= SHIFT: <span class="k">break</span>                    <span class="c"># หมดกะ ไม่รับรถใหม่</span>
+        n_arrived += <span class="s">1</span>
+        env.process(truck(env, n_arrived, dock))
+
+<span class="k">def</span> extra_team(env, dock):
+    <span class="c"># ★ ทริก: จองช่องที่ 4 ไว้ตั้งแต่ต้นกะ แล้วปล่อยคืนตอนทีมเสริมมาถึง</span>
+    req = dock.request()
+    <span class="k">yield</span> req
+    <span class="k">yield</span> env.timeout(EXTRA_FROM)
+    dock.release(req)
+    <span class="k">print</span>(<span class="s">f"t={env.now:6.1f}  ทีมเสริมมาถึง เปิดช่องที่ 4"</span>)
+
+random.seed(<span class="s">42</span>)
+env  = simpy.Environment()
+n_docks = BASE_DOCKS + (<span class="s">1</span> <span class="k">if</span> EXTRA_FROM <span class="k">is</span> <span class="k">not</span> None <span class="k">else</span> <span class="s">0</span>)
+dock = simpy.Resource(env, capacity=n_docks)
+env.process(arrivals(env, dock))
+<span class="k">if</span> EXTRA_FROM <span class="k">is</span> <span class="k">not</span> None: env.process(extra_team(env, dock))
+env.run(until=SHIFT)
+
+<span class="c"># dock-minutes ที่มีจริง = 3 ช่องเต็มกะ + ช่องที่ 4 เฉพาะช่วงที่เปิด</span>
+dock_min = BASE_DOCKS*SHIFT + (SHIFT - EXTRA_FROM <span class="k">if</span> EXTRA_FROM <span class="k">is</span> <span class="k">not</span> None <span class="k">else</span> <span class="s">0</span>)
+<span class="k">print</span>(<span class="s">f"Utilization = {busy/dock_min:.1%}"</span>)</pre>
+    <div class="note warn" style="margin-top:10px">
+      <span class="lb">3 จุดที่พลาดกันบ่อยที่สุด</span>
+      ① <b>turnaround ≠ waiting</b> — turnaround = ออก − มาถึง (รวมเวลาขนถ่าย) · waiting = เริ่มขนถ่าย − มาถึง ·
+      ② <b>ตัวหาร utilization</b> ต้องเป็น dock-minutes ที่มีจริง ไม่ใช่ 480 ·
+      ③ <b>รถที่ค้างตอนหมดกะ</b> จะไม่ถูก <code>log.append</code> เลย ต้องนับแยกต่างหาก
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <h3 style="margin-top:0">🤖 อยากสร้างโมเดล "ระบบของกลุ่มเราเอง" — สั่ง Gemini ใน Colab แบบนี้</h3>
+    <p style="font-size:.92rem;margin:4px 0 8px">โมเดล dock ข้างบนคือโจทย์กลางของวันนี้ · แต่ถ้ากลุ่มคุณมีระบบของตัวเอง (ร้านกาแฟ · คลินิก · จุดคัดแยกพัสดุ · ด่านชั่งน้ำหนัก) ให้กรอกสเปกลงตารางนี้ แล้วกดสร้าง prompt ไปวางใน Gemini ได้เลย — <strong>โค้ดที่ได้จะใช้กับเซลล์ตรวจในหัวข้อ 8 ได้ทันที</strong> เพราะ prompt บังคับชื่อตัวแปรไว้ให้แล้ว</p>
+
+    <table class="tbl">
+      <tr><th style="width:30%">กรอกสเปกระบบของกลุ่ม</th><th>ตัวอย่าง</th><th>ของกลุ่มเรา</th></tr>
+      <tr><td>ระบบคืออะไร</td><td class="en">คิวรับยาที่ห้องยาโรงพยาบาล</td><td><input data-lab="pm_sys" placeholder="เช่น คิวสั่งกาแฟหน้าร้าน"></td></tr>
+      <tr><td>สิ่งที่ไหลผ่านระบบ (entity)</td><td class="en">ผู้ป่วยที่มารับยา</td><td><input data-lab="pm_ent" placeholder="เช่น ลูกค้า"></td></tr>
+      <tr><td>ผู้ให้บริการ/ทรัพยากร + จำนวน</td><td class="en">เภสัชกร 2 คน</td><td><input data-lab="pm_res" placeholder="เช่น บาริสต้า 2 คน"></td></tr>
+      <tr><td>การมาถึง (เฉลี่ยกี่นาที/ราย)</td><td class="en">Exponential เฉลี่ยทุก 4 นาที · ช่วงพีค 11:00–13:00 ทุก 2 นาที</td><td><input data-lab="pm_iat" placeholder="เช่น ทุก 3 นาที · พีคเช้า ทุก 1.5 นาที"></td></tr>
+      <tr><td>เวลาให้บริการ</td><td class="en">Triangular(3, 6, 12) นาที</td><td><input data-lab="pm_svc" placeholder="เช่น Triangular(2, 4, 9) นาที"></td></tr>
+      <tr><td>ช่วงเวลาที่จำลอง</td><td class="en">480 นาที (1 กะ)</td><td><input data-lab="pm_t" placeholder="เช่น 240 นาที"></td></tr>
+      <tr><td>มีอะไรเปลี่ยนกลางรันไหม</td><td class="en">เพิ่มเภสัชกรคนที่ 3 ตั้งแต่นาทีที่ 180</td><td><input data-lab="pm_chg" placeholder="ไม่มี / เปิดเพิ่มนาทีที่ ..."></td></tr>
+      <tr><td>KPI ที่ต้องรายงาน</td><td class="en">เวลารอเฉลี่ย · เวลารวมในระบบ · คิวค้างสิ้นกะ · utilization</td><td><input data-lab="pm_kpi" placeholder="เช่น เวลารอเฉลี่ย · คิวค้าง"></td></tr>
+    </table>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 4px">
+      <button class="act teal" onclick="buildPrompt()">🪄 สร้าง prompt จากสเปกด้านบน</button>
+      <button class="copybtn act amber" onclick="copyCode('promptOut',this)">📋 คัดลอก prompt</button>
+    </div>
+    <pre id="promptOut" style="white-space:pre-wrap">กดปุ่ม "🪄 สร้าง prompt" เพื่อประกอบข้อความจากสเปกที่กรอกไว้ (ช่องที่เว้นว่างจะกลายเป็น [...] ให้เติมเองใน Gemini)</pre>
+
+    <div class="note warn">
+      <span class="lb">ตรวจโค้ดที่ AI ให้มาก่อนใช้ — 4 ข้อนี้ต้องครบ</span>
+      ① มีตัวแปร <code>log</code> เก็บ <b>(เวลามาถึง, เวลาเริ่มบริการ, เวลาออก)</b> ของทุกรายที่ได้รับบริการจนจบ ·
+      ② มี <code>n_arrived</code> นับ<b>ทุกราย</b>ที่เข้าระบบ (รวมที่ยังไม่ได้รับบริการ) ·
+      ③ มี <code>busy</code> และ <code>dock_min</code> (นาที-ทรัพยากรที่มีจริง) สำหรับคิด utilization ·
+      ④ มี <code>SHIFT</code> เป็นความยาวเวลาที่จำลอง<br>
+      ถ้าขาดข้อไหน ให้บอก Gemini ว่า <em>"ช่วยเพิ่มตัวแปร ... โดยไม่เปลี่ยนตรรกะเดิม"</em> — <strong>ครบ 4 ข้อแล้วเซลล์ตรวจทั้งหมดในหัวข้อ 8 จะใช้ได้ทันทีโดยไม่ต้องแก้อะไรเลย</strong>
+    </div>
+
+    <div class="note ask">
+      <span class="lb">⚠️ ข้อควรจำ</span>
+      Gemini จะให้โค้ดที่ <b>รันผ่านเสมอ</b> — แต่มัน<b>ไม่รู้ระบบจริงของกลุ่มคุณ</b> ส่วนที่คุณไม่ได้บอก มันจะเดาให้อย่างมั่นใจโดยไม่มีคำเตือน · โค้ดที่เพิ่งได้มาจึงยัง<strong>เชื่อไม่ได้จนกว่าจะผ่านด่านตรวจในหัวข้อ 8</strong> — นั่นคือเหตุผลทั้งหมดของคาบนี้
+    </div>
+  </div>
+
+</section>
+
+<!-- ===================== S6 BUG HUNT ===================== -->
+<section id="s6">
+  <h2><span class="num">6</span> Bug Hunt — ล่า bug ในโมเดล dock 🐞</h2>
+  <p class="lead">โค้ดข้างล่าง "รันผ่าน" ไม่มี error แต่ซ่อน <strong>logic bug ไว้ 3 จุด</strong> — คลิกบรรทัดที่คุณคิดว่ามี bug</p>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <h3 style="margin:0">🔎 พบแล้ว <span id="bugCount" style="color:var(--teal)">0</span> / 3 จุด</h3>
+      <button class="act amber" onclick="bugReset()">🔄 เริ่มใหม่</button>
+    </div>
+    <pre class="bughunt" id="bugPre"></pre>
+    <div class="bugfb" id="bugFb"></div>
+    <div class="note tip" id="bugDone" style="display:none">
+      <span class="lb">ครบ 3 จุด! 🎉</span>
+      ทั้ง 3 bug ไม่ทำให้โปรแกรมพัง โค้ดรันจบสวยงามทุกครั้ง มีแต่ "ตัวเลขที่ผิดความหมาย" — และทั้งสามจุด<strong>ทำให้ข้อเสนอต่อผู้บริหารผิดคนละทิศ</strong>: จุดหนึ่งทำให้ดูเหมือนไม่มีปัญหา จุดหนึ่งทำให้ดูเหมือนต้องลงทุนด่วน อีกจุดทำให้ตัวเลขที่รายงานไปเป็นไปไม่ได้ทางกายภาพ
+    </div>
+  </div>
+
+  <div class="note ask">
+    <span class="lb">อภิปราย</span>
+    bug ทั้ง 3 จุด — จุดไหนจับได้ด้วย "คำนวณมือแล้วเทียบ"? จุดไหนต้องพึ่ง <strong>trace</strong>? และจุดไหนที่ <code>assert</code> เพียงบรรทัดเดียวจะดักไว้ได้ตั้งแต่แรก?
+  </div>
+</section>
+
+<!-- ===================== S7 TRACE + DECIDE ===================== -->
+<section id="s7">
+  <h2><span class="num">7</span> ตรวจโมเดลตัวเต็ม — trace · กราฟ · สุดขั้ว · กฎของ Little</h2>
+  <p class="lead">รวมเครื่องมือตรวจไว้ในที่เดียว — เลื่อนค่า กดรัน แล้วอ่านหลักฐานว่าโมเดลนี้ "เชื่อได้" หรือยัง</p>
+
+  <div class="card pdf-skip">
+    <h3 style="margin-top:0">🎛️ โมเดล dock ตัวเต็ม</h3>
+    <div class="controls">
+      <div class="ctl"><label>จำนวน dock พื้นฐาน</label><input type="range" id="rDock" min="1" max="6" value="3" oninput="updVals()"> <span class="val" id="vDock">3</span></div>
+      <div class="ctl"><label>รถเข้าเฉลี่ย เช้า (นาที/คัน)</label><input type="range" id="rAm" min="3" max="15" step="1" value="10" oninput="updVals()"> <span class="val" id="vAm">10</span></div>
+      <div class="ctl"><label>รถเข้าเฉลี่ย บ่าย (นาที/คัน)</label><input type="range" id="rPm" min="2" max="15" step="1" value="6" oninput="updVals()"> <span class="val" id="vPm">6</span></div>
+      <div class="ctl"><label>Seed <span class="en">(ของหน้านี้ ไม่ใช่ของ Colab)</span></label><input type="number" id="nSeed" value="7" min="1" max="9999"></div>
+      <div class="ctl"><label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="cExtra"> เปิดช่องเสริมตั้งแต่นาทีที่ 240</label></div>
+      <div class="ctl"><label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="cDet"> ปิดความสุ่ม</label></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="act teal" onclick="runTrace()">▶ รัน 1 กะ + ดู trace</button>
+      <button class="act red" onclick="extremePreset()">💥 Extreme test: รถถล่ม</button>
+    </div>
+    <div class="statgrid" id="tStats" style="display:none">
+      <div class="stat"><div class="k" id="tIn">—</div><div class="l">รถเข้า</div></div>
+      <div class="stat a"><div class="k" id="tOut">—</div><div class="l">เสร็จ (throughput)</div></div>
+      <div class="stat b"><div class="k" id="tRem">—</div><div class="l">ค้างสิ้นกะ</div></div>
+      <div class="stat c"><div class="k" id="tTa">—</div><div class="l">Turnaround เฉลี่ย</div></div>
+      <div class="stat d"><div class="k" id="tMaxTa">—</div><div class="l">Turnaround สูงสุด</div></div>
+      <div class="stat"><div class="k" id="tWq">—</div><div class="l">จอดรอเฉลี่ย</div></div>
+      <div class="stat a"><div class="k" id="tLq">—</div><div class="l">คิวเฉลี่ย L<sub>q</sub> (คัน)</div></div>
+      <div class="stat b"><div class="k" id="tU">—</div><div class="l">Dock utilization</div></div>
+      <div class="stat d"><div class="k" id="tFine">—</div><div class="l">ค่าปรับ (บาท/กะ)</div></div>
+    </div>
+    <div class="note tip" id="tBalance" style="display:none"></div>
+    <div class="note tip" id="tLittle" style="display:none"></div>
+    <h3 id="qChartTitle" style="display:none;margin-top:14px">📈 กราฟจำนวนรถที่รอ (L<sub>q</sub>) ตลอดกะ — พื้นที่แรเงา ÷ 480 นาที = L<sub>q</sub></h3>
+    <canvas id="qCanvas" width="820" height="220" style="display:none;width:100%;height:auto;background:#fbfcfd;border:1px solid var(--line);border-radius:10px"></canvas>
+    <h3>📜 Trace — 25 เหตุการณ์แรก</h3>
+    <div class="evlog" id="tLog"><em style="color:var(--muted);font-family:'Segoe UI',sans-serif">กดปุ่ม "รัน" เพื่อดู trace...</em></div>
+    <div class="note warn" id="tMsg" style="display:none"></div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--purple)">
+    <h3 style="margin-top:0">📏 กฎของ Little — เครื่องมือ verification ที่ทรงพลังที่สุดของระบบคิว</h3>
+    <p style="font-size:.95rem;margin:6px 0"><strong>L<sub>q</sub> = λ × W<sub>q</sub></strong> — จำนวนรถที่จอดรอโดยเฉลี่ย = อัตรารถเข้า × เวลาจอดรอเฉลี่ย</p>
+    <ul style="font-size:.93rem;margin:6px 0;line-height:1.85">
+      <li><strong>L<sub>q</sub></strong> ต้องคิดจาก <em>พื้นที่ใต้กราฟจำนวนรถที่รอ ÷ เวลาทั้งกะ</em> (ค่าเฉลี่ยถ่วงน้ำหนักด้วยเวลา) — ไม่ใช่ค่าเฉลี่ยแบบนับหัว</li>
+      <li>กฎนี้เป็น<strong>ความจริงทางคณิตศาสตร์</strong> ที่ระบบคิวทุกระบบต้องเป็นไปตาม — โมเดลที่ถูกต้องต้องผ่าน · ไม่ผ่าน = มี bug</li>
+      <li>และเพราะไม่ต้องใช้ข้อมูลจริงเลย จึงเป็น <strong>Verification</strong> ไม่ใช่ Validation</li>
+    </ul>
+    <div class="note tip" style="margin:10px 0 0">
+      <span class="lb">🔑 ทำไมถึงเป็นเครื่องมือตรวจที่ทรงพลังที่สุด</span>
+      <ul style="margin:6px 0 0;padding-left:20px;font-size:.92rem;line-height:1.85">
+        <li><strong>ไม่มีข้อสมมติเลย</strong> — ใช้ได้กับทุกการแจกแจง ทุกลำดับการให้บริการ (มาก่อนได้ก่อน / รถด่วนแซง / กี่ช่องก็ได้) — <strong>กฎของ Little ไม่มีเงื่อนไขให้แก้ตัว</strong></li>
+        <li><strong>ตรวจ 3 ตัวเลขพร้อมกันด้วยสมการเดียว</strong> — λ, W<sub>q</sub>, L<sub>q</sub> เก็บมาจากคนละจุดในโค้ด (นับรถเข้า · จับเวลารายคัน · สะสมพื้นที่ใต้กราฟคิว) · ถ้าจุดใดจุดหนึ่งพัง สมการจะไม่ลงตัวทันที</li>
+        <li><strong>ฟรี</strong> — ไม่ต้องเก็บข้อมูลจริง ไม่ต้องรันซ้ำ ไม่ต้องมีเฉลย · ใส่ <code>assert</code> 1 บรรทัดแล้วโมเดลตรวจตัวเองทุกครั้งที่รัน</li>
+        <li><strong>เป็นภาษากลาง</strong> — เป็นกฎที่ตำราทุกเล่มยอมรับ เวลาถูกถามว่า "รู้ได้ไงว่าโมเดลถูก" คำตอบ "L<sub>q</sub> ตรงกับ λ × W<sub>q</sub>" หนักแน่นกว่า "ดูแล้วสมเหตุสมผลครับ" มาก</li>
+      </ul>
+    </div>
+
+    <div class="note tip" style="margin:10px 0 0">
+      <span class="lb">🔢 ตัวอย่างคิดมือกับเคส dock</span>
+      รถเข้า 59 คันใน 480 นาที → <strong>λ = 59 ÷ 480 = 0.123 คัน/นาที</strong> · โมเดลรายงานเวลาจอดรอเฉลี่ย <strong>W<sub>q</sub> = 12.0 นาที</strong><br>
+      → คิวเฉลี่ยที่ควรได้ <strong>L<sub>q</sub> = 0.123 × 12.0 ≈ 1.48 คัน</strong> · ถ้าโมเดลนับพื้นที่ใต้กราฟแล้วได้ 1.46–1.50 = <b style="color:var(--teal)">ผ่าน</b> · ถ้าได้ 0.2 หรือ 6.5 = <b style="color:var(--red)">มี bug แน่นอน</b><br>
+      <span style="font-size:.9em">เกณฑ์ที่ใช้ในหัวข้อ 8 คือ <code>abs(Lq − λ×Wq) &lt; 0.05</code> — ความคลาดเคลื่อนเล็กน้อยมาจากเศษเวลาปลายกะ ไม่ใช่ bug</span>
+    </div>
+
+    <div class="note warn" style="margin:8px 0 0">
+      <span class="lb">ข้อควรระวัง — censoring</span>
+      กะจบตอนนาทีที่ 480 แต่ยังมีรถจอดรออยู่ · SimPy บันทึกเวลารอ<em>ตอนได้ช่อง</em>เท่านั้น รถกลุ่มนี้จึงไม่ถูกนับ →
+      <strong>เวลารอเฉลี่ยที่รายงานจะต่ำกว่าความจริงเสมอเมื่อมีรถค้าง</strong> · ไม่ใช่ bug แต่เป็นธรรมชาติของการจำลองแบบมีจุดจบ<br>
+      👉 <strong>จึงต้องรายงาน "รถค้างสิ้นกะ" ควบคู่กับ "เวลารอเฉลี่ย" เสมอ</strong>
+    </div>
+  </div>
+
+</section>
+
+<!-- ===================== S8 LAB ===================== -->
+<section id="s8">
+  <h2><span class="num">8</span> Lab — สร้างและตรวจโมเดล dock บน Google Colab</h2>
+  <p class="lead">3 ขั้น ขั้นละ ~20 นาที · <strong>แต่ละขั้นคือการลงมือใช้วิธีจากหัวข้อ 4</strong> — จบแล้วคุณจะมีโมเดลที่ "ตรวจแล้ว" พร้อมหลักฐานสำหรับ Verification Report</p>
+
+  <div class="card" style="border-top:4px solid var(--navy)">
+    <h3 style="margin-top:0">🗺️ Lab นี้ใช้วิธีไหนบ้าง — แผนที่เทียบกับ 7 วิธีในหัวข้อ 4</h3>
+    <table class="tbl">
+      <tr><th style="width:26%">ขั้นของ Lab</th><th>วิธีที่ได้ลงมือใช้</th><th>สิ่งที่จะได้ออกมา</th></tr>
+      <tr><td><b>ขั้นที่ 1</b></td><td>① Output checks + ④ Assert</td><td>สมดุลเข้า–เสร็จ–ค้าง · KPI พื้นฐาน · ยามเฝ้าโมเดล</td></tr>
+      <tr><td><b>ขั้นที่ 2</b></td><td>⑤-ก Vary conditions (ปิดความสุ่ม) + ①</td><td>ผลที่ตรงกับการคำนวณมือเป๊ะ 100%</td></tr>
+      <tr><td><b>ขั้นที่ 3</b></td><td>③ Trace + ② กราฟ/ภาพ + ⑤-ข (สุดขั้ว)</td><td>ลำดับเหตุการณ์ถูกต้อง · L<sub>q</sub> ผ่านกฎของ Little · ระบบพังตามคาด</td></tr>
+      <tr><td colspan="3" style="background:#f7f9fb">⑥ Documentation และ ⑦ Group walkthrough — ทำในหัวข้อ 9 (Peer-audit ในกลุ่ม)</td></tr>
+      <tr><td colspan="3" style="background:#fffdf6">การ<b>เทียบทางเลือกและแปลงเป็นเงินเพื่อตัดสินใจ</b> ไม่อยู่ในคาบนี้ — ไปทำในครั้งที่ 6 หลังเรียนเรื่องรันซ้ำและช่วงความเชื่อมั่น เพราะผลจากการรันครั้งเดียวยังสรุปไม่ได้</td></tr>
+    </table>
+    <div class="note tip">
+      <span class="lb">กติกา 2 ข้อจากหัวข้อ 5 ใช้ตลอด Lab</span>
+      ① <b>คาดผลก่อนรันเสมอ</b> — ทุกขั้นมีช่อง "ค่าที่คาดไว้" ให้เขียนก่อนกดปุ่ม ·
+      ② <b>ตรวจระหว่างสร้าง</b> — <b>รันให้ผ่านทีละขั้น อย่าข้ามไปขั้นถัดไปถ้าขั้นก่อนยังไม่ผ่าน</b> เพราะ bug จะซ้อนกันจนแยกไม่ออกว่าตัวไหนทำให้ตัวเลขเพี้ยน
+    </div>
+  </div>
+
+  <div class="note tip">
+    <span class="lb">เริ่มต้น</span>
+    เปิด <a href="https://colab.research.google.com" target="_blank" rel="noopener"><strong>colab.research.google.com</strong></a> → <b>File → New notebook</b> → เซลล์แรก <code>!pip install simpy</code> → เซลล์ถัดไปวางโค้ดจาก<strong>หัวข้อ 5</strong>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">ขั้นที่ 1 — นับให้ครบ อย่าให้รถหาย <span class="tag" style="background:#eef7f5;color:#1d7a6c;border:1px solid #b9e0d8">วิธี ① Output checks</span> <span class="tag" style="background:#eef7f5;color:#1d7a6c;border:1px solid #b9e0d8">วิธี ④ Assert</span></h3>
+    <p style="font-size:.92rem;margin:4px 0 8px"><span class="tag">📌 วางตรงไหน</span> <strong>เซลล์ใหม่ต่อท้ายเซลล์โมเดล</strong> — ใช้ตัวแปร <code>log</code> · <code>busy</code> · <code>dock_min</code> · <code>n_arrived</code> ที่โมเดลในหัวข้อ 5 สร้างไว้ให้แล้ว จึงต้องรันเซลล์โมเดลก่อนเสมอ</p>
+    <button class="copybtn act amber" onclick="copyCode('codeLab1',this)">📋 คัดลอกเซลล์นี้</button>
+<pre id="codeLab1"><span class="c"># ===== ขั้นที่ 1 — วางเป็น &quot;เซลล์ใหม่&quot; ต่อท้ายเซลล์โมเดล แล้วกดรัน =====</span>
+n_done = <span class="k">len</span>(log)
+<span class="k">print</span>(<span class="s">f&quot;รถเข้า {n_arrived} คัน · ขนถ่ายเสร็จ {n_done} คัน · ค้างในระบบ {n_arrived - n_done} คัน&quot;</span>)
+
+<span class="k">assert</span> n_done &lt;= n_arrived, <span class="s">&quot;BUG! เสร็จมากกว่าเข้า เป็นไปไม่ได้&quot;</span>
+<span class="k">assert</span> busy &lt;= dock_min,    <span class="s">&quot;BUG! ทำงานเกินเวลาที่ช่องมีอยู่จริง&quot;</span>
+<span class="k">assert</span> <span class="k">all</span>(a &lt;= s &lt;= d <span class="k">for</span> a,s,d <span class="k">in</span> log), <span class="s">&quot;BUG! ลำดับเวลาผิด&quot;</span>
+
+wait = [s - a <span class="k">for</span> a,s,d <span class="k">in</span> log]
+turn = [d - a <span class="k">for</span> a,s,d <span class="k">in</span> log]
+<span class="k">print</span>(<span class="s">f&quot;จอดรอเฉลี่ย {<span class="k">sum</span>(wait)/<span class="k">len</span>(wait):.1f} · turnaround เฉลี่ย {<span class="k">sum</span>(turn)/<span class="k">len</span>(turn):.1f} สูงสุด {<span class="k">max</span>(turn):.1f}&quot;</span>)
+</pre>
+    <p style="font-size:.9rem;margin:4px 0;color:var(--muted)">💡 <code>assert</code> คือ "ยามเฝ้าโมเดล" — เขียนเงื่อนไขที่ <em>เป็นไปไม่ได้ทางกายภาพ</em> ไว้ ถ้าโดนละเมิดโปรแกรมจะหยุดทันทีตรงจุดที่ผิด</p>
+<div class="note ask" style="margin:10px 0"><span class="lb">✨ สั่ง Gemini ใน Colab (ปุ่ม Gemini มุมขวาบน หรือ + Code แล้วกด ✨)</span><div style="background:#fff;border:1px dashed var(--blue);border-radius:8px;padding:10px 12px;font-size:.9rem;line-height:1.65;margin-top:6px">"จากตัวแปร <b>log</b> (list ของ tuple: เวลามาถึง, เวลาเข้าช่อง, เวลาออก), <b>busy</b>, <b>dock_min</b> และ <b>n_arrived</b> ที่มีอยู่แล้ว ช่วยเขียนเซลล์ใหม่ที่ print จำนวนรถเข้า/เสร็จ/ค้างในระบบ, เวลาจอดรอเฉลี่ย, turnaround เฉลี่ยและสูงสุด แล้วใส่ assert ดักกรณีที่เป็นไปไม่ได้ทางกายภาพ <b>ห้ามแก้โค้ดโมเดลเดิม</b>"</div></div>  </div>
+
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <h3 style="margin-top:0">ขั้นที่ 2 — ปิดความสุ่ม แล้วเทียบกับที่คำนวณมือ <span class="tag" style="background:#eef7f5;color:#1d7a6c;border:1px solid #b9e0d8">วิธี ⑤-ก</span> <span class="tag" style="background:#eef7f5;color:#1d7a6c;border:1px solid #b9e0d8">วิธี ①</span></h3>
+    <p style="font-size:.92rem;margin:4px 0 8px"><span class="tag" style="background:#fdecea;color:var(--red)">📌 วางตรงไหน</span> <strong>ไม่ใช่เซลล์ใหม่!</strong> — ให้<strong>แก้ 3 จุดในเซลล์โมเดลเดิม</strong> แล้วกดรันเซลล์นั้นซ้ำ (ถ้าก๊อปไปวางเป็นเซลล์ใหม่จะขึ้น <code>SyntaxError: 'yield' outside function</code> เพราะบรรทัดเหล่านี้อยู่ข้างในฟังก์ชัน)</p>
+    <table class="tbl">
+      <tr><th style="width:34%">ในฟังก์ชัน</th><th>ของเดิม</th><th>แก้เป็น</th></tr>
+      <tr><td><code>arrivals()</code></td><td><code>yield env.timeout(random.expovariate(1/mean))</code></td><td><code>yield env.timeout(8)</code></td></tr>
+      <tr><td><code>truck()</code></td><td><code>s = random.triangular(*SVC)</code></td><td><code>s = 22</code></td></tr>
+      <tr><td>ค่าคงที่ด้านบน</td><td><code>EXTRA_FROM = 240</code></td><td><code>EXTRA_FROM = None</code> <span class="en">(ปิดทีมเสริมก่อน)</span></td></tr>
+    </table>
+    <div class="note tip">
+      <span class="lb">✍️ คาดผลก่อนรัน — เขียนลงกระดาษก่อนกดปุ่ม</span>
+      รถเข้าที่ t = 8, 16, ..., 472 → <strong>59 คัน</strong> · ρ = 22 ÷ (8 × 3) = <strong>0.92</strong><br>
+      แต่ระบบนี้<strong>ไม่มีรถต้องรอเลยสักคัน (จอดรอ = 0.0 ทุกคัน)</strong> — เพราะแต่ละช่องว่างทุก 22 นาที มี 3 ช่อง = รับได้ 1 คันทุก 7.3 นาที ซึ่งเร็วกว่ารถที่มาทุก 8 นาที · รถจึงมีช่องว่างรออยู่เสมอ<br>
+      ขนถ่ายเสร็จ <strong>57 คัน</strong> · ค้างในระบบ <strong>2 คัน</strong> (2 คันสุดท้ายยังขนถ่ายไม่จบตอนหมดกะ) · utilization ≈ <strong>90%</strong>
+    </div>
+    <div class="note warn">
+      <span class="lb">⚠️ จุดที่คนเข้าใจผิดบ่อยที่สุด</span>
+      ρ = 0.92 ใกล้ 1 มาก แต่<strong>ไม่มีคิวเลย</strong> — เพราะเมื่อ<strong>ปิดความสุ่มแล้ว ρ &lt; 1 จะไม่มีคิวเกิดขึ้นได้เลย</strong> ทุกอย่างมาตรงเวลาเป๊ะ · <strong>คิวเกิดจากความแปรปรวน ไม่ใช่จากภาระงานเฉลี่ย</strong><br>
+      👉 ดังนั้นในขั้นนี้ <strong>ถ้ารันแล้วมีรถต้องรอ = มี bug</strong> (ตรงข้ามกับที่หลายคนเดา) · แล้วลองเปลี่ยนเป็นรถเข้าทุก <strong>6 นาที</strong> (ρ = 1.22) จะเห็นคิวโตขึ้นเรื่อย ๆ แบบเส้นตรง — คำนวณมือได้เช่นกัน
+    </div>
+    <p style="font-size:.9rem;margin:4px 0;color:var(--muted)">✅ ใช้เครื่องมือ "ปิดความสุ่มแล้วทายผล" ในหัวข้อ 5 ตรวจคำตอบได้ทันที (ใส่ 8 / 22 / 3 / 480)</p>
+<div class="note ask" style="margin:10px 0"><span class="lb">✨ สั่ง Gemini ใน Colab (ปุ่ม Gemini มุมขวาบน หรือ + Code แล้วกด ✨)</span><div style="background:#fff;border:1px dashed var(--blue);border-radius:8px;padding:10px 12px;font-size:.9rem;line-height:1.65;margin-top:6px">"ช่วยทำเวอร์ชันปิดความสุ่มของโมเดลนี้: รถเข้าทุก 8 นาทีพอดี ขนถ่าย 22 นาทีพอดี ไม่มีทีมเสริม (EXTRA_FROM = None) — <b>แก้เฉพาะบรรทัดที่เกี่ยวกับการสุ่ม ห้ามเปลี่ยนตรรกะอื่น</b> แล้วบอกด้วยว่าแก้บรรทัดไหนบ้าง"</div></div>  </div>
+
+  <div class="card" style="border-top:4px solid var(--purple)">
+    <h3 style="margin-top:0">ขั้นที่ 3 — ไล่เหตุการณ์ + วัด L<sub>q</sub> + ทดสอบสุดขั้ว <span class="tag" style="background:#eef7f5;color:#1d7a6c;border:1px solid #b9e0d8">วิธี ③ Trace</span> <span class="tag" style="background:#eef7f5;color:#1d7a6c;border:1px solid #b9e0d8">วิธี ② กราฟ</span> <span class="tag" style="background:#eef7f5;color:#1d7a6c;border:1px solid #b9e0d8">วิธี ⑤-ข</span></h3>
+    <p style="font-size:.92rem;margin:4px 0 8px"><span class="tag">📌 วางตรงไหน</span> <strong>เซลล์ใหม่ต่อท้าย</strong> — เซลล์นี้คิด L<sub>q</sub> และ trace <em>ย้อนหลังจาก <code>log</code></em> จึง<strong>ไม่ต้องแก้โมเดลเลย</strong> (กลับไปใช้ค่าสุ่มปกติก่อน แล้วรันเซลล์โมเดลใหม่)</p>
+    <button class="copybtn act amber" onclick="copyCode('codeLab3',this)">📋 คัดลอกเซลล์นี้</button>
+<pre id="codeLab3"><span class="c"># ===== ขั้นที่ 3 — วางเป็น &quot;เซลล์ใหม่&quot; ต่อท้าย (คิด Lq ย้อนหลังจาก log ได้เลย) =====</span>
+ev = <span class="k">sorted</span>([(a, +1) <span class="k">for</span> a,s,d <span class="k">in</span> log] + [(s, -1) <span class="k">for</span> a,s,d <span class="k">in</span> log])
+area = 0.0; q = 0; last = 0.0
+<span class="k">for</span> t, d <span class="k">in</span> ev:
+    area += q * (t - last); last = t; q += d
+area += q * (SHIFT - last)
+
+Lq = area / SHIFT
+lam = <span class="k">len</span>(log) / SHIFT
+Wq = <span class="k">sum</span>(wait) / <span class="k">len</span>(wait)
+<span class="k">print</span>(<span class="s">f&quot;Lq (พื้นที่ใต้กราฟ) = {Lq:.2f} คัน&quot;</span>)
+<span class="k">print</span>(<span class="s">f&quot;λ × Wq            = {lam*Wq:.2f} คัน   → ต่างกัน {abs(Lq - lam*Wq):.3f}&quot;</span>)
+<span class="k">assert</span> abs(Lq - lam*Wq) &lt; 0.05, <span class="s">&quot;BUG! กฎของ Little ไม่เป็นจริง — มีอะไรผิดในการเก็บเวลา&quot;</span>
+
+<span class="c"># trace 20 บรรทัดแรก (คิดย้อนหลังจาก log — ไม่ต้องแก้โมเดล)</span>
+evs = []
+<span class="k">for</span> k,(a,s,d) <span class="k">in</span> enumerate(log[:20], start=1):
+    evs += [(a, <span class="s">f&quot;รถ {k} มาถึง&quot;</span>), (s, <span class="s">f&quot;รถ {k} เข้าช่อง (จอดรอ {s-a:.1f} นาที)&quot;</span>), (d, <span class="s">f&quot;รถ {k} ออกจากคลัง&quot;</span>)]
+<span class="k">for</span> t, m <span class="k">in</span> <span class="k">sorted</span>(evs)[:20]:
+    <span class="k">print</span>(<span class="s">f&quot;t={t:6.1f}  {m}&quot;</span>)
+
+<span class="c"># --- วิธี ② กราฟ/ภาพ: 2 รูปที่ต้องดูทุกครั้ง ---</span>
+<span class="k">import</span> matplotlib.pyplot <span class="k">as</span> plt
+ts, qs, q = [0.0], [0], 0
+<span class="k">for</span> t, d <span class="k">in</span> ev:
+    q += d; ts.append(t); qs.append(q)
+ts.append(SHIFT); qs.append(q)
+
+fig, ax = plt.subplots(1, 2, figsize=(11, 3.4))
+ax[0].step(ts, qs, where=&#x27;post&#x27;)
+ax[0].axvline(240, ls=&#x27;--&#x27;, c=&#x27;r&#x27;)         <span class="c"> # เส้นแบ่งเช้า/บ่าย</span>
+ax[0].set_title(&#x27;Trucks waiting over time (Lq)&#x27;); ax[0].set_xlabel(&#x27;time (<span class="k">min</span>)&#x27;)
+w_sorted = [s2 - a <span class="k">for</span> a, s2, d <span class="k">in</span> <span class="k">sorted</span>(log)]
+ax[1].plot(<span class="k">range</span>(1, <span class="k">len</span>(w_sorted)+1), w_sorted, marker=&#x27;.&#x27;)
+ax[1].set_title(&#x27;Waiting time per truck (by arrival order)&#x27;); ax[1].set_xlabel(&#x27;truck #&#x27;); ax[1].set_ylabel(&#x27;<span class="k">min</span>&#x27;)
+plt.tight_layout(); plt.show()
+<span class="c"># อ่านรูป: ซ้ายต้องต่ำช่วงเช้าแล้วไต่ขึ้นหลังนาทีที่ 240</span>
+<span class="c">#          ขวาแบนที่ 0 ตลอด = สูตรเวลารอผิด · ไต่เป็นเส้นตรงไม่หยุด = เก็บเวลานาฬิกาแทนเวลารอ</span></pre>
+    <div class="note tip">
+      <span class="lb">อ่านผลยังไง</span>
+      <b>กราฟซ้าย (รถที่รอตามเวลา)</b> ต้องต่ำช่วงเช้าแล้วไต่ขึ้นหลังเส้นประนาทีที่ 240 — ถ้าแบนตลอดหรือพุ่งตั้งแต่ต้นกะ = ผิด ·
+      <b>กราฟขวา (เวลารอรายคัน)</b> แบนที่ 0 ตลอด = สูตรเวลารอผิด · ไต่เป็นเส้นตรงไม่หยุด = เก็บเวลานาฬิกาแทนระยะเวลาที่รอ ·
+      <b>L<sub>q</sub> ต้องเท่ากับ λ × W<sub>q</sub></b> (กฎของ Little) — ถ้าต่างกันเกิน 0.05 คัน <code>assert</code> จะหยุดโปรแกรมให้เอง · ส่วน trace ให้ไล่อ่าน 20 บรรทัดว่า มาถึง → เข้าช่อง → ออก ครบลำดับ และเวลาไม่เดินถอยหลัง
+    </div>
+    <div class="note warn">
+      <span class="lb">💥 Extreme test — แก้ในเซลล์โมเดล 1 บรรทัด</span>
+      ตั้ง <code>IAT_PM = 2</code> (รถถล่มช่วงบ่าย) แล้วรันโมเดล + เซลล์ขั้นที่ 1 ใหม่ · <strong>คาดผล:</strong> ρ ช่วงบ่าย = 22 ÷ (2 × 3) = 3.7 → คิวต้องโตไม่หยุด · รถค้างสิ้นกะหลายสิบคัน · turnaround สูงสุดพุ่ง · <strong>ถ้าตัวเลขแทบไม่เปลี่ยน = มี bug</strong>
+    </div>
+<div class="note ask" style="margin:10px 0"><span class="lb">✨ สั่ง Gemini ใน Colab (ปุ่ม Gemini มุมขวาบน หรือ + Code แล้วกด ✨)</span><div style="background:#fff;border:1px dashed var(--blue);border-radius:8px;padding:10px 12px;font-size:.9rem;line-height:1.65;margin-top:6px">"ช่วยเขียนเซลล์ใหม่ที่คำนวณ Lq แบบถ่วงน้ำหนักด้วยเวลา (พื้นที่ใต้กราฟจำนวนรถที่รอ หารด้วยความยาวกะ) จากตัวแปร log ที่มีอยู่ โดย<b>ไม่ต้องแก้โมเดล</b> แล้วเทียบกับ λ × Wq ตามกฎของ Little พร้อม assert ว่าต่างกันไม่เกิน 0.05 · print trace 20 บรรทัดแรกจาก log · และพล็อต 2 กราฟด้วย matplotlib: (1) จำนวนรถที่รอตามเวลาแบบ step พร้อมเส้นประที่นาทีที่ 240 (2) เวลารอของรถแต่ละคันเรียงตามลำดับการมาถึง — ใช้ label ภาษาอังกฤษเพื่อเลี่ยงปัญหาฟอนต์ไทย"</div></div>  </div>
+
+</section>
+
+<!-- ===================== S9 PEER-AUDIT ===================== -->
+<section id="s9">
+  <h2><span class="num">9</span> Peer-audit ในกลุ่ม: ตรวจโมเดลกันเอง + สรุปหลักฐาน 👥</h2>
+  <p class="lead">คนที่กดโค้ดจะตาบอดกับงานตัวเอง (ปัญหา ownership) — แต่ "คนนอก" ที่ใกล้ที่สุดคือเพื่อนในกลุ่มที่ไม่ได้เป็นคนกด · แบ่งบทบาทให้ชัด แล้วตรวจกันเองได้เลย ไม่ต้องแลกโน้ตบุ๊ก</p>
+
+  <div class="card" style="border-top:4px solid var(--navy)">
+    <h3 style="margin-top:0">🎭 แบ่งบทบาทก่อนเริ่ม (3 นาที)</h3>
+    <table class="tbl">
+      <tr><th style="width:26%">บทบาท</th><th>ใครควรเป็น</th><th>หน้าที่</th></tr>
+      <tr><td><b>ผู้เดินเครื่อง</b><br><span class="en">Driver</span></td><td>คนที่กด Colab / คุยกับ AI มากที่สุด</td><td>กดรันโชว์ตามที่ผู้ตรวจขอ · <b>ห้ามอธิบายลอย ๆ ต้องพิสูจน์จากหน้าจอ</b></td></tr>
+      <tr><td><b>ผู้ตรวจ 1–2 คน</b><br><span class="en">Auditor</span></td><td>คนที่แตะโค้ดน้อยที่สุดในกลุ่ม</td><td>ถาม 4 คำถามบังคับ + ไล่เช็กลิสต์ 7 ข้อ · ตัดสินว่า "ผ่าน / ยังไม่ผ่าน"</td></tr>
+      <tr><td><b>ผู้บันทึก</b><br><span class="en">Scribe</span></td><td>ใครก็ได้ที่เหลือ</td><td>ติ๊ก<b>เช็กลิสต์ Verification</b> และกรอกช่อง <b>หลักฐาน / จุดที่ยังไม่ผ่าน</b> ด้านล่างไปพร้อมกันเลย — ไม่ต้องมาทำทีหลัง</td></tr>
+    </table>
+    <div class="note warn">
+      <span class="lb">กติกาข้อเดียวที่ทำให้กิจกรรมนี้ได้ผล</span>
+      ผู้ตรวจ <strong>ห้ามรับคำตอบด้วยปาก</strong> — ทุกข้อต้องเห็นหลักฐานบนหน้าจอ (บรรทัด trace · ตัวเลขที่ print ออกมา · assert ที่ผ่าน) · ข้อไหนพิสูจน์ไม่ได้ในนาทีนั้น = <strong>ยังไม่ผ่าน</strong> ให้ผู้บันทึกเขียนลงช่อง E2 ทันที ไม่ต้องเถียงกันต่อ
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">📋 วิธีทำ (30 นาที)</h3>
+    <ol style="font-size:.94rem;line-height:1.9;margin:6px 0">
+      <li><strong>ผู้ตรวจถาม 4 คำถามบังคับ</strong> — ผู้เดินเครื่องพิสูจน์ทีละข้อ <span class="tag">12 นาที</span>
+        <ul style="margin:4px 0">
+          <li>ช่องที่ 4 เริ่มรับรถนาทีที่เท่าไร — <em>เปิด trace ชี้บรรทัดให้ดู</em></li>
+          <li>utilization หารด้วยอะไร ทำไม — <em>ชี้ตัวแปร <code>dock_min</code> แล้วคิดเลขให้ดู</em></li>
+          <li>รถที่ค้างสิ้นกะถูกนับอยู่ตรงไหน — <em>ชี้บรรทัดที่ print จำนวนค้าง</em></li>
+          <li>L<sub>q</sub> คิดจากพื้นที่ใต้กราฟหรือเปล่า — <em>เทียบกับ λ × W<sub>q</sub> ให้ดู</em></li>
+        </ul>
+      </li>
+      <li><strong>ไล่เช็กลิสต์ 7 ข้อร่วมกัน</strong> (ด้านล่าง) — ติ๊กเฉพาะข้อที่<em>เห็นหลักฐานแล้ว</em> <span class="tag">รวมอยู่ใน 12 นาทีข้างต้น</span></li>
+      <li><strong>สลับผู้เดินเครื่องกับผู้ตรวจ</strong> แล้วไล่เฉพาะข้อที่ยังไม่ผ่าน — คนใหม่มักเห็นสิ่งที่คนเดิมมองข้าม <span class="tag">5 นาที</span></li>
+      <li><strong>แลกตัวเลขกับทั้งห้อง</strong> (ด้านล่าง) <span class="tag">5 นาที</span></li>
+      <li><strong>ปิดท้าย</strong> — กรอกช่อง "หลักฐานที่แนบ" และ "จุดที่ยังไม่ผ่าน" ให้ครบ = ได้เนื้อหาของ Verification Report ไปเลย <span class="tag">5 นาที</span></li>
+    </ol>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--amber)">
+    <h3 style="margin-top:0">🔢 แลกตัวเลขกับทั้งห้อง — verification ที่แรงที่สุดในคาบ (5 นาที)</h3>
+    <p style="font-size:.93rem;margin:4px 0 8px">ทุกกลุ่มรัน<strong>โค้ด Python ชุดเดียวกันด้วย seed 42 เหมือนกัน</strong> ดังนั้นตัวเลขของทุกกลุ่ม<strong>ต้องตรงกันเป๊ะ</strong> — กลุ่มไหนต่างจากคนอื่น แปลว่ากลุ่มนั้นมี bug ทันที โดยไม่มีใครต้องไปไล่อ่านโค้ดให้เลย</p>
+    <p style="font-size:.93rem;margin:4px 0 8px">เขียน 5 ตัวเลขนี้ขึ้นกระดาน (ทางเลือก A: 3 ช่อง · seed 42) — <strong>ต้องเป็นตัวเลขจาก Colab ของกลุ่มเท่านั้น</strong> ห้ามใช้ตัวเลขจากวิดเจ็ตหัวข้อ 7 เพราะหน้าเว็บใช้เครื่องสุ่มคนละตัวกับ Python ตัวเลขจะไม่ตรงกันโดยธรรมชาติ:</p>
+    <table class="tbl">
+      <tr><th>ตัวเลขที่ต้องตรงกันทุกกลุ่ม <span class="en">(จาก Colab เท่านั้น)</span></th><th>ของกลุ่มเรา</th><th>ของทั้งห้อง (ค่าที่คนส่วนใหญ่ได้)</th><th>ตรงไหม</th></tr>
+      <tr><td>Turnaround เฉลี่ย (นาที)</td><td><input data-lab="pa_t1"></td><td><input data-lab="pa_c1"></td><td><input data-lab="pa_o1" placeholder="✓ / ✗"></td></tr>
+      <tr><td>Turnaround สูงสุด (นาที)</td><td><input data-lab="pa_t2"></td><td><input data-lab="pa_c2"></td><td><input data-lab="pa_o2" placeholder="✓ / ✗"></td></tr>
+      <tr><td>รถค้างสิ้นกะ (คัน)</td><td><input data-lab="pa_t3"></td><td><input data-lab="pa_c3"></td><td><input data-lab="pa_o3" placeholder="✓ / ✗"></td></tr>
+      <tr><td>Dock utilization (%)</td><td><input data-lab="pa_t4"></td><td><input data-lab="pa_c4"></td><td><input data-lab="pa_o4" placeholder="✓ / ✗"></td></tr>
+      <tr><td>ค่าปรับ (บาท/กะ)</td><td><input data-lab="pa_t5"></td><td><input data-lab="pa_c5"></td><td><input data-lab="pa_o5" placeholder="✓ / ✗"></td></tr>
+    </table>
+    <div class="note tip">
+      <span class="lb">ถ้าตัวเลขไม่ตรง</span>
+      ไล่จากตัวที่ต่างมากที่สุดก่อน — ต่างที่ <b>จำนวนรถเข้า</b> = พารามิเตอร์การมาถึงผิด · ต่างที่ <b>utilization</b> = ตัวหาร dock-minutes ผิด · ต่างที่ <b>เวลารอ</b> แต่จำนวนรถตรง = สูตรเวลาผิด · ต่างแบบสุ่มไปหมด = ยังไม่ได้ล็อก seed
+    </div>
+  </div>
+
+  <div class="card pdf-skip" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">✅ เช็กลิสต์ Verification <span class="tag" id="chkCount">0/7</span></h3>
+    <div class="note warn" style="margin:0 0 12px">
+      <span class="lb">📌 ย้ำอีกครั้ง — ทุกข้อในเช็กลิสต์นี้ตรวจบน "สถานการณ์เริ่มต้น" เท่านั้น</span>
+      <strong>3 ช่อง (BASE_DOCKS = 3) · ไม่มีทีมเสริม (EXTRA_FROM = None) · สถานการณ์ปกติ: เช้า 10 นาที/คัน · บ่าย 6 นาที/คัน · กะ 480 นาที · ขนถ่าย Triangular(12, 20, 34)</strong><br>
+      การเปลี่ยนค่าเป็น 4 ช่อง หรือเร่งรถถล่ม เป็นแค่<strong>เครื่องมือตรวจ (วิธี ⑤)</strong> — ตรวจเสร็จต้อง<strong>ตั้งค่ากลับมาที่สถานการณ์เริ่มต้นเสมอ</strong> ก่อนบันทึกตัวเลขลงเช็กลิสต์<br>
+      👉 ถ้าตัวเลขที่แนบมาจากการตั้งค่าอื่น = ตรวจคนละโมเดลกับที่จะเอาไปเสนอ · <strong>ส่วนการเทียบ 3 ช่อง กับ 4 ช่อง เพื่อ "ตัดสินใจ" จะทำในครั้งที่ 6</strong>
+    </div>
+    <ul class="chk" id="chkList">
+      <li><input type="checkbox" data-chk="0"><span><strong>① Output checks</strong> — เข้า = เสร็จ + ค้าง · เวลารอไม่ติดลบ · จำนวนรถใกล้เคียงที่คำนวณมือ</span></li>
+      <li><input type="checkbox" data-chk="1"><span><strong>② กราฟ/ภาพ</strong> — พล็อตจำนวนรถที่รอตามเวลา เห็นคิว<strong>ไต่ขึ้นหลังนาทีที่ 240</strong> ตามที่ควรเป็น</span></li>
+      <li><input type="checkbox" data-chk="2"><span><strong>③ Trace</strong> — ไล่อ่าน 20 เหตุการณ์แรก ลำดับถูก และยืนยันได้ว่าช่องเสริมเปิดตรงเวลา</span></li>
+      <li><input type="checkbox" data-chk="3"><span><strong>④ Assert / watches</strong> — มี assert ดักค่าที่เป็นไปไม่ได้ (รอติดลบ · busy เกิน dock-minutes · utilization &gt; 100%)</span></li>
+      <li><input type="checkbox" data-chk="4"><span><strong>⑤ Vary conditions</strong> — ต้องรัน<strong>ครบทั้ง 4 กรณี</strong> และผลไปในทิศทางที่ควรเป็นทุกกรณี
+        <ol style="margin:6px 0 0;padding-left:22px;font-size:.92em;line-height:1.8">
+          <li><strong>ปิดความสุ่ม</strong> — รถเข้าทุก 8 นาทีเป๊ะ ขนถ่าย 22 นาทีเป๊ะ</li>
+          <li><strong>Extreme test</strong> — เร่งรถเข้าจนระบบรับไม่ไหว (เช่น บ่าย 2 นาที/คัน)</li>
+          <li><strong>4 ช่อง เฉพาะช่วงบ่าย</strong> (<code>EXTRA_FROM = 240</code>)</li>
+          <li><strong>4 ช่อง ทั้งวัน</strong> (<code>BASE_DOCKS = 4</code>)</li>
+        </ol>
+        <span style="display:block;margin-top:6px;font-size:.9em;color:var(--muted)">⚠️ ใช้ <b>seed เดียวกัน</b>ทั้ง 4 กรณี ไม่งั้นความต่างที่เห็นอาจเป็นแค่ความบังเอิญ · ตรวจเสร็จให้ตั้งค่ากลับเป็นสถานการณ์เริ่มต้น (3 ช่อง)</span>
+      </span></li>
+      <li><input type="checkbox" data-chk="5"><span><strong>⑥ Documentation</strong> — ตัวแปรชื่อสื่อความหมาย (<code>EXTRA_FROM</code> ไม่ใช่ <code>x</code>) มีคอมเมนต์ครบ</span></li>
+      <li><input type="checkbox" data-chk="6"><span><strong>⑦ กฎของ Little</strong> — L<sub>q</sub> ≈ λ × W<sub>q</sub> (ต่างกันไม่เกิน 0.05 คัน)</span></li>
+    </ul>
+    <div class="note tip" id="chkMsg" style="display:none"><span class="lb">ครบ 7 ข้อ! 🏆</span>โมเดลผ่านการตรวจอย่างเป็นระบบแล้ว — ตอนนี้คุณ<strong>มีสิทธิ์เอาตัวเลขไปเสนอผู้จัดการ</strong> · ครั้งหน้า: Validation — พิสูจน์ว่าโมเดลตรงกับคลังจริง</div>
+    <div class="hw-f" style="margin-top:14px">
+      <label>📎 หลักฐานที่แนบ (ลิงก์ Colab · ภาพกราฟ · ภาพ trace · ผล assert)</label>
+      <input type="text" data-lab="ev_link" placeholder="เช่น colab.research.google.com/... และภาพกราฟ 2 รูปจากขั้นที่ 3">
+    </div>
+    <div class="hw-f">
+      <label>⚠️ จุดที่โมเดลยัง <b>ไม่ผ่าน</b> หรือยังไม่ได้ตรวจ — เขียนอย่างซื่อสัตย์</label>
+      <textarea data-lab="ev_gap" placeholder="เช่น ยังไม่ได้ทดสอบกรณีรถเข้าพร้อมกัน 10 คัน · utilization ของกลุ่มเรา 89% ต่างจากกลุ่มอื่น 82% ยังหาสาเหตุไม่เจอ"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px">
+      <button class="act teal" onclick="exportChecklistWord()">📝 ส่งออกเช็กลิสต์เป็น Word (.doc)</button>
+      <button class="act amber" onclick="exportChecklistPDF()">📄 ส่งออกเช็กลิสต์เป็น PDF</button>
+    </div>
+    <div class="note tip">
+      <span class="lb">สองช่องนี้คือแกนของการบ้าน</span>
+      เช็กลิสต์ + หลักฐาน + จุดที่ยังไม่ผ่าน = เนื้อหาทั้งหมดของ <b>Verification Report</b> ที่ต้องส่ง · กดปุ่ม <b>ส่งออกเป็น Word</b> ด้านบนเพื่อโหลดไฟล์ไปแทรกภาพหลักฐานเพิ่มก่อนส่ง หรือ <b>ส่งออกเป็น PDF</b> ถ้าไม่ต้องแก้ไขต่อ (ตัวเลือก PDF จะเปิดหน้าต่างพิมพ์ของเบราว์เซอร์ — เลือก &ldquo;บันทึกเป็น PDF&rdquo;)
+    </div>
+  </div>
+
+  <div class="note warn">
+    <span class="lb">กับดักของการตรวจกันเองในกลุ่ม</span>
+    ตรวจกันเองเสี่ยง "เออออกันไปเอง" เพราะทุกคนอยากให้งานกลุ่มผ่าน — สองอย่างที่กันไว้แล้วคือ <strong>กติกาพิสูจน์จากหน้าจอ</strong> (ตัดสินด้วยหลักฐาน ไม่ใช่ความเห็น) และ <strong>การแลกตัวเลขกับทั้งห้อง</strong> (ตัวเลขไม่เข้าข้างใคร) · ถ้ากลุ่มติ๊กครบ 7 ข้อภายใน 5 นาทีแรก แปลว่ายังตรวจไม่จริง
+  </div>
+
+  <div class="note tip">
+    <span class="lb">มารยาทการตรวจ</span>
+    ตรวจที่ "โมเดล" ไม่ใช่ "คน" — พูดว่า <em>"ตัวเลขตรงนี้ดูแปลก ๆ นะ ขอดู trace หน่อย"</em> ไม่ใช่ <em>"เธอทำผิด"</em> · เจอจุดผิดของเพื่อนในกลุ่ม = ช่วยกลุ่มตัวเอง · กลุ่มที่เจอ bug เยอะวันนี้ คือกลุ่มที่ข้อเสนอแข็งแรงที่สุดตอนนำเสนอ
+  </div>
+</section>
+
+<!-- ===================== S10 QUIZ ===================== -->
+<section id="s10">
+  <h2 class="pdf-skip"><span class="num">10</span> Quiz ทบทวน 10 ข้อ</h2>
+  <p class="lead pdf-skip">ตอบครบทุกข้อแล้วระบบจะสรุปคะแนนและส่งเข้า Google Form อัตโนมัติ (ต้องเช็คชื่อก่อน)</p>
+
+  <div class="quiz pdf-skip" id="quiz"></div>
+  <div class="scoreband" id="scoreband"></div>
+  <div class="qz-submit-wrap" id="qzSubmitWrap">
+    <button class="act teal" id="qz_btn" onclick="submitQuizScore()">📤 ส่งคะแนนเข้า Google Form</button>
+    <div class="qz-msg" id="qz_msg"></div>
+    <iframe name="qz_target" id="qz_target" style="display:none" title="hidden"></iframe>
+    <form id="qz_form" action="https://docs.google.com/forms/d/e/1FAIpQLScD7ZIDV8zjuy-fOeU4IYBqFIemQ_p4USj7J3YdNbJc8_s4BA/formResponse" method="POST" target="qz_target" style="display:none">
+      <input type="hidden" name="entry.1463252013" id="qz_f_student">
+      <input type="hidden" name="entry.1569454509" id="qz_f_score">
+      <input type="hidden" name="fvv" value="1">
+      <input type="hidden" name="pageHistory" value="0">
+    </form>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--navy);margin-top:26px">
+    <h3 style="margin-top:0">📚 สรุปคาบนี้</h3>
+    <ul style="font-size:.93rem;line-height:1.9">
+      <li><strong>เริ่มจากคำถามธุรกิจเสมอ</strong> — "ควรเปิดช่องที่ 4 ไหม" ไม่ใช่ "มาสร้างโมเดลคิวกัน" · แต่<strong>ก่อนจะตอบคำถามนั้นได้ ต้องตรวจโมเดลให้ผ่านก่อน</strong></li>
+      <li><strong>KPI โลจิสติกส์</strong>: turnaround · waiting · dock utilization · throughput · คิวค้าง · % เกินเกณฑ์ · ค่าปรับ (บาท) — คาบนี้ใช้เป็น<strong>เครื่องมือตรวจความสมเหตุสมผลของผล</strong> ยังไม่ใช้ตัดสินใจ</li>
+      <li><strong>Verification</strong> = โค้ดตรงแบบไหม · <strong>Validation</strong> = ตรงโลกจริงไหม (ครั้งหน้า)</li>
+      <li><strong>7 วิธี</strong>: output check · กราฟ · trace · assert/breakpoint · vary conditions · documentation · walkthrough</li>
+      <li><strong>สูตรที่ต้องจำ</strong>: ρ = งาน ÷ กำลังผลิต · Utilization = busy ÷ <em>dock-minutes ที่มีจริง</em> · L<sub>q</sub> = พื้นที่ใต้กราฟ ÷ เวลา · L<sub>q</sub> = λW<sub>q</sub></li>
+      <li><strong>ทริก SimPy</strong>: ทรัพยากรที่เปลี่ยนกลางรัน ทำได้ด้วย <code>request()</code> ค้างไว้แล้วค่อย <code>release()</code></li>
+      <li><strong>สิ่งที่ยัง<u>ไม่</u>ได้ทำวันนี้</strong>: เทียบทางเลือกและแปลงเป็นเงินเพื่อเสนอผู้บริหาร — รอครั้งที่ 6 เพราะรันครั้งเดียวยังบอกไม่ได้ว่าความต่างจริงหรือบังเอิญ</li>
+      <li><strong>ครั้งหน้า (ครั้งที่ 5)</strong>: Validation + การจัดสรรตำแหน่งสินค้าในคลัง — "จัดโซนแบบ ABC คุ้มไหม"</li>
+    </ul>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<div id="pager">
+  <button id="pgPrev" onclick="goPage(-1)">← ก่อนหน้า</button>
+  <div class="pginfo" id="pgInfo"></div>
+  <button id="pgNext" onclick="goPage(1)">ถัดไป →</button>
+</div>
+
+<!-- ===== [PATCH-PDF] กล่องแนะนำวิธีบันทึก PDF ===== -->
+<div id="pdfHint">
+  <div class="box">
+    <h3>📄 บันทึกสื่อการสอนเป็นไฟล์ PDF</h3>
+    <p style="margin:0 0 6px;font-size:.94rem">ระบบจะเปิดหน้าต่างพิมพ์ของเบราว์เซอร์ให้ — ทำตามนี้:</p>
+    <ol>
+      <li>ช่อง <b>ปลายทาง / Destination</b> เลือก <b>“บันทึกเป็น PDF” (Save as PDF)</b></li>
+      <li>เปิด <b>ตัวเลือกเพิ่มเติม → กราฟิกพื้นหลัง (Background graphics)</b> เพื่อให้สีและกล่องโค้ดติดไปด้วย</li>
+      <li>กด <b>บันทึก / Save</b></li>
+    </ol>
+    <p style="margin:0 0 14px;font-size:.88rem;color:var(--muted)">เนื้อหาบรรยาย โค้ดทุกบล็อก ตาราง และโน้ตที่จดไว้ จะถูกรวมไว้ในไฟล์เดียว พร้อมเว้นคอลัมน์ขวาไว้จดโน้ตด้วยลายมือทุกหน้า — ส่วนที่กดโต้ตอบไม่ได้บนกระดาษ (เช็คชื่อ, แผงควบคุม/กราฟที่ต้องกดรัน, เช็กลิสต์ติ๊ก, Quiz) จะไม่ถูกพิมพ์ออกมา</p>
+    <button onclick="doPrint()">🖨️ เปิดหน้าต่างบันทึก PDF</button>
+    <button class="ghost" onclick="closePdfHint()">ยกเลิก</button>
+  </div>
+</div>
+
+
+<footer>
+  <div>Computer Simulation I · ครั้งที่ 4 จาก 6 — Verification กับคิวรถบรรทุกที่ dock · คณะโลจิสติกส์ มหาวิทยาลัยบูรพา</div>
+  <div class="notetools">
+    <button onclick="downloadNotes()">⬇️ ดาวน์โหลดโน้ตทั้งหมด (.txt)</button>
+    <button onclick="clearNotes()">🗑️ ล้างโน้ต</button>
+  </div>
+  <div style="font-size:.8rem;opacity:.85;margin-top:8px;line-height:1.55">
+    💡 โน้ตถูกบันทึกไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น (localStorage) — ถ้าเปลี่ยนเครื่อง เปลี่ยนเบราว์เซอร์ ล้างข้อมูลเบราว์เซอร์ หรือเปิดผ่านแอป LINE/Drive โน้ตอาจหาย<br>
+    <b>ก่อนปิดหน้า ควรกด ⬇️ ดาวน์โหลดโน้ตทั้งหมด (.txt) เก็บไว้ทุกครั้ง</b>
+  </div>
+</footer>
+
+<script>
+
+/* ============ [PATCH] STORAGE HEALTH + AUTOSAVE FLUSH ============ */
+var LS_OK=(function(){try{var k='__lstest__';localStorage.setItem(k,'1');var v=localStorage.getItem(k);localStorage.removeItem(k);return v==='1';}catch(e){return false;}})();
+var PENDING={};
+function showWarn(id){var el=document.getElementById(id);if(el)el.style.display='block';}
+function lsSet(k,v){try{localStorage.setItem(k,v);return true;}catch(e){LS_OK=false;showWarn('storageWarn');return false;}}
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function flushPending(){for(var k in PENDING){if(Object.prototype.hasOwnProperty.call(PENDING,k))lsSet(k,PENDING[k]);}PENDING={};}
+window.addEventListener('pagehide',flushPending);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')flushPending();});
+window.addEventListener('beforeunload',function(ev){
+  flushPending();
+  if(!LS_OK&&hasAnyNote()){ev.preventDefault();ev.returnValue='';return '';}
+});
+function hasAnyNote(){
+  var found=false;
+  document.querySelectorAll('.notebox textarea, textarea[id^="hw_"]').forEach(function(t){if(t.value&&t.value.trim())found=true;});
+  return found;
+}
+(function(){
+  var ua=navigator.userAgent||'';
+  var inApp=/Line\/|FBAN|FBAV|Instagram|MicroMessenger|KAKAOTALK/i.test(ua);
+  if(!LS_OK)showWarn('storageWarn');
+  else if(inApp)showWarn('inappWarn');
+})();
+/* ============ PROGRESS + NAV ============ */
+function updateProgress(){
+  if(document.body.classList.contains('paged')){
+    var pct=(curPage+1)/PAGES.length*100;
+    document.getElementById('progress').style.width=pct+'%';
+  }else{
+    var h=document.documentElement, st=h.scrollTop, sh=h.scrollHeight-h.clientHeight;
+    document.getElementById('progress').style.width=(sh>0?st/sh*100:0)+'%';
+  }
+}
+window.addEventListener('scroll',function(){ if(!document.body.classList.contains('paged'))updateProgress(); });
+
+/* ============ RANDOM HELPERS ============ */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function meanArr(a){return a.reduce(function(x,y){return x+y;},0)/a.length;}
+
+/* ============ S1: CYCLE ============ */
+var CYCLE=[
+ ['① โจทย์ธุรกิจ','<strong>เริ่มจากคำถามที่มีคนรอคำตอบ</strong> ไม่ใช่เริ่มจาก "อยากลองสร้างโมเดล" · คำถามที่ดีต้องมีทางเลือกอยู่ในตัว วัดผลได้ และมีคนเอาไปใช้จริง — เช่น "ควรจ้างทีมเสริมเปิดช่องที่ 4 ตลอดกะ (2,400 บาท/วัน) หรือจ้างทีมเสริมเฉพาะบ่าย (1,200 บาท/วัน)?"'],
+ ['② เก็บข้อมูล','<strong>Input Analysis (ครั้งที่ 2)</strong> — เวลารถเข้า เวลาขนถ่าย ต้องเป็น<em>การแจกแจง</em> ไม่ใช่ค่าเฉลี่ยค่าเดียว · ที่สำคัญคือต้องแยกตามช่วงเวลา เพราะรถเข้าช่วงบ่ายถี่กว่าเช้าเกือบเท่าตัว'],
+ ['③ สร้างโมเดล','<strong>ครั้งที่ 3</strong> — แปลงระบบจริงเป็นโค้ด SimPy: รถ = entity · dock = Resource · ขนถ่าย = timeout · ช่องเสริมที่เปิดกลางกะ = ทริก request/release'],
+ ['④ ตรวจโมเดล','<strong>วันนี้ — Verification</strong> · โมเดลที่ยังไม่ตรวจ ห้ามเอาตัวเลขไปเสนอใคร · output check · ปิดความสุ่ม · trace · extreme test · กฎของ Little'],
+ ['⑤ เทียบกับโลกจริง','<strong>ครั้งที่ 5 — Validation</strong> · เอาข้อมูลจริงจากคลังมาเทียบ ถามคนที่ทำงานจริงว่าสมเหตุสมผลไหม'],
+ ['⑥ ทดลอง','<strong>ครั้งที่ 6</strong> · รันซ้ำหลายรอบ สร้างช่วงความเชื่อมั่น เทียบทางเลือกด้วยสถิติ — เพราะรันครั้งเดียวคือการสุ่มมา 1 ค่า'],
+ ['⑦ ตัดสินใจ','<strong>ครั้งที่ 6 (ท้ายคาบ) — แปลงเป็นเงินแล้วเสนอ</strong> · ผู้บริหารไม่ตัดสินใจด้วย "นาที" แต่ด้วย "บาท" และ "คืนทุนกี่เดือน" · พร้อมบอกความไม่แน่นอนอย่างตรงไปตรงมา']
+];
+function buildCycle(){
+  var box=document.getElementById('cycleBtns');if(!box)return;
+  CYCLE.forEach(function(c,i){
+    var b=document.createElement('button');
+    b.textContent=c[0];
+    b.onclick=function(){
+      box.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      document.getElementById('cycleDesc').innerHTML=c[1];
+    };
+    box.appendChild(b);
+  });
+}
+
+/* ============ S4: 7 WAYS ============ */
+var VW_DESCS=[
+ '<strong>① Output checks — เทียบผลกับที่คาดไว้</strong> <span style="background:#fff3d6;border-radius:5px;padding:1px 7px;font-weight:800;font-size:.82em">ต้องเขียนค่าที่คาดไว้ <u>ก่อน</u> กดรัน</span> — คำนวณกำลังผลิตเทียบปริมาณงานก่อนรันเสมอ: บ่าย ρ = 1.22 → <em>ต้องมีคิว</em> ถ้าโมเดลบอกว่าบ่ายสบาย = ผิดแน่ · รวมถึงเช็ค "เข้า = เสร็จ + ค้าง" ทุกครั้ง · <b>ถ้าดูผลก่อนแล้วค่อยคิดว่าควรได้เท่าไร สมองจะหาเหตุผลเข้าข้างตัวเลขที่เห็นเสมอ</b>',
+ '<strong>② กราฟ / ภาพ</strong> — ตาเราจับความผิดปกติเก่งมาก · พล็อต<strong>จำนวนรถที่จอดรอตามเวลา</strong>: กราฟของเคสนี้ต้อง<strong>ต่ำช่วงเช้าแล้วไต่ขึ้นหลังนาทีที่ 240</strong> ถ้าแบนตลอดหรือพุ่งตั้งแต่ต้น = มีอะไรผิด',
+ '<strong>③ Trace — ไล่ลำดับเหตุการณ์</strong> — print ทุกเหตุการณ์พร้อมเวลา: <code>t=118.4 รถ 19 เข้าช่อง 4</code> คือหลักฐานมัดตัวว่าช่องเสริมเปิดเร็วเกินไป · เหมาะสุดกับ bug ที่รู้ว่ามีแต่ไม่รู้อยู่ตรงไหน',
+ '<strong>④ Assert / Watches</strong> — เขียนเงื่อนไขที่<em>เป็นไปไม่ได้ทางกายภาพ</em>ไว้ดัก: <code>assert busy &lt;= dock_min</code>, <code>assert min(wait) &gt;= 0</code>, <code>assert n_done &lt;= n_in</code> — ผิดเมื่อไรโปรแกรมหยุดตรงจุดนั้นทันที',
+ '<strong>⑤ Vary conditions — ปรับเงื่อนไข</strong> — เทคนิคทรงพลังสุดของวันนี้ มี <b>2 แบบที่ต้องทำทั้งคู่</b>:<br>&nbsp;&nbsp;<b>⑤-ก ปิดความสุ่ม</b> — แทนค่าสุ่มด้วยค่าคงที่ → ผลต้องคำนวณมือได้เป๊ะ 100% ไม่มีข้อแก้ตัวว่า "บังเอิญ" (ลองได้ในหัวข้อ 5)<br>&nbsp;&nbsp;<b>⑤-ข ทดสอบค่าสุดขั้ว</b> — เร่งจนระบบ<b>ต้องพัง</b> (รถถล่ม → คิวต้องระเบิด) หรือเพิ่ม dock จาก 3 เป็น 4 → คิวต้องสั้นลง · ถ้าผลไม่เป็นตามที่รู้ล่วงหน้า = bug',
+ '<strong>⑥ Documentation</strong> — <code>EXTRA_FROM = 240</code> อ่านรู้เรื่องกว่า <code>x = 240</code> · การเขียนคอมเมนต์บังคับให้เราอธิบายตรรกะกับตัวเอง — หลาย bug โผล่มาเองตอนพยายามอธิบาย',
+ '<strong>⑦ Group walkthrough</strong> — เพื่อนไม่มีปัญหา ownership จึงเห็น bug ที่เรามองข้าม · เจ้าของอธิบายทีละบรรทัด ผู้ตรวจถาม "ตั้งใจให้ทำอะไร แล้วทำจริงไหม" — วิธีเดียวที่จับ "สมมติฐานที่ผิดตั้งแต่ต้น" ได้'
+];
+function buildVW(){
+  var host=document.getElementById('vwList');if(!host)return;
+  host.innerHTML=VW_DESCS.map(function(t){return '<div class="stepdesc" style="margin:10px 0">'+t+'</div>';}).join('');
+}
+
+/* ============ CORE: เครื่องจำลอง dock ============ */
+function triInv(u,a,c,b){
+  var Fc=(c-a)/(b-a);
+  return u<Fc ? a+Math.sqrt(u*(b-a)*(c-a)) : b-Math.sqrt((1-u)*(b-a)*(b-c));
+}
+function timeAvg(events,T){
+  events.sort(function(x,y){return x.t-y.t || x.d-y.d;});
+  var n=0,last=0,area=0;
+  for(var i=0;i<events.length;i++){
+    var e=events[i];
+    if(e.t>T)break;
+    area+=n*(e.t-last); last=e.t; n+=e.d;
+  }
+  area+=n*(T-last);
+  return area/T;
+}
+/*
+ cfg: {T, noon, baseDocks, extraFrom(null|number), det, iatDet, svcDet,
+       iatAm, iatPm, svc:[min,mode,max], seed, finePerHr, freeMin}
+*/
+function simDock(cfg){
+  var rng=mulberry32(cfg.seed||42);
+  var T=cfg.T, noon=cfg.noon, base=cfg.baseDocks;
+  var hasExtra=(cfg.extraFrom!==null&&cfg.extraFrom!==undefined);
+  var nSrv=base+(hasExtra?1:0);
+  var free=[],avail=[],busy=[],i;
+  for(i=0;i<nSrv;i++){free.push(0);busy.push(0);avail.push(i<base?0:cfg.extraFrom);}
+
+  var trucks=[],t=0,guard=0;
+  while(guard++<3000){
+    var mean=(t<noon)?cfg.iatAm:cfg.iatPm;
+    t += cfg.det ? cfg.iatDet : -mean*Math.log(1-rng());
+    if(t>=T-1e-9)break;
+    var s = cfg.det ? cfg.svcDet : triInv(rng(),cfg.svc[0],cfg.svc[1],cfg.svc[2]);
+    var best=-1,bestStart=Infinity;
+    for(i=0;i<nSrv;i++){
+      var st=Math.max(t,free[i],avail[i]);
+      if(st<bestStart-1e-9){bestStart=st;best=i;}
+    }
+    free[best]=bestStart+s;
+    busy[best]+=Math.max(0,Math.min(bestStart+s,T)-Math.min(bestStart,T));
+    trucks.push({a:t,st:bestStart,e:bestStart+s,w:bestStart-t,sv:best,s:s});
+  }
+
+  var n_in=trucks.length,waits=[],turns=[],qEv=[],waitWin=0,notStarted=0,fine=0,over=0;
+  trucks.forEach(function(tk){
+    qEv.push({t:tk.a,d:1});qEv.push({t:tk.st,d:-1});
+    waitWin+=Math.min(tk.st,T)-tk.a;
+    /* ยังไม่ได้เข้าช่องเลยเมื่อหมดกะ = backlog แท้จริง (เป็นส่วนย่อยของ "ค้างในระบบ") */
+    if(tk.st>=T-1e-9)notStarted++;
+    if(tk.e<=T+1e-9){
+      waits.push(tk.w);
+      var ta=tk.e-tk.a;turns.push(ta);
+      var ex=Math.max(0,ta-cfg.freeMin);
+      if(ex>0)over++;
+      fine+=ex/60*cfg.finePerHr;
+    }
+  });
+  var totalBusy=busy.reduce(function(x,y){return x+y;},0);
+  var dockMin=base*T+(hasExtra?Math.max(0,T-cfg.extraFrom):0);
+  var nDone=turns.length;
+  return {
+    trucks:trucks, n_in:n_in, n_out:nDone,
+    inSystem:n_in-nDone,               /* ค้างในระบบทั้งหมดเมื่อหมดกะ */
+    notStarted:notStarted,             /* ส่วนย่อย: ยังไม่ได้เข้าช่องเลย */
+    inService:(n_in-nDone)-notStarted, /* ส่วนย่อย: กำลังขนถ่ายค้างอยู่ */
+    avgW:waits.length?meanArr(waits):0, maxW:waits.length?Math.max.apply(null,waits):0,
+    avgTa:nDone?meanArr(turns):0, maxTa:nDone?Math.max.apply(null,turns):0,
+    Lq:timeAvg(qEv,T), avgWwin:n_in?waitWin/n_in:0,
+    busyArr:busy, util:dockMin?totalBusy/dockMin:0, dockMin:dockMin,
+    fine:fine, pctOver:nDone?over/nDone*100:0,
+    lambda:n_in/T, T:T, base:base, extraFrom:hasExtra?cfg.extraFrom:null, nSrv:nSrv
+  };
+}
+function readMoney(){
+  return {
+    finePerHr:+(document.getElementById('finePerHr')||{}).value||2500,
+    freeMin:+(document.getElementById('freeMin')||{}).value||45
+  };
+}
+function baseCfg(){
+  var m=readMoney();
+  return {T:480,noon:240,baseDocks:3,extraFrom:null,det:false,iatDet:8,svcDet:22,
+          iatAm:10,iatPm:6,svc:[12,20,34],seed:7,finePerHr:m.finePerHr,freeMin:m.freeMin};
+}
+
+
+/* ============ S6: BUG HUNT ============ */
+var BUG_LINES=[
+ {t:'import simpy, random',b:0},
+ {t:'',b:0},
+ {t:'SHIFT = 480; NOON = 240',b:0},
+ {t:'IAT_AM, IAT_PM = 10, 6      # เช้า/บ่าย รถเข้าเฉลี่ย',b:0},
+ {t:'BASE_DOCKS = 3; EXTRA_FROM = 240',b:0},
+ {t:'log = []; busy = 0.0',b:0},
+ {t:'',b:0},
+ {t:'def truck(env, name, dock):',b:0},
+ {t:'    global busy',b:0},
+ {t:'    arrive = env.now',b:0},
+ {t:'    with dock.request() as req:',b:0},
+ {t:'        yield req',b:0},
+ {t:'        start = env.now',b:0},
+ {t:'        s = random.triangular(12, 20, 34)',b:0},
+ {t:'        busy += s',b:0},
+ {t:'        yield env.timeout(s)',b:0},
+ {t:'    log.append((arrive, arrive, env.now))',b:1,
+  fb:'🐞 BUG 1 — ตัวกลางต้องเป็น <code>start</code> ไม่ใช่ <code>arrive</code>! · เมื่อเก็บ (arrive, arrive, out) เวลาจอดรอจะกลายเป็น <code>start - arrive = 0</code> <strong>ทุกคัน</strong> → โมเดลรายงานว่า "ไม่มีรถต้องรอเลย ระบบสบายมาก" ทั้งที่ลานจอดเต็ม · <strong>ผลทางธุรกิจ: ไม่ลงทุน แล้วจ่ายค่าปรับต่อไปทุกปี</strong> · จับได้ด้วย<strong>กฎของ Little</strong> (Lq &gt; 0 แต่ Wq = 0 เป็นไปไม่ได้) และด้วย <code>assert</code>'},
+ {t:'',b:0},
+ {t:'def arrivals(env, dock):',b:0},
+ {t:'    i = 0',b:0},
+ {t:'    while True:',b:0},
+ {t:'        mean = IAT_AM if env.now < NOON else IAT_PM',b:0},
+ {t:'        yield env.timeout(random.expovariate(mean))',b:2,
+  fb:'🐞 BUG 2 — <code>expovariate()</code> รับ <strong>rate (λ = 1/mean)</strong> ไม่ใช่ mean! · ต้องเป็น <code>random.expovariate(1/mean)</code> · ใส่ 10 ตรง ๆ จะได้ระยะห่างเฉลี่ย 0.1 นาที = รถเข้า<strong>ทุก 6 วินาที</strong> → ประมาณ 4,800 คันต่อกะ · <strong>ผลทางธุรกิจ: โมเดลบอกว่าคลังวิกฤตหนัก ต้องลงทุนด่วน</strong> ทั้งที่ความจริงไม่ใช่ · จับได้ทันทีด้วย <strong>output check</strong> (รถเข้าควรราว 60 คัน ไม่ใช่หลักพัน)'},
+ {t:'        if env.now >= SHIFT: break',b:0},
+ {t:'        i += 1',b:0},
+ {t:'        env.process(truck(env, i, dock))',b:0},
+ {t:'',b:0},
+ {t:'def extra_team(env, dock):',b:0},
+ {t:'    req = dock.request()',b:0},
+ {t:'    yield req',b:0},
+ {t:'    yield env.timeout(EXTRA_FROM)',b:0},
+ {t:'    dock.release(req)',b:0},
+ {t:'',b:0},
+ {t:'env = simpy.Environment()',b:0},
+ {t:'dock = simpy.Resource(env, capacity=BASE_DOCKS + 1)',b:0},
+ {t:'env.process(arrivals(env, dock))',b:0},
+ {t:'env.process(extra_team(env, dock))',b:0},
+ {t:'env.run(until=SHIFT)',b:0},
+ {t:'',b:0},
+ {t:'dock_min = (BASE_DOCKS + 1) * SHIFT',b:3,
+  fb:'🐞 BUG 3 — ช่องที่ 4 เปิดแค่ครึ่งกะ! · dock-minutes ที่มีจริง = <code>BASE_DOCKS*SHIFT + (SHIFT - EXTRA_FROM)</code> = 3×480 + 240 = <strong>1,680</strong> ไม่ใช่ 4×480 = 1,920 · หารด้วยตัวเลขที่ใหญ่เกินจริง ทำให้ <strong>utilization ดูต่ำกว่าความเป็นจริง</strong> → สรุปผิดว่า "ช่องยังว่างเยอะ ไม่ต้องเพิ่ม" · จับได้ด้วยการคำนวณมือ หรือ <code>assert</code> เทียบกับผลรวมเวลาทำงานจริงของแต่ละช่อง'},
+ {t:'print(f"Utilization = {busy / dock_min:.1%}")',b:0}
+];
+var bugFound={};
+function buildBug(){
+  var pre=document.getElementById('bugPre');if(!pre)return;
+  pre.innerHTML='';bugFound={};
+  BUG_LINES.forEach(function(L,i){
+    var s=document.createElement('span');s.className='bl';
+    s.textContent=L.t===''?' ':L.t;
+    s.dataset.i=i;
+    s.onclick=function(){bugClick(s,L);};
+    pre.appendChild(s);
+  });
+  document.getElementById('bugCount').textContent='0';
+  document.getElementById('bugFb').className='bugfb';
+  document.getElementById('bugFb').innerHTML='';
+  document.getElementById('bugDone').style.display='none';
+}
+function bugClick(s,L){
+  var fb=document.getElementById('bugFb');
+  if(s.classList.contains('found'))return;
+  if(L.b){
+    if(bugFound[L.b])return;
+    bugFound[L.b]=true;
+    s.classList.add('found');
+    fb.className='bugfb show';fb.innerHTML=L.fb;
+    var n=Object.keys(bugFound).length;
+    document.getElementById('bugCount').textContent=n;
+    if(n===3)document.getElementById('bugDone').style.display='block';
+  }else{
+    s.classList.add('no');
+    setTimeout(function(){s.classList.remove('no');},500);
+    fb.className='bugfb show';fb.innerHTML='❌ บรรทัดนี้ปกติดี — ลองมองหาจุดที่ "ความหมาย" ไม่ตรงกับ "ความตั้งใจ": ตัวแปรที่เก็บผิดตัว · พารามิเตอร์ของฟังก์ชันสุ่ม · และตัวหารของ utilization';
+  }
+}
+function bugReset(){buildBug();}
+
+/* ============ S7: TRACE + EXTREME ============ */
+function updVals(){
+  document.getElementById('vDock').textContent=document.getElementById('rDock').value;
+  document.getElementById('vAm').textContent=document.getElementById('rAm').value;
+  document.getElementById('vPm').textContent=document.getElementById('rPm').value;
+}
+function readSvc(){
+  /* เวลาขนถ่าย Triangular(ต่ำสุด, ฐานนิยม, สูงสุด) — ค่าคงที่ตามโจทย์ */
+  return [12,20,34];
+}
+function readCfg(){
+  var c=baseCfg();
+  c.baseDocks=+document.getElementById('rDock').value;
+  c.iatAm=+document.getElementById('rAm').value;
+  c.iatPm=+document.getElementById('rPm').value;
+  c.svc=readSvc();
+  c.svcDet=c.svc[1];
+  c.seed=+document.getElementById('nSeed').value||7;
+  c.det=document.getElementById('cDet').checked;
+  c.extraFrom=document.getElementById('cExtra').checked?240:null;
+  return c;
+}
+function extremePreset(){
+  document.getElementById('rPm').value=2;
+  document.getElementById('cDet').checked=false;
+  updVals();
+  runTrace('extreme');
+}
+function runTrace(mode){
+  var cfg=readCfg();
+  var r=simDock(cfg);
+  if(!r.n_in)return;
+
+  document.getElementById('tStats').style.display='grid';
+  document.getElementById('tIn').textContent=r.n_in;
+  document.getElementById('tOut').textContent=r.n_out;
+  document.getElementById('tRem').textContent=r.inSystem;
+  document.getElementById('tTa').textContent=r.avgTa.toFixed(1);
+  document.getElementById('tMaxTa').textContent=r.maxTa.toFixed(1);
+  document.getElementById('tWq').textContent=r.avgW.toFixed(1);
+  document.getElementById('tLq').textContent=r.Lq.toFixed(2);
+  document.getElementById('tU').textContent=(r.util*100).toFixed(0)+'%';
+  document.getElementById('tFine').textContent=Math.round(r.fine).toLocaleString('th-TH');
+
+  var bal=document.getElementById('tBalance');bal.style.display='block';
+  bal.innerHTML='<span class="lb">Output check</span>รถเข้า '+r.n_in+' = ขนถ่ายเสร็จ '+r.n_out+' + ค้างในระบบ '+r.inSystem+' ✅ ไม่มีรถหายกลางทาง'+
+    ' · ในจำนวนที่ค้าง มี <b>'+r.notStarted+' คัน</b> ที่<strong>ยังไม่ได้เข้าช่องเลย</strong> และ <b>'+r.inService+' คัน</b> กำลังขนถ่ายค้างอยู่'+
+    ' · ตัวหาร utilization = '+r.base+'×'+r.T+(r.extraFrom!==null?(' + ('+r.T+'−'+r.extraFrom+')'):'')+' = <b>'+r.dockMin+' dock-minutes</b>'+
+    ' · <b>'+r.pctOver.toFixed(0)+'%</b> ของรถที่เสร็จ อยู่เกิน '+cfg.freeMin+' นาที';
+
+  var lit=document.getElementById('tLittle');lit.style.display='block';
+  var pred=r.lambda*r.avgWwin, diff=pred>0?Math.abs(r.Lq-pred)/pred*100:0, ok=diff<=5;
+  var predRep=r.lambda*r.avgW;
+  lit.className='note '+(ok?'tip':'warn');
+  lit.innerHTML='<span class="lb">Verification ด้วยกฎของ Little</span>λ = '+r.n_in+' ÷ '+r.T+' = <b>'+r.lambda.toFixed(3)+'</b> คัน/นาที'+
+    '<br>① ใช้เวลารอที่<b>สะสมจริงในกะ</b> W<sub>q</sub> = '+r.avgWwin.toFixed(2)+' → λW<sub>q</sub> = <b>'+pred.toFixed(3)+'</b> · โมเดลนับ L<sub>q</sub> = <b>'+r.Lq.toFixed(3)+'</b> · ต่างกัน '+diff.toFixed(1)+'% → '+(ok?'✅ <b>ผ่าน</b>':'⚠️ ต้องไล่หา bug')+
+    '<br>② ใช้ W<sub>q</sub> ที่รายงานเป็น KPI (เฉพาะรถที่เสร็จแล้ว) = '+r.avgW.toFixed(2)+' → λW<sub>q</sub> = '+predRep.toFixed(3)+' — ต่ำกว่า เพราะรถที่ยังค้างไม่ถูกนับ (<i>censoring</i>) '+
+    '<div style="margin-top:5px;font-size:.9rem">👉 จึงต้องรายงาน <b>รถค้างสิ้นกะ ('+r.inSystem+' คัน)</b> ควบคู่กับเวลารอเฉลี่ยเสมอ</div>';
+
+  drawQueueChart(r,cfg);
+
+  var evs=[];
+  r.trucks.slice(0,40).forEach(function(tk,k){
+    evs.push({t:tk.a,type:'arr',m:'รถ '+(k+1)+' มาถึง'+(tk.st-tk.a>1e-9?' → จอดรอ':' → ช่องว่าง เข้าทันที')});
+    evs.push({t:tk.st,type:'svc',m:'รถ '+(k+1)+' เข้า <b>ช่องที่ '+(tk.sv+1)+'</b> (จอดรอ '+tk.w.toFixed(1)+' นาที)'});
+    evs.push({t:tk.e,type:'dep',m:'รถ '+(k+1)+' ออกจากคลัง (turnaround '+(tk.e-tk.a).toFixed(1)+' นาที)'});
+  });
+  if(cfg.extraFrom!==null)evs.push({t:cfg.extraFrom,type:'dep',m:'👷 <b>ทีมเสริมมาถึง เปิดช่องที่ '+(r.base+1)+'</b> — ก่อนหน้านี้ต้องไม่มีบรรทัด "เข้าช่องที่ '+(r.base+1)+'"'});
+  evs.sort(function(a,b){return a.t-b.t;});
+  var log=document.getElementById('tLog');log.innerHTML='';
+  evs.slice(0,25).forEach(function(e){
+    var d=document.createElement('div');d.className='ev '+e.type;
+    d.innerHTML='<b>t='+e.t.toFixed(1)+'</b> · '+e.m;
+    log.appendChild(d);
+  });
+
+  var msg=document.getElementById('tMsg');msg.style.display='block';
+  var svcMean=cfg.det?cfg.svcDet:(cfg.svc[0]+cfg.svc[1]+cfg.svc[2])/3;
+  var rhoAm=svcMean/(cfg.iatAm*r.base), rhoPm=svcMean/(cfg.iatPm*(cfg.extraFrom!==null?r.base+1:r.base));
+  if(mode==='extreme'){
+    var boom=(r.Lq>6||r.inSystem>12);
+    msg.className='note warn';
+    msg.innerHTML='<span class="lb">ผล Extreme Test</span>รถเข้าถี่สุดช่วงบ่าย → ρ ≈ '+rhoPm.toFixed(2)+' (เกิน 1 มาก) → คิว<strong>ควรระเบิด</strong> · ผลจริง: L<sub>q</sub> = '+r.Lq.toFixed(1)+' คัน · ค้าง '+(r.inSystem+r.notStarted)+' คัน · รอสูงสุด '+r.maxW.toFixed(0)+' นาที → '+
+      (boom?'✅ ระเบิดตามคาด — โมเดลผ่าน extreme test':'❌ ไม่ระเบิด?! ถ้าเป็นโมเดลจริงแปลว่ามี bug (เช่น ลืม yield)');
+  }else{
+    msg.className='note '+(rhoPm>=1?'warn':'tip');
+    msg.innerHTML='<span class="lb">อ่านผล (seed '+cfg.seed+(cfg.det?' · ปิดความสุ่ม':'')+')</span>'+
+      'ช่วงเช้า ρ ≈ <b>'+rhoAm.toFixed(2)+'</b> · ช่วงบ่าย ρ ≈ <b>'+rhoPm.toFixed(2)+'</b>'+(rhoPm>=1?' ⚠️ บ่ายรับไม่ไหว คิวโตไม่หยุด':' — บ่ายยังพอรับไหว')+
+      ' · ไล่ trace ด้านบน: ลำดับเหตุการณ์ถูกไหม · '+(cfg.extraFrom!==null?'<strong>มีรถเข้าช่องที่ '+(r.base+1)+' ก่อนนาทีที่ '+cfg.extraFrom+' หรือเปล่า</strong>':'ใครจอดรอทั้งที่มีช่องว่างไหม');
+  }
+}
+
+/* ============ S7: กราฟจำนวนรถที่รอ (พื้นที่ใต้กราฟ = Lq) ============ */
+function drawQueueChart(r,cfg){
+  var title=document.getElementById('qChartTitle'), cv=document.getElementById('qCanvas');
+  if(!cv||!title)return;
+  title.style.display='block'; cv.style.display='block';
+  var ctx=cv.getContext('2d'), W=cv.width, H=cv.height, pad=36;
+  ctx.clearRect(0,0,W,H);
+  var T=r.T;
+
+  /* สร้างเหตุการณ์ +1 ตอนมาถึง (เข้าคิว) / -1 ตอนเริ่มขนถ่าย (ออกจากคิว) — เหมือนตัวที่ใช้คำนวณ Lq จริง */
+  var ev=[];
+  r.trucks.forEach(function(tk){ ev.push({t:tk.a,d:1}); ev.push({t:tk.st,d:-1}); });
+  ev.sort(function(a,b){return a.t-b.t;});
+  var pts=[{t:0,n:0}], n=0;
+  ev.forEach(function(e){ pts.push({t:e.t,n:n}); n+=e.d; pts.push({t:e.t,n:n}); });
+  pts.push({t:T,n:n});
+  var mx=Math.max.apply(null,pts.map(function(p){return p.n;}))||1;
+  mx=Math.ceil(mx*1.15);
+
+  function X(t){return pad+t/T*(W-pad-12);}
+  function Y(v){return H-pad-v/mx*(H-pad-16);}
+
+  /* พื้นที่แรเงาใต้กราฟ — พื้นที่นี้ ÷ T คือ Lq */
+  ctx.beginPath();
+  ctx.moveTo(X(0),Y(0));
+  pts.forEach(function(p){ ctx.lineTo(X(p.t),Y(p.n)); });
+  ctx.lineTo(X(T),Y(0));
+  ctx.closePath();
+  ctx.fillStyle='rgba(31,95,139,.14)';
+  ctx.fill();
+
+  /* แกน */
+  ctx.strokeStyle='#c8d2dc'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pad,H-pad); ctx.lineTo(W-8,H-pad); ctx.moveTo(pad,14); ctx.lineTo(pad,H-pad); ctx.stroke();
+
+  /* เส้นแบ่งเช้า/บ่าย ที่นาทีที่ 240 */
+  ctx.strokeStyle='#9aa7b4'; ctx.setLineDash([4,4]); ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(X(240),14); ctx.lineTo(X(240),H-pad); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#7a8794'; ctx.font='11px Segoe UI, Sarabun, sans-serif';
+  ctx.fillText('เที่ยง (240)', X(240)+4, 24);
+
+  /* เส้นเปิดช่องเสริม ถ้ามี */
+  if(cfg.extraFrom!==null&&cfg.extraFrom!==undefined){
+    ctx.strokeStyle='#2f9e8f'; ctx.setLineDash([2,3]); ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(X(cfg.extraFrom),14); ctx.lineTo(X(cfg.extraFrom),H-pad); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#1f7a6c'; ctx.fillText('เปิดช่องที่ '+(r.base+1), X(cfg.extraFrom)+4, 38);
+  }
+
+  /* เส้นกราฟ step ของจำนวนรถที่รอ */
+  ctx.strokeStyle='#1f5f8b'; ctx.lineWidth=1.8;
+  ctx.beginPath();
+  ctx.moveTo(X(0),Y(0));
+  pts.forEach(function(p){ ctx.lineTo(X(p.t),Y(p.n)); });
+  ctx.stroke();
+
+  /* เส้นค่าเฉลี่ย Lq */
+  ctx.strokeStyle='#d9534f'; ctx.setLineDash([6,4]); ctx.lineWidth=1.6;
+  ctx.beginPath(); ctx.moveTo(pad,Y(r.Lq)); ctx.lineTo(W-8,Y(r.Lq)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#b23b34';
+  var ly=Y(r.Lq)-6; if(ly<20)ly=Y(r.Lq)+16;
+  ctx.fillText('Lq เฉลี่ย = '+r.Lq.toFixed(2), W-150, ly);
+
+  ctx.fillStyle='#5b6b7b'; ctx.font='12px Segoe UI, Sarabun, sans-serif';
+  ctx.fillText('จำนวนรถที่รอ (คัน)',4,12);
+  ctx.fillText('เวลา (นาที)',W-70,H-8);
+}
+
+/* ============ S7: COMPARE 3 ALTERNATIVES ============ */
+
+/* ============ S9: CHECKLIST ============ */
+(function(){
+  var boxes=document.querySelectorAll('#chkList input[type=checkbox]');
+  function upd(){
+    var n=0;
+    boxes.forEach(function(b){
+      b.closest('li').classList.toggle('on',b.checked);
+      if(b.checked)n++;
+    });
+    document.getElementById('chkCount').textContent=n+'/7';
+    document.getElementById('chkMsg').style.display=(n===7)?'block':'none';
+  }
+  boxes.forEach(function(b){
+    var key='comsim4_chk_'+b.dataset.chk;
+    try{if(localStorage.getItem(key)==='1')b.checked=true;}catch(e){}
+    b.addEventListener('change',function(){
+      lsSet(key,b.checked?'1':'0');
+      upd();
+    });
+  });
+  upd();
+})();
+
+/* ============ [PATCH-EXPORT9] ส่งออกเช็กลิสต์ Verification (หัวข้อ 9) เป็น Word/PDF ============ */
+function collectChecklistData(){
+  var items=[];
+  document.querySelectorAll('#chkList > li').forEach(function(li){
+    var cb=li.querySelector('input[type=checkbox]');
+    var span=li.querySelector('span');
+    var subs=[];
+    var text='';
+    if(span){
+      var clone=span.cloneNode(true);
+      /* ดึงข้อย่อย (ถ้ามี) ออกมาแยกเป็น 5.1, 5.2, ... */
+      clone.querySelectorAll('ol > li').forEach(function(sub){
+        subs.push(sub.textContent.replace(/\s+/g,' ').trim());
+      });
+      clone.querySelectorAll('ol').forEach(function(o){o.parentNode.removeChild(o);});
+      text=clone.textContent.replace(/\s+/g,' ').trim();
+    }
+    items.push({done:!!(cb&&cb.checked), text:text, subs:subs});
+  });
+  var linkEl=document.querySelector('input[data-lab="ev_link"]');
+  var gapEl=document.querySelector('textarea[data-lab="ev_gap"]');
+  var n=items.filter(function(it){return it.done;}).length;
+  return {items:items, link:linkEl?linkEl.value.trim():'', gap:gapEl?gapEl.value.trim():'', n:n};
+}
+function escHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function checklistReportHTML(forPdf){
+  var d=collectChecklistData();
+  /* forPdf = true → เว้นเป็นพื้นที่ว่างให้เขียนมือ · false (Word) → ใช้เส้นขีดล่าง */
+  var BLANK_S=forPdf?'&nbsp;':'________________';
+  var BLANK_L=forPdf?'&nbsp;':'______________________________________________';
+  var rows=d.items.map(function(it,i){
+    var h='<p style="margin:5px 0">'+(it.done?'☑':'☐')+'&nbsp; '+(i+1)+'. '+escHtml(it.text)+'</p>';
+    if(it.subs&&it.subs.length){
+      h+=it.subs.map(function(t,j){
+        return '<p style="margin:3px 0 3px 28px">☐&nbsp; '+(i+1)+'.'+(j+1)+' '+escHtml(t)+'</p>';
+      }).join('');
+    }
+    return h;
+  }).join('');
+  var today=new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  return ''
+    +'<h2 style="color:#0f2c4d;margin-bottom:2px">Verification Report — Computer Simulation I ครั้งที่ 4</h2>'
+    +'<p style="color:#5b6b7b;margin-top:0">คิวรถบรรทุกที่ dock · วันที่พิมพ์: '+today+'</p>'
+    +'<p style="min-height:1.6em"><b>กลุ่มที่:</b> '+BLANK_S+' &nbsp;&nbsp;&nbsp; <b>สมาชิกในกลุ่ม:</b> '+BLANK_L+'</p>'
+    +'<h3 style="color:#1f5f8b;margin-bottom:4px">เช็กลิสต์ Verification ('+d.n+'/7 ข้อ)</h3>'
+    +rows
+    +'<h3 style="color:#1f5f8b;margin-bottom:4px">📎 หลักฐานที่แนบ</h3>'
+    +'<p style="min-height:1.6em">'+(d.link?escHtml(d.link):'<span style="color:#5b6b7b">'+BLANK_L+'</span>')+'</p>'
+    +'<p style="color:#5b6b7b;font-size:.85em">(แทรก/วางภาพหน้าจอกราฟ · trace · ผล assert เพิ่มเติมตรงนี้ก่อนส่ง)</p>'
+    +'<h3 style="color:#1f5f8b;margin-bottom:4px">⚠️ จุดที่โมเดลยังไม่ผ่าน / ยังไม่ได้ตรวจ</h3>'
+    +'<p style="min-height:4.8em">'+(d.gap?escHtml(d.gap).replace(/\n/g,'<br>'):'<span style="color:#5b6b7b">'+BLANK_L+'</span>')+'</p>';
+}
+function exportChecklistWord(){
+  var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'
+    +'<head><meta charset="utf-8"><title>Verification Report</title></head>'
+    +'<body style="font-family:\'TH Sarabun New\',Tahoma,sans-serif;font-size:16pt;line-height:1.6">'
+    + checklistReportHTML(false)
+    +'</body></html>';
+  var blob=new Blob(['﻿'+html],{type:'application/msword'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='VerificationReport_ครั้งที่4.doc';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href);
+}
+function exportChecklistPDF(){
+  var win=window.open('','_blank');
+  if(!win){alert('เบราว์เซอร์บล็อกป๊อปอัป กรุณาอนุญาตหน้าต่างป๊อปอัปสำหรับหน้านี้แล้วลองใหม่');return;}
+  win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Verification Report — ครั้งที่ 4</title>'
+    +'<style>body{font-family:"Segoe UI","Sarabun",Tahoma,sans-serif;padding:32px;max-width:760px;margin:0 auto;color:#1c2733;line-height:1.7}h2,h3{color:#0f2c4d}</style>'
+    +'</head><body>'+checklistReportHTML(true)
+    +'<script>window.onload=function(){window.print();};<\/script>'
+    +'</body></html>');
+  win.document.close();
+  win.focus();
+}
+
+/* ============ PER-SECTION NOTES ============ */
+var NOTE_PREFIX='comsim4_note_';
+(function(){
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    var id=sec.id;
+    var box=document.createElement('div');box.className='notebox';
+    box.innerHTML='<div class="nhead"><label>📝 โน้ตของฉัน — หัวข้อนี้</label><span class="savemark">ยังไม่บันทึก</span></div><textarea placeholder="จดสิ่งที่ได้เรียนรู้ คำถาม หรือ bug ที่เจอในโมเดลของกลุ่ม..."></textarea>';
+    sec.appendChild(box);
+    var ta=box.querySelector('textarea'),mark=box.querySelector('.savemark'),key=NOTE_PREFIX+id;
+    try{var saved=localStorage.getItem(key);if(saved){ta.value=saved;mark.textContent='บันทึกแล้ว ✓';mark.classList.add('ok');}}catch(e){}
+    var tm=null;
+    ta.addEventListener('input',function(){
+      mark.textContent='กำลังพิมพ์...';mark.classList.remove('ok');
+      PENDING[key]=ta.value;                       /* [PATCH] กันข้อความหายถ้าปิดหน้าก่อนครบ 600ms */
+      clearTimeout(tm);
+      tm=setTimeout(function(){
+        var ok=lsSet(key,ta.value);
+        if(ok){delete PENDING[key];mark.textContent='บันทึกแล้ว ✓';mark.classList.add('ok');}
+        else{mark.textContent='บันทึกไม่ได้ ✗ กรุณาดาวน์โหลดโน้ต';mark.classList.remove('ok');mark.style.color='#d9534f';}
+      },600);
+    });
+  });
+})();
+function downloadNotes(){
+  var out='Computer Simulation I — ครั้งที่ 4 (คิวรถที่ dock · Verification) — โน้ตของฉัน\nดาวน์โหลดเมื่อ: '+new Date().toLocaleString('th-TH')+'\n\n';
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    var ta=sec.querySelector('.notebox textarea');
+    var title=(sec.querySelector('h2')||{}).textContent||sec.id;
+    if(ta&&ta.value.trim())out+='== '+title.trim()+' ==\n'+ta.value.trim()+'\n\n';
+  });
+  var hw1=document.getElementById('hw_gap'),hw2=document.getElementById('hw_out');
+  var g=function(id){var e=document.getElementById(id);return e&&e.value.trim()?e.value.trim():'—';};
+  if(['hw_n','hw_wq','hw_w','hw_util'].some(function(id){return g(id)!=='—';}))
+    out+='== ผลโมเดล dock ==\nTurnaround เฉลี่ย: '+g('hw_n')+' · รถค้างสิ้นกะ: '+g('hw_wq')+' · Utilization: '+g('hw_w')+' · ค่าปรับ/กะ: '+g('hw_util')+'\n\n';
+  if(hw1&&hw1.value.trim())out+='== สิ่งที่โมเดลยังไม่ผ่าน/ยังไม่ได้ตรวจ ==\n'+hw1.value.trim()+'\n\n';
+  if(hw2&&hw2.value.trim())out+='== ร่างข้อเสนอ 3 บรรทัด ==\n'+hw2.value.trim()+'\n\n';
+  var blob=new Blob([out],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='โน้ต_ComSim_ครั้งที่4.txt';a.click();URL.revokeObjectURL(a.href);
+}
+function clearNotes(){
+  if(!confirm('ล้างโน้ตทุกหัวข้อของครั้งที่ 4?'))return;
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    try{localStorage.removeItem(NOTE_PREFIX+sec.id);}catch(e){}
+    var ta=sec.querySelector('.notebox textarea');if(ta)ta.value='';
+    var mk=sec.querySelector('.notebox .savemark');if(mk){mk.textContent='ยังไม่บันทึก';mk.classList.remove('ok');}
+  });
+}
+
+/* ============ HOMEWORK AUTOSAVE ============ */
+['hw_gap','hw_out'].forEach(function(id){
+  var ta=document.getElementById(id);if(!ta)return;
+  var v=lsGet('comsim4_'+id);if(v)ta.value=v;
+  ta.addEventListener('input',function(){lsSet('comsim4_'+id,ta.value);});
+});
+/* lab table autosave */
+document.querySelectorAll('input[data-lab]').forEach(function(inp){
+  var key='comsim4_lab_'+inp.dataset.lab;
+  var v=lsGet(key);if(v)inp.value=v;
+  inp.addEventListener('input',function(){lsSet(key,inp.value);});
+});
+
+/* ============ QUIZ ============ */
+var quizData=[
+ {q:'Verification ตอบคำถามข้อใด?',
+  opts:['เราสร้างโมเดลถูกวิธีไหม — โค้ดตรงกับที่ออกแบบไว้หรือไม่',
+        'เราสร้างโมเดลถูกตัวไหม — โมเดลตรงกับคลังจริงหรือไม่',
+        'โมเดลรันเร็วพอสำหรับการใช้งานจริงหรือไม่',
+        'ผู้บริหารพอใจกับผลลัพธ์หรือไม่'],
+  ans:0,fb:'ถูก! Verification = "built the model right" เทียบโค้ดกับแบบที่ตั้งใจ · ส่วน "built the right model" (เทียบกับคลังจริง) คือ Validation — เรียนครั้งหน้า'},
+ {q:'ρ (rho) ของช่วงบ่าย = งาน ÷ กำลังผลิต = 880 ÷ 720 = 1.22 หมายความว่าอย่างไร?',
+  opts:['กำลังผลิตไม่พอ คิวจะโตขึ้นเรื่อย ๆ ตลอดช่วงบ่าย',
+        'ช่องขนถ่ายทำงาน 122% ซึ่งเป็นเรื่องปกติของช่วงพีค',
+        'รถ 22% จะต้องรอคิว ที่เหลือเข้าได้ทันที',
+        'ต้องเพิ่มช่องอีก 1.22 ช่อง'],
+  ans:0,fb:'ถูก! ρ ≥ 1 คือปริมาณงานมากกว่ากำลังผลิต คิวจึงสะสมไปเรื่อย ๆ · และเรารู้ตั้งแต่ยังไม่รันโมเดล ถ้าโมเดลบอกว่าช่วงบ่ายสบาย = มี bug แน่นอน · หมายเหตุ: utilization จริงจะไม่เกิน 100% ได้ ส่วนเกินกลายเป็นคิวและงานค้าง'},
+ {q:'ในโมเดล dock ที่ช่องที่ 4 เปิดเฉพาะครึ่งกะหลัง (นาทีที่ 240–480) ตัวหารของ Utilization ที่ถูกต้องคือ?',
+  opts:['3 × 480 + 240 = 1,680 dock-minutes',
+        '4 × 480 = 1,920 dock-minutes',
+        '480 นาที เพราะเป็นความยาวกะ',
+        '240 นาที เพราะเป็นช่วงที่มีช่องครบ'],
+  ans:0,fb:'ถูก! Utilization = เวลาที่ทำงานจริง ÷ เวลาที่ทรัพยากร "พร้อมทำงาน" รวมกัน · หารด้วย 1,920 จะทำให้ utilization ดูต่ำกว่าความจริง แล้วสรุปผิดว่า "ช่องยังว่างเยอะ ไม่ต้องเพิ่ม"'},
+ {q:'ความต่างระหว่าง Turnaround time กับ Waiting time คืออะไร?',
+  opts:['Turnaround = ออก − มาถึง (รวมเวลาขนถ่าย) · Waiting = เข้าช่อง − มาถึง (เฉพาะเวลาจอดรอ)',
+        'เหมือนกัน เป็นคำเรียกต่างกันของสิ่งเดียวกัน',
+        'Turnaround วัดเป็นชั่วโมง Waiting วัดเป็นนาที',
+        'Turnaround ใช้กับรถ Waiting ใช้กับพนักงาน'],
+  ans:0,fb:'ถูก! และมันสำคัญมากเพราะ<strong>ค่าปรับ detention คิดจาก turnaround</strong> ไม่ใช่ waiting · การเพิ่มช่องลด waiting ได้ แต่ลดเวลาขนถ่ายไม่ได้ ดังนั้น turnaround จะไม่มีวันต่ำกว่าเวลาขนถ่ายเฉลี่ย'},
+ {q:'อ่าน trace แล้วเจอ "t=118.4 รถ 19 เข้าช่องที่ 4" ทั้งที่ตั้ง EXTRA_FROM = 240 — สรุปได้ว่าอย่างไร?',
+  opts:['มี bug แน่นอน — ช่องที่ 4 ไม่ควรรับรถก่อนนาทีที่ 240',
+        'ปกติ เพราะ SimPy จัดคิวให้เองอัตโนมัติ',
+        'ปกติ ถ้าช่องอื่นเต็มหมด ระบบจะเปิดช่องสำรองให้',
+        'ต้องเพิ่ม capacity เป็น 5 เพื่อแก้ปัญหานี้'],
+  ans:0,fb:'ถูก! นี่คือหลักฐานมัดตัวว่า process ที่คุมช่องเสริมไม่ทำงาน · trace คือเครื่องมือที่จับ bug ประเภทนี้ได้ตรงที่สุด — เห็นด้วยตาว่าเกิดอะไรขึ้นนาทีไหน'},
+ {q:'"จำนวนรถที่จอดรอโดยเฉลี่ย (Lq)" ที่ถูกต้องคำนวณอย่างไร?',
+  opts:['พื้นที่ใต้กราฟจำนวนรถที่รอตามเวลา หารด้วยความยาวกะ (เฉลี่ยถ่วงน้ำหนักด้วยเวลา)',
+        'จำนวนรถที่ต้องรอ หารด้วยจำนวนรถทั้งหมด',
+        'ความยาวคิวตอนรถแต่ละคันมาถึง มาเฉลี่ยกันแบบธรรมดา',
+        'เวลารอเฉลี่ย หารด้วยเวลาขนถ่ายเฉลี่ย'],
+  ans:0,fb:'ถูก! Lq เป็นค่าเฉลี่ย "ตามเวลา" ไม่ใช่ "ตามคัน" — คิวยาว 5 คันนาน 1 นาที กับยาว 1 คันนาน 50 นาที ต้องมีน้ำหนักต่างกัน'},
+ {q:'กฎของ Little (Lq = λ × Wq) ใช้ทำ verification ได้อย่างไร?',
+  opts:['ถ้า Lq ที่โมเดลนับได้ ต่างจาก λ × Wq มาก แสดงว่ามี bug ในการนับคิวหรือสูตรเวลารอ',
+        'ใช้แทนการรันโมเดล เพราะคำนวณด้วยสูตรได้เลย',
+        'ใช้พิสูจน์ว่าโมเดลตรงกับคลังจริง จึงเป็น Validation',
+        'ใช้หาจำนวนช่อง dock ที่เหมาะสมที่สุด'],
+  ans:0,fb:'ถูก! เป็นความจริงทางคณิตศาสตร์ที่ระบบคิวทุกระบบต้องเป็นไปตาม — ไม่ผ่าน = มี bug · และเพราะไม่ต้องใช้ข้อมูลจริงเลย จึงเป็น Verification ไม่ใช่ Validation'},
+ {q:'โมเดลรายงาน "รถจอดรอเฉลี่ย 6.2 นาที" และมีรถค้างสิ้นกะ 9 คัน — ควรตีความอย่างไร?',
+  opts:['6.2 นาทีต่ำกว่าความจริง เพราะรถ 9 คันที่ยังไม่ได้เข้าช่องไม่ถูกบันทึกเวลารอ',
+        '6.2 นาทีถูกต้องแล้ว รถที่ค้างเป็นคนละเรื่องกัน',
+        'ต้องเอา 9 คันมาหารเฉลี่ยด้วย จึงจะได้ 6.2 นาที',
+        'แสดงว่าโมเดลมี bug เพราะเลขสองตัวขัดกัน'],
+  ans:0,fb:'ถูก! เรียกว่า censoring — SimPy บันทึกเวลารอตอนได้ช่องเท่านั้น รถที่ยังจอดรออยู่ตอนหมดกะจึงไม่ถูกนับ · เวลารอเฉลี่ยจึง<strong>ต่ำกว่าความจริงเสมอเมื่อมีงานค้าง</strong> จึงต้องรายงานคิวค้างควบคู่เสมอ'},
+ {q:'การใช้ seed เดียวกันรันทั้ง 3 ทางเลือก (Common Random Numbers) มีประโยชน์อย่างไร?',
+  opts:['ทำให้รถชุดเดียวกันเข้าคลังทั้งสามกรณี จึงเทียบทางเลือกได้อย่างยุติธรรม',
+        'ทำให้ผลลัพธ์ของทั้งสามทางเลือกเท่ากัน',
+        'ทำให้โมเดลไม่มีความสุ่มอีกต่อไป',
+        'ทำให้รันเร็วขึ้นสามเท่า'],
+  ans:0,fb:'ถูก! ถ้าใช้คนละ seed ความต่างที่เห็นอาจมาจาก "วันนั้นรถเข้าเยอะกว่า" ไม่ใช่จากทางเลือกที่ต่างกัน · CRN ตัดตัวแปรกวนนี้ออก ทำให้เห็นผลของ<strong>ทางเลือก</strong>ล้วน ๆ'},
+ {q:'รันครั้งเดียวได้ผลว่า "เปิดช่องที่ 4 ลด turnaround จาก 46 เหลือ 34 นาที" — เสนอผู้จัดการได้เลยไหม?',
+  opts:['ยังไม่ได้ — ผลจากการรันครั้งเดียวเป็นค่าสุ่ม ต้องรันหลายรอบแล้วรายงานช่วงความเชื่อมั่น',
+        'ได้เลย เพราะตัวเลขต่างกันถึง 12 นาที',
+        'ได้เลย ถ้าโมเดลผ่าน verification ครบทุกข้อแล้ว',
+        'ไม่ได้ เพราะต้องใช้ Simio เท่านั้นจึงจะเสนอผู้บริหารได้'],
+  ans:0,fb:'ถูก! Verification ทำให้เชื่อได้ว่า "โมเดลไม่มี bug" แต่ยังไม่ได้บอกว่า "ความต่างที่เห็นไม่ใช่ความบังเอิญ" · ผลของ simulation คือตัวแปรสุ่ม รันครั้งเดียว = สุ่มมา 1 ค่า — ครั้งที่ 6 จะเรียนวิธีตอบให้ถูกต้องด้วย replication และช่วงความเชื่อมั่น'}
+];
+
+var quizScore=0;
+(function(){
+  var box=document.getElementById('quiz');
+  quizData.forEach(function(item,qi){
+    var d=document.createElement('div');d.className='q';
+    var h='<div class="qh">'+(qi+1)+'. '+item.q+'</div>';
+    var order=item.opts.map(function(_,oi){return oi;});
+    for(var k=order.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1));var t=order[k];order[k]=order[j];order[j]=t;}
+    h+='<div class="opts-grid">';
+    order.forEach(function(oi){
+      h+='<button class="opt" data-q="'+qi+'" data-o="'+oi+'">'+item.opts[oi]+'</button>';
+    });
+    h+='</div><div class="fb" id="fb'+qi+'"></div>';
+    d.innerHTML=h;box.appendChild(d);
+  });
+  var answered={};
+  box.addEventListener('click',function(e){
+    var btn=e.target.closest('.opt');if(!btn)return;
+    var qi=+btn.dataset.q, oi=+btn.dataset.o;
+    if(answered[qi])return; answered[qi]=true;
+    var item=quizData[qi];
+    box.querySelectorAll('.opt[data-q="'+qi+'"]').forEach(function(b){ b.disabled=true; if(+b.dataset.o===item.ans)b.classList.add('correct'); });
+    if(oi!==item.ans)btn.classList.add('wrong');
+    var fb=document.getElementById('fb'+qi);fb.classList.add('show');
+    fb.innerHTML=(oi===item.ans?'✅ ':'❌ ')+item.fb;
+    if(Object.keys(answered).length===quizData.length){
+      var correct=0;
+      quizData.forEach(function(it,i){ if(!box.querySelector('.opt[data-q="'+i+'"].wrong'))correct++; });
+      quizScore=correct;
+      var band=document.getElementById('scoreband');band.style.display='block';
+      band.textContent='คะแนน: '+correct+' / '+quizData.length+(correct===quizData.length?' 🎉':'');
+      var wrap=document.getElementById('qzSubmitWrap'); if(wrap) wrap.style.display='block';
+      var sName=(document.getElementById('ci_student')||{}).value||'';
+      if(sName){
+        submitQuizScore(true);
+      }else{
+        var qm=document.getElementById('qz_msg');
+        if(qm){
+          qm.className='qz-msg err';
+          qm.textContent='ℹ️ ยังไม่ได้เช็คชื่อ — กรุณาเลือกชื่อของคุณที่ส่วน "เช็คชื่อเข้าเรียน" (หน้าเริ่มต้น) แล้วกดปุ่มด้านบนเพื่อส่งคะแนน';
+        }
+      }
+    }
+  });
+})();
+
+/* ============ CHECK-IN + QUIZ SCORE → GOOGLE FORM ============ */
+var ROSTER=["67090015 นางสาวบุญสิตา แหวนวงษ์", "67090016 นายโพธิกร ก๋องตาวงศ์", "67090017 นายรัฐภูมิ ส้มดี", "67090018 นางสาววราภรณ์ จิตสุภา", "67090019 นางสาวกมลวรรณ จันทร์งาม", "67090020 นางสาวกันยาพร ขุนอินทอง", "67090021 นางสาวพิมลพัฒน์ ตะดุมพันธ์", "67090022 นางสาวฑิฆัมพร จันทศร", "67090023 นางสาวพัชราภา วงศ์กล้า", "67090024 นายภัทรศักดิ์ เหลืองสิริพาณิช", "67090025 นางสาวศุรัตนาวรรณ สุขจิตต์", "67090026 นางสาวสวรรยา บริหารพงศ์", "67090027 นางสาวกัลยรัตน์ ธงชัย", "67090028 นางสาวฟ้าดาว คันทะจันทร์", "67090029 นางสาวภัทรสุดา บุญอาจ", "67090030 นางสาววิรัลพัชร พัฒนทรัพย์ทวี", "67090099 นางสาวกนิษฐา แสนใจวุฒิ", "67090100 นางสาวกุลิสรา อุดมพืช", "67090101 นายคณิติน วงษ์บุญยัง", "67090102 นายจิรวิช พัฒนศักดิ์โสภณ", "67090103 นายชณิสรณ์ พูลศิริ", "67090104 นางสาวชลธิชา กงจักร์", "67090105 นางสาวณัฏชนน ลาภพูล", "67090106 นางสาวณัฏฐณิชา ทุมอาริยะ", "67090107 นางสาวณัฐกานต์ พุ่มจันทร์", "67090108 นายณัฐปคัลป์ สวัสดิรักษ์", "67090109 นายณัฐภัทร ภู่อุณฑโร", "67090110 นางสาวณัฐริณีย์ หนูวอ", "67090111 นางสาวณิชากานต์ กาวิโล", "67090112 นางสาวณิชากานต์ คนรักษ์", "67090113 นางสาวณิษาชล ลาภอุดมทรัพย์", "67090114 นางสาวดวงฤทัย พุ่มเจริญ", "67090115 นายตุลธร คงสุขโข", "67090116 นายเทพทัต พลอยแหวน", "67090117 นายธนกฤต นารถสมบูรณ์", "67090118 นางสาวธนภรณ์ สังเกตกิจ", "67090119 นายธรรมสรณ์ ศรีประสิทธิ์", "67090120 นายธันยธรณ์ นิยมฤทธิ์", "67090121 นายธีรภัทร ถาวรวัฒนผล", "67090122 นายธีระเทพ ประจง", "67090123 นางสาวนภาภัทร จบสุบิน", "67090124 นางสาวนวภรณ์ ช้างเจิ้น", "67090125 นายปภังค์กร รีรัตน์", "67090126 นางสาวปวันรัตน์ ธนูธรรมมานนท์", "67090127 นางสาวเปรมฤดี ศรีจ้อยวงษ์", "67090128 นายพงศ์เทพ เห็นเจริญสุข", "67090129 นางสาวพลอยณิชชา ศิริลักษณ์ชยกร", "67090130 นายภัทรชนน เกาเล็ก", "67090131 นายภูตะวัน นาจกันยา", "67090132 นางสาวมาริสา สังฆโต", "67090133 นายวรภพ สวัสดี", "67090134 นางสาววรรณวลี ใจทาแก้ว", "67090135 นางสาววริศรา เสงี่ยมวรกุล", "67090136 นางสาววิภาดา อาจชำนาญ", "67090137 นางสาวสุดารัตน์ โมกขาว", "67090138 นางสาวสุภัทชา วัดเล็ก", "67090139 นายสุวภัทร ผาสุขเนตร์", "67090140 นายอนิรุต ทวีภักดิ์", "67090141 นางสาวอรไท หงษ์จันดา", "67090142 นางสาวอุมากร เสาธง", "67090264 นางสาวกนกพัตร์ โกษากุล", "67090265 นางสาวกมลวรรณ วัชราพาณิชย์", "67090266 นางสาวกรวรรณ น้ำเพ็ชร์", "67090267 นางสาวกัญญาณัฐ จันทร์นวล", "67090268 นางสาวกัญญาพัชร รูปสูง", "67090269 นายกิตติวัฒน์ สายแก้ว", "67090270 นางสาวเจนจุฬา คงพัวะ", "67090271 นายเฉลิมชัย อินสุข", "67090272 นางสาวชาคริยา เฉลิมศรีภิญโญรัช", "67090273 นางสาวณภัทร เจียมตน", "67090275 นางสาวณัฐนิชา บุญชะนะ", "67090276 นางสาวนภาวดี สำเภากิจ", "67090278 นางสาวนาเดีย เดชแก้ว", "67090279 นายปฏิภาณ กฤษณะกาฬ", "67090280 นางสาวปภาวี เดชบุญ", "67090281 นายปราบดา จินารัตน์", "67090282 นายปวริศร์ ทิศพรม", "67090283 นายปิยังกูร ธานี", "67090284 นางสาวปุณยวีร์ ปักคำวงษ์สังข์", "67090285 นางสาวพัชริดา เฒ่าเง้า", "67090286 นางสาวพิจิตรา วิชาชาญ", "67090287 นางสาวพิชญาภัค เก็จวลีวรรณ", "67090288 นางสาวภัทรธิดา รัตนปัญญา", "67090289 นางสาวภัทราวดี กานต์กัลปพฤกษ์", "67090290 นายมนตรี บุญช่วย", "67090291 นายศฎาศักย์ศรณ์ อนันท์", "67090292 นางสาวศุทธินี สายสู่", "67090293 นางสาวสิริยากร โสภา", "67090294 นางสาวสุภัสสรา สงวนทรัพย์", "67090295 นางสาวอารียาพร กิขุนทด", "67090310 นางสาวตรีฉัตร ดิษฐลาย"];
+(function(){
+  var sel=document.getElementById('ci_student'); if(!sel)return;
+  ROSTER.forEach(function(name){
+    var o=document.createElement('option'); o.value=name; o.textContent=name; sel.appendChild(o);
+  });
+  try{
+    var prev=localStorage.getItem('comsim4_checkin');
+    if(prev){
+      var msg=document.getElementById('ci_msg');
+      if(msg){ msg.className='ci-msg ok'; msg.textContent='ℹ️ เคยเช็คชื่อจากเครื่องนี้: '+prev; }
+    }
+  }catch(e){}
+})();
+function submitCheckin(){
+  var email=(document.getElementById('ci_email').value||'').trim();
+  var student=document.getElementById('ci_student').value;
+  var msg=document.getElementById('ci_msg');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    msg.className='ci-msg err';
+    msg.textContent='⚠️ กรุณากรอกอีเมลให้ถูกต้อง';
+    return;
+  }
+  if(!student){
+    msg.className='ci-msg err';
+    msg.textContent='⚠️ กรุณาเลือกชื่อ–รหัสนิสิตของคุณ';
+    return;
+  }
+  document.getElementById('ci_f_email').value=email;
+  document.getElementById('ci_f_student').value=student;
+  document.getElementById('ci_form').submit();
+  var btn=document.getElementById('ci_btn');
+  btn.disabled=true;
+  msg.className='ci-msg ok';
+  msg.textContent='✅ ส่งเช็คชื่อแล้ว: '+student;
+  try{ localStorage.setItem('comsim4_checkin', student+' @ '+new Date().toLocaleString('th-TH')); }catch(e){}
+  lookupCheckinNote(student.split(' ')[0]);
+}
+
+/* ============ ค้นหาหมายเหตุเช็คอินจาก Google Sheet (JSONP — ไม่ติด CORS) ============ */
+var CHECKIN_SHEET_ID='1ZWBPLmspodPMqZiML3Rbni3YW3S3NlzG4e5NvDc9usI';
+function lookupCheckinNote(studentId){
+  var note=document.getElementById('ci_note'); if(!note)return;
+  note.className='note tip'; note.style.display='block';
+  note.innerHTML='<span class="lb">ตรวจสอบสถานะเช็คอิน</span>กำลังค้นหา '+studentId+' ในชีตของอาจารย์...';
+
+  var old=document.getElementById('ciSheetScript'); if(old)old.parentNode.removeChild(old);
+  window.__ciSheetCB=function(res){
+    try{
+      var cols=res.table.cols.map(function(c){return (c.label||'').trim();});
+      var idxId=cols.indexOf('รหัส'), idxNote=cols.indexOf('หมายเหตุ'), idxCount=cols.indexOf('จำนวนครั้งที่เช็คอิน');
+      if(idxId<0||idxNote<0){
+        note.className='note warn';
+        note.innerHTML='<span class="lb">ตรวจสอบสถานะเช็คอิน</span>⚠️ อ่านโครงสร้างชีตไม่สำเร็จ (หาคอลัมน์ "รหัส"/"หมายเหตุ" ไม่เจอ)';
+        return;
+      }
+      var hit=null;
+      (res.table.rows||[]).forEach(function(r){
+        var cell=r.c[idxId];
+        var v=cell?String(cell.v==null?'':cell.v).trim():'';
+        if(v===String(studentId).trim())hit=r;
+      });
+      if(!hit){
+        note.className='note warn';
+        note.innerHTML='<span class="lb">ตรวจสอบสถานะเช็คอิน</span>⚠️ ไม่พบรหัส '+studentId+' ในชีต — อาจยังไม่มีข้อมูล หรือรหัสไม่ตรง';
+        return;
+      }
+      var noteCell=hit.c[idxNote], noteVal=noteCell?String(noteCell.v==null?'':noteCell.v):'';
+      var countVal=idxCount>=0&&hit.c[idxCount]?String(hit.c[idxCount].v==null?'':hit.c[idxCount].v):'';
+      var ok=/ครบ/.test(noteVal)&&!/ไม่ครบ|ขาด/.test(noteVal);
+      note.className='note '+(ok?'tip':'warn');
+      note.innerHTML='<span class="lb">สถานะเช็คอิน (จากชีตของอาจารย์)</span>'+
+        (countVal?'เช็คอินแล้ว <b>'+countVal+'</b> ครั้ง · ':'')+
+        '<b>'+(noteVal||'—')+'</b>';
+    }catch(e){
+      note.className='note warn';
+      note.innerHTML='<span class="lb">ตรวจสอบสถานะเช็คอิน</span>⚠️ อ่านข้อมูลจากชีตไม่สำเร็จ';
+    }
+  };
+  var s=document.createElement('script');
+  s.id='ciSheetScript';
+  s.src='https://docs.google.com/spreadsheets/d/'+CHECKIN_SHEET_ID+'/gviz/tq?tqx=out:json;responseHandler:__ciSheetCB&_='+Date.now();
+  s.onerror=function(){
+    note.className='note warn';
+    note.innerHTML='<span class="lb">ตรวจสอบสถานะเช็คอิน</span>⚠️ เชื่อมต่อชีตของอาจารย์ไม่สำเร็จ (ชีตอาจไม่เปิดสาธารณะ หรือขาดอินเทอร์เน็ต)';
+  };
+  document.body.appendChild(s);
+}
+
+function submitQuizScore(auto){
+  var student=(document.getElementById('ci_student')||{}).value||'';
+  var msg=document.getElementById('qz_msg');
+  if(!student){
+    msg.className='qz-msg err';
+    msg.textContent='⚠️ กรุณาเลือกชื่อของคุณในส่วน "เช็คชื่อเข้าเรียน" (หน้าเริ่มต้น) ก่อนส่งคะแนน';
+    return;
+  }
+  document.getElementById('qz_f_student').value=student;
+  document.getElementById('qz_f_score').value=quizScore;
+  document.getElementById('qz_form').submit();
+  var btn=document.getElementById('qz_btn'); if(btn) btn.disabled=true;
+  msg.className='qz-msg ok';
+  msg.textContent=(auto?'✅ ส่งคะแนนอัตโนมัติแล้ว: ':'✅ ส่งคะแนนแล้ว: ')+student+' — '+quizScore+'/'+quizData.length;
+  try{ localStorage.setItem('comsim4_quiz', student+' : '+quizScore+'/'+quizData.length+' @ '+new Date().toLocaleString('th-TH')); }catch(e){}
+}
+
+/* ============ PAGER ============ */
+var PAGES=[].slice.call(document.querySelectorAll('.wrap > section'));
+var curPage=0;
+function showPage(i){
+  curPage=Math.max(0,Math.min(PAGES.length-1,i));
+  PAGES.forEach(function(s,k){s.classList.toggle('active',k===curPage);});
+  document.getElementById('pgInfo').innerHTML='หน้า <b>'+(curPage+1)+'</b> / '+PAGES.length;
+  document.getElementById('pgPrev').disabled=(curPage===0);
+  document.getElementById('pgNext').disabled=(curPage===PAGES.length-1);
+  var id=PAGES[curPage].id;
+  document.querySelectorAll('nav a').forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+id);});
+  var hero=document.querySelector('header.hero');
+  if(hero)hero.style.display=(curPage===0)?'':'none';
+  updateProgress();
+  window.scrollTo({top:0});
+}
+function goPage(d){ showPage(curPage+d); }
+document.querySelectorAll('nav a').forEach(function(a){
+  a.addEventListener('click',function(e){
+    if(!document.body.classList.contains('paged'))return;
+    e.preventDefault();
+    var id=a.getAttribute('href').slice(1);
+    var idx=PAGES.findIndex(function(s){return s.id===id;});
+    if(idx>=0)showPage(idx);
+  });
+});
+document.addEventListener('keydown',function(e){
+  if(!document.body.classList.contains('paged'))return;
+  if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='ArrowRight')goPage(1);
+  if(e.key==='ArrowLeft')goPage(-1);
+});
+/* ============ [PATCH-PDF] ส่งออกเนื้อหาเป็น PDF ============ */
+function pdfSyncNotes(){
+  document.querySelectorAll('textarea').forEach(function(ta){
+    var box=ta.parentNode.querySelector(':scope > .printnote');
+    if(!box){box=document.createElement('div');box.className='printnote';ta.parentNode.insertBefore(box,ta.nextSibling);}
+    var v=(ta.value||'').trim();
+    box.textContent = v ? v : '(ยังไม่ได้จดโน้ตในหัวข้อนี้)';
+  });
+}
+function pdfBuildAnswerKey(){
+  var host=document.getElementById('quiz'); if(!host) return;
+  var old=document.getElementById('printAnswers'); if(old) old.remove();
+  var d=document.createElement('div'); d.id='printAnswers'; d.className='printonly';
+  var h='<h3 style="color:var(--navy);margin:18px 0 8px">📋 เฉลยแบบทดสอบ พร้อมคำอธิบาย</h3>';
+  quizData.forEach(function(it,i){
+    h+='<div class="card" style="margin:10px 0;padding:12px 14px">'
+     + '<div style="font-weight:800;color:var(--navy);margin-bottom:4px">'+(i+1)+'. '+it.q+'</div>'
+     + '<div style="font-size:.92rem;margin-bottom:4px"><b>ตอบ:</b> '+it.opts[it.ans]+'</div>'
+     + '<div style="font-size:.88rem;color:var(--muted)">'+it.fb+'</div></div>';
+  });
+  d.innerHTML=h;
+  host.parentNode.insertBefore(d, host.nextSibling);
+}
+function pdfPrepare(){
+  document.querySelectorAll('pre.dim').forEach(function(p){p.classList.remove('dim');});
+  document.querySelectorAll('pre.codehl').forEach(function(p){p.classList.remove('codehl');});
+  pdfSyncNotes();
+  /* [PATCH-PDF2] ตัด Quiz ออกจาก PDF แล้ว จึงไม่ต้องสร้างเฉลยแบบทดสอบอีกต่อไป */
+}
+function exportPDF(){
+  var el=document.getElementById('pdfHint'); if(el) el.style.display='flex';
+}
+function closePdfHint(){
+  var el=document.getElementById('pdfHint'); if(el) el.style.display='none';
+}
+function doPrint(){
+  closePdfHint();
+  pdfPrepare();
+  setTimeout(function(){window.print();},120);
+}
+window.addEventListener('beforeprint',pdfPrepare);
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='p'){pdfPrepare();}
+});
+
+
+/* ============ S5: PROMPT BUILDER สำหรับสร้างโมเดลของกลุ่มเอง ============ */
+function buildPrompt(){
+  function g(k,dflt){
+    var el=document.querySelector('input[data-lab="'+k+'"]');
+    var v=el&&el.value.trim();
+    return v?v:dflt;
+  }
+  var sys = g('pm_sys','[ระบบของกลุ่ม เช่น คิวสั่งกาแฟหน้าร้าน]');
+  var ent = g('pm_ent','[สิ่งที่ไหลผ่านระบบ เช่น ลูกค้า]');
+  var res = g('pm_res','[ผู้ให้บริการ + จำนวน เช่น บาริสต้า 2 คน]');
+  var iat = g('pm_iat','[การมาถึง เช่น Exponential เฉลี่ยทุก 3 นาที]');
+  var svc = g('pm_svc','[เวลาให้บริการ เช่น Triangular(2, 4, 9) นาที]');
+  var T   = g('pm_t','[ความยาวเวลาที่จำลอง เช่น 480 นาที]');
+  var chg = g('pm_chg','ไม่มี');
+  var kpi = g('pm_kpi','เวลารอเฉลี่ย · เวลารวมในระบบเฉลี่ยและสูงสุด · จำนวนค้างสิ้นช่วง · utilization');
+  var p =
+"ช่วยเขียนโมเดล Discrete Event Simulation ด้วย SimPy ใน Python สำหรับระบบนี้ ให้อยู่ในเซลล์เดียว รันได้เลยใน Google Colab\n\n"+
+"ระบบ: "+sys+"\n"+
+"สิ่งที่ไหลผ่านระบบ: "+ent+"\n"+
+"ผู้ให้บริการ/ทรัพยากร: "+res+"\n"+
+"การมาถึง: "+iat+"\n"+
+"เวลาให้บริการ: "+svc+"\n"+
+"ความยาวเวลาที่จำลอง: "+T+"\n"+
+"สิ่งที่เปลี่ยนกลางรัน: "+chg+"\n"+
+"KPI ที่ต้องรายงาน: "+kpi+"\n\n"+
+"ข้อกำหนดของโค้ด (สำคัญมาก ห้ามข้าม):\n"+
+"1) ใช้ simpy.Resource แทนผู้ให้บริการ และ random.seed(42) เพื่อให้รันซ้ำได้ผลเดิม\n"+
+"2) ต้องสร้างตัวแปรชื่อนี้เป๊ะ ๆ เพราะจะเอาไปใช้กับเซลล์ตรวจสอบต่อ:\n"+
+"   - log = list ของ tuple (เวลามาถึง, เวลาเริ่มรับบริการ, เวลาออกจากระบบ) เก็บเฉพาะรายที่ได้รับบริการจนจบ\n"+
+"   - n_arrived = จำนวนที่เข้าระบบทั้งหมด (รวมรายที่ยังไม่ได้รับบริการตอนหมดเวลา) ประกาศเป็น global\n"+
+"   - busy = เวลารวมที่ทรัพยากรถูกใช้งานจริง (นาที)\n"+
+"   - dock_min = นาที-ทรัพยากรที่มีอยู่จริงตลอดการจำลอง เช่น ผู้ให้บริการ 2 คน x 240 นาที = 480 (ใช้ชื่อ dock_min ตามนี้แม้ระบบจะไม่ใช่ dock เพื่อให้เซลล์ตรวจใช้ได้เลย) — ถ้าทรัพยากรเปลี่ยนกลางรัน ต้องคิดตามช่วงเวลาที่เปิดจริง ไม่ใช่จำนวนสูงสุด x เวลาทั้งหมด\n"+
+"   - SHIFT = ความยาวเวลาที่จำลอง\n"+
+"3) หยุดรับรายใหม่เมื่อถึงเวลา SHIFT แต่ปล่อยให้รายที่กำลังรับบริการอยู่ทำต่อจนจบ\n"+
+"4) ถ้ามีการเพิ่ม/ลดทรัพยากรกลางรัน ให้ทำด้วยวิธีจองทรัพยากรไว้ก่อนแล้วค่อย release() ตอนถึงเวลา และ print บอกนาทีที่เปลี่ยน\n"+
+"5) ตอนจบให้ print: จำนวนเข้า / จำนวนที่เสร็จ / จำนวนค้างในระบบ / เวลารอเฉลี่ย / เวลารวมในระบบเฉลี่ยและสูงสุด / utilization = busy / dock_min\n"+
+"6) ใส่คอมเมนต์ภาษาไทยอธิบายทุกบรรทัดสำคัญ และตั้งชื่อค่าคงที่ให้สื่อความหมาย (เช่น IAT_MEAN, SVC, N_SERVERS) ไว้บนสุดของเซลล์เพื่อให้แก้ตัวเลขได้ง่าย\n"+
+"7) อย่าใส่ฟีเจอร์ที่ฉันไม่ได้ขอ และห้ามเปลี่ยนตรรกะของระบบตามที่อธิบายไว้ข้างบน — ถ้ามีจุดที่ข้อมูลไม่พอ ให้ถามฉันก่อน อย่าเดาเอง";
+  document.getElementById('promptOut').textContent=p;
+  document.getElementById('promptOut').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ============ COPY CODE ============ */
+function copyCode(id,btn){
+  var el=document.getElementById(id);if(!el)return;
+  var txt=el.innerText||el.textContent;
+  if(!btn.dataset.label)btn.dataset.label=btn.textContent;
+  function done(){btn.textContent='✅ คัดลอกแล้ว — ไปวางใน Colab';setTimeout(function(){btn.textContent=btn.dataset.label;},1800);}
+  function fallback(t,cb){
+    var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');cb();}catch(e){alert('คัดลอกอัตโนมัติไม่ได้ — กรุณาเลือกข้อความในกล่องโค้ดแล้วกด Ctrl+C');}
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,function(){fallback(txt,done);});}
+  else fallback(txt,done);
+}
+
+/* ============ INIT ============ */
+buildCycle();
+buildBug();
+buildVW();
+updVals();
+showPage(0);
+</script>
+</body>
+</html>
