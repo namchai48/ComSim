@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computer Simulation I — ครั้งที่ 5 · Validation (เคสคิวรถที่ dock)</title>
+<style>
+  :root{
+    --navy:#0f2c4d; --blue:#1f5f8b; --teal:#2a9d8f; --amber:#e9a93f; --red:#d9534f; --purple:#7b5ea7;
+    --bg:#eef2f6; --card:#fff; --line:#dfe5ec; --ink:#1c2733; --muted:#5b6b7b;
+    --soft:#eef7f5; --warn:#fdecea; --code-bg:#0f2330;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:"Segoe UI","Sarabun",Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;}
+  a{color:var(--blue);}
+  #progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--teal),var(--amber));z-index:200;transition:width .1s;}
+  nav{position:fixed;top:0;left:0;right:0;background:rgba(15,44,77,.97);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;gap:6px;padding:8px 14px;overflow-x:auto;box-shadow:0 2px 10px rgba(0,0,0,.15);}
+  nav .brand{color:#fff;font-weight:800;font-size:.95rem;margin-right:10px;white-space:nowrap;}
+  nav a{color:#cdd9e5;text-decoration:none;font-size:.82rem;padding:6px 10px;border-radius:7px;white-space:nowrap;transition:.15s;}
+  nav a:hover,nav a.active{background:var(--teal);color:#fff;}
+  nav .modebtn{margin-left:auto;background:var(--amber);color:var(--navy);border:none;font-weight:800;border-radius:7px;padding:6px 12px;cursor:pointer;font-size:.82rem;white-space:nowrap;font-family:inherit;}
+  header.hero{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:74px 24px 26px;text-align:center;position:relative;}
+  .hero-qr{position:absolute;top:68px;left:14px;z-index:90;background:#fff;border-radius:10px;padding:8px;box-shadow:0 2px 10px rgba(0,0,0,.25);text-align:center;}
+  .hero-qr img,.hero-qr svg{display:block;width:84px;height:84px;}
+  .hero-qr span{display:block;color:var(--navy);font-size:.68rem;font-weight:700;margin-top:4px;line-height:1.3}
+  @media(max-width:560px){.hero-qr{top:62px;left:8px;padding:5px;}.hero-qr img,.hero-qr svg{width:56px;height:56px;}.hero-qr span{font-size:.58rem;}}
+  header.hero h1{margin:0 0 8px;font-size:2.1rem;}
+  header.hero .sub{opacity:.92;font-size:1.05rem;margin:2px 0;}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px;}
+  .badge{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 15px;font-size:.86rem;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px;}
+  section{padding:44px 0 20px;border-bottom:1px solid var(--line);}
+  section h2{font-size:1.55rem;color:var(--navy);margin:0 0 4px;display:flex;align-items:center;gap:12px;}
+  section h2 .num{background:var(--teal);color:#fff;width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem;flex:0 0 auto;}
+  section .lead{color:var(--muted);margin:0 0 18px;font-size:1rem;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin:16px 0;box-shadow:0 1px 4px rgba(15,44,77,.04);}
+  h3{color:var(--blue);font-size:1.12rem;margin:20px 0 8px;}
+  .en{color:var(--muted);font-style:italic;font-size:.92em;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr;}}
+  .tag{display:inline-block;font-size:.72rem;background:#eef3f8;color:var(--blue);border-radius:6px;padding:2px 9px;font-weight:700;}
+  .note{border-radius:10px;padding:12px 16px;margin:10px 0;font-size:.95rem;}
+  .note.tip{background:var(--soft);border-left:4px solid var(--teal);}
+  .note.warn{background:var(--warn);border-left:4px solid var(--red);}
+  .note.ask{background:#eef3fb;border-left:4px solid var(--blue);}
+  .note .lb{font-weight:800;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px;}
+  .note.tip .lb{color:var(--teal);}.note.warn .lb{color:var(--red);}.note.ask .lb{color:var(--blue);}
+  button.act{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:.92rem;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;}
+  button.act:hover{background:var(--navy);}
+  button.act.amber{background:var(--amber);color:var(--navy);}button.act.amber:hover{background:#d8963a;}
+  button.act.teal{background:var(--teal);}button.act.teal:hover{background:#218a7d;}
+  button.act.red{background:var(--red);}button.act.red:hover{background:#b8433f;}
+  button.act:disabled{opacity:.4;cursor:not-allowed;}
+  .controls{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin:14px 0;}
+  .ctl{display:flex;flex-direction:column;gap:4px;font-size:.85rem;}
+  .ctl label{font-weight:700;color:var(--navy);}
+  .ctl input[type=range]{width:180px;accent-color:var(--teal);}
+  .ctl input[type=number]{width:100px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;font-family:inherit;}
+  .ctl .val{color:var(--blue);font-weight:800;}
+  .ctl input[type=checkbox]{width:20px;height:20px;accent-color:var(--teal);}
+  .statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:14px 0;}
+  .stat{background:var(--navy);color:#fff;border-radius:12px;padding:14px;text-align:center;}
+  .stat .k{font-size:1.55rem;font-weight:800;line-height:1.1;}
+  .stat .l{font-size:.76rem;opacity:.85;margin-top:3px;}
+  .stat.a{background:var(--teal);}.stat.b{background:var(--amber);color:var(--navy);}.stat.c{background:var(--purple);}.stat.d{background:var(--red);}
+  canvas{max-width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;}
+  .legend{font-size:.8rem;color:var(--muted);margin-top:4px;text-align:center;}
+  pre{background:var(--code-bg);color:#e6edf3;border-radius:10px;padding:14px 16px;overflow-x:auto;font-family:Consolas,monospace;font-size:.84rem;line-height:1.6;margin:10px 0;transition:.2s;}
+  pre .c{color:#7fae6b;}pre .k{color:#ff9d6b;}pre .s{color:#9cd6ff;}
+  .prewrap{position:relative;}
+  .copybtn{position:absolute;top:8px;right:8px;background:#22405a;color:#cfe3f2;border:1px solid #3a5a78;border-radius:7px;padding:5px 11px;font-size:.78rem;font-weight:700;font-family:inherit;cursor:pointer;opacity:.55;transition:.15s;}
+  .prewrap:hover .copybtn{opacity:1;}
+  .copybtn:hover{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .copybtn.done{background:var(--teal);color:#fff;border-color:var(--teal);opacity:1;}
+  code{background:#eef3f8;padding:1px 6px;border-radius:4px;font-size:.9em;}
+  table.tbl{width:100%;border-collapse:collapse;font-size:.9rem;margin:12px 0;background:#fff;}
+  table.tbl th,table.tbl td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{background:var(--navy);color:#fff;font-weight:600;font-size:.85rem;}
+  table.tbl tr:nth-child(even) td{background:#f7f9fb;}
+  table.tbl input{width:100%;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-family:inherit;font-size:.88rem;background:#fffdf6;}
+  /* trace log */
+  .evlog{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;max-height:260px;overflow-y:auto;font-size:.88rem;margin:10px 0;font-family:Consolas,monospace;}
+  .evlog .ev{padding:4px 8px;border-radius:7px;margin:3px 0;background:#f7f9fb;}
+  .evlog .ev.arr{border-left:4px solid var(--blue);}
+  .evlog .ev.svc{border-left:4px solid var(--teal);background:#eef7f5;}
+  .evlog .ev.dep{border-left:4px solid var(--amber);background:#fdf7ea;}
+  .evlog .ev b{font-family:Consolas,monospace;}
+  /* matching game */
+  .match{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;}
+  @media(max-width:560px){.match{grid-template-columns:1fr;}}
+  .match button{background:#f7f9fb;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font-family:inherit;font-size:.9rem;cursor:pointer;text-align:left;transition:.12s;color:var(--ink);}
+  .match button:hover{border-color:var(--blue);}
+  .match button.sel{background:#eef3fb;border-color:var(--blue);font-weight:700;}
+  .match button.done{background:#e6f6ee;border-color:var(--teal);color:#166b56;font-weight:700;cursor:default;}
+  .match button.bad{background:#fdeaea;border-color:var(--red);}
+  .stepbtns{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .stepbtns button{background:#f0f4f8;border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.88rem;color:var(--navy);}
+  .stepbtns button.on{background:var(--purple);color:#fff;border-color:var(--purple);}
+  .stepdesc{background:#fbf7ff;border-left:4px solid var(--purple);border-radius:10px;padding:12px 16px;margin:10px 0;font-size:.95rem;min-height:56px;}
+  /* sorting game (V vs V) */
+  .sortcard{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0;}
+  .sortcard .st{font-size:.94rem;margin-bottom:10px;}
+  .sortcard .sbtns{display:flex;gap:10px;flex-wrap:wrap;}
+  .sortcard .sbtns button{flex:1 1 140px;background:#f7f9fb;border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;font-family:inherit;font-weight:700;font-size:.88rem;cursor:pointer;transition:.12s;color:var(--navy);}
+  .sortcard .sbtns button:hover{border-color:var(--blue);}
+  .sortcard .sbtns button.correct{background:#e6f6ee;border-color:var(--teal);color:#166b56;}
+  .sortcard .sbtns button.wrong{background:#fdeaea;border-color:var(--red);color:#a23;}
+  .sortcard .sfb{display:none;font-size:.85rem;margin-top:8px;padding:8px 12px;border-radius:8px;background:var(--soft);}
+  .sortcard .sfb.show{display:block;}
+  /* bug hunt */
+  pre.bughunt{cursor:default;}
+  pre.bughunt .bl{display:block;padding:1px 6px;border-radius:5px;cursor:pointer;transition:.12s;}
+  pre.bughunt .bl:hover{background:rgba(255,255,255,.09);}
+  pre.bughunt .bl.found{background:rgba(42,157,143,.25);outline:1.5px solid var(--teal);}
+  pre.bughunt .bl.no{background:rgba(217,83,79,.28);}
+  .bugfb{background:#fbf7ff;border-left:4px solid var(--purple);border-radius:10px;padding:10px 14px;margin:8px 0;font-size:.9rem;display:none;}
+  .bugfb.show{display:block;}
+  /* checklist */
+  .chk{list-style:none;padding:0;margin:12px 0;}
+  .chk li{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;margin:8px 0;font-size:.92rem;transition:.15s;}
+  .chk li.on{background:#e6f6ee;border-color:var(--teal);}
+  .chk input[type=checkbox]{width:20px;height:20px;accent-color:var(--teal);margin-top:3px;flex:0 0 auto;cursor:pointer;}
+  /* quiz */
+  .quiz .q{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;}
+  .quiz .q .qh{font-weight:700;margin-bottom:10px;}
+  .quiz .opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 6px;}
+  @media(max-width:560px){.quiz .opts-grid{grid-template-columns:1fr;}}
+  .quiz .opt{display:block;width:100%;height:100%;text-align:left;background:#f7f9fb;border:1.5px solid var(--line);border-radius:9px;padding:10px 14px;margin:0;cursor:pointer;font-size:.92rem;font-family:inherit;transition:.12s;}
+  .quiz .opt:hover{border-color:var(--blue);}
+  .quiz .opt.correct{background:#e6f6ee;border-color:var(--teal);color:#166b56;font-weight:700;}
+  .quiz .opt.wrong{background:#fdeaea;border-color:var(--red);color:#a23;}
+  .quiz .fb{font-size:.88rem;margin-top:8px;padding:8px 12px;border-radius:8px;background:var(--soft);display:none;}
+  .quiz .fb.show{display:block;}
+  .scoreband{background:var(--navy);color:#fff;border-radius:12px;padding:16px;text-align:center;font-weight:700;margin-top:10px;display:none;}
+  footer{background:var(--navy);color:#cdd9e5;padding:30px 24px;font-size:.9rem;text-align:center;}
+  .notebox{background:#fffdf6;border:1.5px dashed var(--amber);border-radius:12px;padding:14px 16px;margin:18px 0 4px;}
+  .notebox .nhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .notebox label{font-weight:800;color:#9a6b14;font-size:.92rem;}
+  .notebox .savemark{font-size:.76rem;color:var(--muted);font-weight:700;transition:.2s;}
+  .notebox .savemark.ok{color:var(--teal);}
+  .notebox textarea{width:100%;min-height:80px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:.95rem;line-height:1.6;color:var(--ink);background:#fff;}
+  .notebox textarea:focus{outline:2px solid var(--amber);border-color:var(--amber);}
+  .notetools{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 4px;}
+  .notetools button{background:rgba(255,255,255,.13);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:8px 16px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  .notetools button:hover{background:rgba(255,255,255,.25);}
+  .checkin{background:linear-gradient(135deg,#f0fbf8,#eef3fb);border:2px solid var(--teal);border-radius:16px;padding:22px 24px;margin:16px 0;}
+  .checkin h3{margin:0 0 4px;color:var(--navy);font-size:1.2rem;}
+  .checkin .ci-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;}
+  .checkin .ci-field{flex:1 1 240px;display:flex;flex-direction:column;gap:5px;}
+  .checkin label{font-weight:700;font-size:.85rem;color:var(--navy);}
+  .checkin input,.checkin select{padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:.95rem;background:#fff;width:100%;}
+  .checkin input:focus,.checkin select:focus{outline:2px solid var(--teal);border-color:var(--teal);}
+  .checkin .ci-submit{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:13px 26px;font-weight:800;font-size:1rem;cursor:pointer;font-family:inherit;margin-top:14px;}
+  .checkin .ci-submit:hover{background:#218a7d;}
+  .checkin .ci-submit:disabled{opacity:.5;cursor:not-allowed;}
+  .checkin .ci-msg{margin-top:10px;font-weight:700;font-size:.92rem;min-height:20px;}
+  .checkin .ci-msg.ok{color:#166b56;}
+  .checkin .ci-msg.err{color:var(--red);}
+  .hwbox{background:#fbf7ff;border:2px solid var(--purple);border-radius:16px;padding:20px 24px;margin:16px 0;}
+  .hwbox h3{margin:0 0 6px;color:var(--purple);}
+  .hwbox .hw-f{display:flex;flex-direction:column;gap:5px;margin-top:12px;}
+  .hwbox label{font-weight:700;font-size:.88rem;color:var(--navy);}
+  .hwbox textarea{width:100%;min-height:56px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:.93rem;line-height:1.6;background:#fff;}
+  .hwbox textarea:focus{outline:2px solid var(--purple);border-color:var(--purple);}
+  .qz-submit-wrap{margin-top:14px;text-align:center;display:none;}
+  .qz-msg{margin-top:10px;font-weight:700;font-size:.88rem;min-height:20px;}
+  .qz-msg.ok{color:#166b56;}
+  .qz-msg.err{color:var(--red);}
+  /* ============ PAGER (หัวข้อละหน้า) ============ */
+  body.paged .wrap{padding-top:14px;padding-bottom:104px;min-height:70vh;}
+  body.paged.notfirst .wrap{padding-top:64px;}   /* หน้าอื่นไม่มี hero จึงต้องเว้นให้พ้น nav */
+  body.paged .wrap > section{display:none;border-bottom:none;padding:16px 0 24px;}
+  body.paged .wrap > section.active{display:block;animation:slideIn .34s ease;}
+  body.paged.notfirst header.hero{display:none;}   /* hero โชว์เฉพาะหน้าแรก */
+  @keyframes slideIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  #pager{position:fixed;left:0;right:0;bottom:0;z-index:120;display:flex;align-items:center;justify-content:center;gap:16px;padding:11px 16px;background:rgba(15,44,77,.97);backdrop-filter:blur(6px);box-shadow:0 -2px 14px rgba(0,0,0,.2);}
+  body:not(.paged) #pager{display:none;}
+  #pager button{background:var(--teal);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:.95rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s;min-width:120px;}
+  #pager button:hover:not(:disabled){background:#218a7d;transform:translateY(-1px);}
+  #pager button:disabled{opacity:.32;cursor:not-allowed;}
+  #pager .pginfo{color:#fff;font-weight:700;font-size:.92rem;min-width:110px;text-align:center;}
+  #pager .pginfo b{color:var(--amber);font-size:1.05rem;}
+  @media(max-width:560px){#pager button{min-width:88px;padding:11px 12px;font-size:.86rem;}#pager .pginfo{min-width:90px;font-size:.82rem;}}
+
+  /* ============ [PATCH-PDF] ปุ่ม + สไตล์สำหรับส่งออก PDF ============ */
+  .pdfbtn{background:var(--amber);color:#3a2a00;border:none;border-radius:8px;padding:7px 14px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:.15s;margin-left:auto;}
+  .pdfbtn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+  .printnote,.printonly{display:none;}
+  #pdfHint{position:fixed;inset:0;background:rgba(15,44,77,.92);color:#fff;z-index:9999;display:none;align-items:center;justify-content:center;padding:24px;}
+  #pdfHint .box{max-width:520px;background:#fff;color:var(--ink);border-radius:14px;padding:24px 26px;line-height:1.7;}
+  #pdfHint h3{margin:0 0 10px;color:var(--navy);font-size:1.15rem;}
+  #pdfHint ol{margin:8px 0 14px;padding-left:20px;font-size:.94rem;}
+  #pdfHint button{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:800;font-size:.92rem;cursor:pointer;font-family:inherit;margin-right:8px;}
+  #pdfHint button.ghost{background:#e6ecf2;color:var(--navy);}
+
+  @media print{
+    @page{size:A4;margin:14mm 12mm;}
+    html,body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    body.paged .wrap > section{display:block!important;animation:none!important;border-bottom:1px solid var(--line);padding:18px 0 14px;}
+    header.hero{display:block!important;background:var(--navy)!important;}
+    #nav,#pager,#progress,#pdfHint,iframe,.copybtn,.stepbtns,.wnav,.notetools,.qz-submit-wrap,#scoreband,#storageWarn,#inappWarn,.savemark,.evctl,button{display:none!important;}
+    .quiz .opts-grid{display:none!important;}
+    .quiz .fb{display:none!important;}
+    .printnote,.printonly{display:block!important;}
+    .printnote{white-space:pre-wrap;background:#fffdf6;border:1px solid #e9a93f;border-radius:8px;padding:10px 12px;font-size:.9rem;min-height:18px;}
+    .notebox textarea,textarea{display:none!important;}
+    input{border:none!important;background:transparent!important;font-weight:700;padding:0!important;}
+    pre{white-space:pre-wrap!important;word-break:break-word;opacity:1!important;outline:none!important;box-shadow:none!important;}
+    pre,.card,.note,.notebox,table,.q,figure{page-break-inside:avoid;break-inside:avoid;}
+    section h2,section h3{page-break-after:avoid;break-after:avoid;}
+    section{page-break-before:auto;}
+    a{color:var(--navy)!important;text-decoration:none;}
+    .hero-qr{position:static!important;display:inline-block;margin-bottom:8px;}
+
+    /* [PATCH-PDF2] ตัดส่วนที่ไม่จำเป็น/ใช้งานใน PDF ไม่ได้ ออกจากเอกสารพิมพ์ */
+    .checkin,.pdf-skip{display:none!important;}
+
+    /* [PATCH-PDF2] เว้นคอลัมน์ขวา ~1 ใน 4 ของหน้าไว้จดโน้ตด้วยลายมือ ในทุกหน้าที่พิมพ์ — เว้นว่างเฉยๆ ไม่มีเส้น (เส้นลายไม้บรรทัดทำให้ iPad พิมพ์เป็น PDF แล้วกลายเป็นแถบดำ) */
+    .wrap{
+      max-width:100%!important;
+      margin:0!important;
+      padding:0 27% 0 0!important;
+      box-sizing:border-box;
+      position:relative;
+    }
+    .wrap::before{
+      content:"📝 พื้นที่จดโน้ต";
+      position:absolute;
+      top:0;right:0;width:24%;
+      text-align:center;
+      font-size:.74rem;font-weight:800;color:var(--muted);
+      padding-bottom:5px;margin-bottom:6px;
+    }
+  }
+  .copybtn{margin:6px 0 8px;}
+
+  table.tbl td.rowlab{background:#f5f8fb;font-weight:700;color:var(--navy);}
+  .chk-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-weight:800;color:var(--navy);font-size:.98rem;margin:0 0 6px;padding-bottom:6px;border-bottom:2px solid var(--line);}
+
+  /* ============ DECISION LOG (ฝังในสื่อ) ============ */
+  .dl-head{display:flex;align-items:center;gap:9px;font-weight:800;color:var(--navy);font-size:1.02rem;margin:20px 0 4px;padding-top:12px;border-top:2px solid var(--line);}
+  #dlBox .dl-head:first-of-type{border-top:none;padding-top:0;margin-top:8px;}
+  .dl-head .n{background:var(--navy);color:#fff;width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;flex:0 0 auto;}
+  .dl-hint{font-size:.88rem;color:var(--muted);margin:2px 0 8px;line-height:1.6;}
+  .dl-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:640px){.dl-grid2{grid-template-columns:1fr;}}
+  #dlBox table.tbl td input{width:100%;box-sizing:border-box;border:1px solid #dfe6ee;background:#fffdf6;border-radius:6px;padding:6px 8px;font-size:.87rem;font-family:inherit;}
+  #dlBox table.tbl td input:focus{outline:2px solid var(--teal);border-color:var(--teal);}
+</style>
+</head>
+<body class="paged">
+<div id="progress"></div>
+<nav id="nav">
+  <span class="brand">🚚 Com Sim I · ครั้งที่ 5</span>
+  <a href="#s0">หน้าแรก</a>
+  <a href="#s1">เชื่อมโยง</a>
+  <a href="#s2">3 Validity</a>
+  <a href="#s3">โมเดล dock</a>
+  <a href="#s4">วิธีทำ Validity</a>
+  <a href="#s5">Face Validity</a>
+  <a href="#s6">ข้อมูลหลอกโมเดล</a>
+  <a href="#s7">t-test</a>
+  <a href="#s8">Sensitivity</a>
+  <a href="#s9">Lab Validation</a>
+  <a href="#s10">ตรวจงานตัวเอง + ส่งรายงาน</a>
+  <a href="#s11">Quiz</a>
+  <button class="pdfbtn" onclick="exportPDF()" title="ส่งออกเนื้อหาทั้งหมดเป็น PDF">📄 บันทึกเป็น PDF</button>
+</nav>
+
+<header class="hero">
+  <a class="hero-qr" href="https://namchai48.github.io/ComSim/class5" target="_blank" rel="noopener" title="เปิดสื่อครั้งที่ 5 — namchai48.github.io/ComSim/class5">
+    <svg viewBox="0 0 33 33" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="QR code เข้าสื่อครั้งที่ 5"><rect width="33" height="33" fill="#fff"/><g fill="#0f2c4d"><rect x="2" y="2" width="7" height="1"/><rect x="12" y="2" width="1" height="1"/><rect x="14" y="2" width="4" height="1"/><rect x="21" y="2" width="1" height="1"/><rect x="24" y="2" width="7" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="10" y="3" width="4" height="1"/><rect x="15" y="3" width="7" height="1"/><rect x="24" y="3" width="1" height="1"/><rect x="30" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="4" y="4" width="3" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="12" y="4" width="1" height="1"/><rect x="16" y="4" width="3" height="1"/><rect x="22" y="4" width="1" height="1"/><rect x="24" y="4" width="1" height="1"/><rect x="26" y="4" width="3" height="1"/><rect x="30" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="4" y="5" width="3" height="1"/><rect x="8" y="5" width="1" height="1"/><rect x="12" y="5" width="3" height="1"/><rect x="16" y="5" width="2" height="1"/><rect x="20" y="5" width="1" height="1"/><rect x="24" y="5" width="1" height="1"/><rect x="26" y="5" width="3" height="1"/><rect x="30" y="5" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="4" y="6" width="3" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="10" y="6" width="5" height="1"/><rect x="16" y="6" width="2" height="1"/><rect x="20" y="6" width="2" height="1"/><rect x="24" y="6" width="1" height="1"/><rect x="26" y="6" width="3" height="1"/><rect x="30" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="12" y="7" width="1" height="1"/><rect x="14" y="7" width="2" height="1"/><rect x="17" y="7" width="2" height="1"/><rect x="21" y="7" width="1" height="1"/><rect x="24" y="7" width="1" height="1"/><rect x="30" y="7" width="1" height="1"/><rect x="2" y="8" width="7" height="1"/><rect x="10" y="8" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="16" y="8" width="1" height="1"/><rect x="18" y="8" width="1" height="1"/><rect x="20" y="8" width="1" height="1"/><rect x="22" y="8" width="1" height="1"/><rect x="24" y="8" width="7" height="1"/><rect x="15" y="9" width="2" height="1"/><rect x="18" y="9" width="2" height="1"/><rect x="21" y="9" width="2" height="1"/><rect x="2" y="10" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="6" y="10" width="1" height="1"/><rect x="8" y="10" width="1" height="1"/><rect x="15" y="10" width="1" height="1"/><rect x="17" y="10" width="4" height="1"/><rect x="26" y="10" width="1" height="1"/><rect x="29" y="10" width="1" height="1"/><rect x="3" y="11" width="1" height="1"/><rect x="5" y="11" width="1" height="1"/><rect x="10" y="11" width="1" height="1"/><rect x="14" y="11" width="3" height="1"/><rect x="22" y="11" width="3" height="1"/><rect x="27" y="11" width="1" height="1"/><rect x="30" y="11" width="1" height="1"/><rect x="5" y="12" width="4" height="1"/><rect x="12" y="12" width="1" height="1"/><rect x="15" y="12" width="2" height="1"/><rect x="19" y="12" width="1" height="1"/><rect x="25" y="12" width="1" height="1"/><rect x="28" y="12" width="3" height="1"/><rect x="2" y="13" width="1" height="1"/><rect x="4" y="13" width="1" height="1"/><rect x="6" y="13" width="2" height="1"/><rect x="9" y="13" width="1" height="1"/><rect x="11" y="13" width="1" height="1"/><rect x="14" y="13" width="6" height="1"/><rect x="21" y="13" width="1" height="1"/><rect x="23" y="13" width="1" height="1"/><rect x="25" y="13" width="1" height="1"/><rect x="29" y="13" width="1" height="1"/><rect x="2" y="14" width="1" height="1"/><rect x="4" y="14" width="5" height="1"/><rect x="11" y="14" width="1" height="1"/><rect x="15" y="14" width="1" height="1"/><rect x="17" y="14" width="3" height="1"/><rect x="21" y="14" width="4" height="1"/><rect x="27" y="14" width="1" height="1"/><rect x="29" y="14" width="2" height="1"/><rect x="5" y="15" width="3" height="1"/><rect x="9" y="15" width="2" height="1"/><rect x="13" y="15" width="1" height="1"/><rect x="15" y="15" width="2" height="1"/><rect x="18" y="15" width="1" height="1"/><rect x="22" y="15" width="3" height="1"/><rect x="27" y="15" width="1" height="1"/><rect x="30" y="15" width="1" height="1"/><rect x="3" y="16" width="4" height="1"/><rect x="8" y="16" width="3" height="1"/><rect x="13" y="16" width="4" height="1"/><rect x="20" y="16" width="1" height="1"/><rect x="24" y="16" width="4" height="1"/><rect x="29" y="16" width="2" height="1"/><rect x="2" y="17" width="6" height="1"/><rect x="12" y="17" width="2" height="1"/><rect x="15" y="17" width="3" height="1"/><rect x="19" y="17" width="2" height="1"/><rect x="22" y="17" width="1" height="1"/><rect x="26" y="17" width="2" height="1"/><rect x="29" y="17" width="1" height="1"/><rect x="2" y="18" width="2" height="1"/><rect x="5" y="18" width="1" height="1"/><rect x="7" y="18" width="3" height="1"/><rect x="12" y="18" width="1" height="1"/><rect x="15" y="18" width="5" height="1"/><rect x="22" y="18" width="3" height="1"/><rect x="27" y="18" width="1" height="1"/><rect x="29" y="18" width="2" height="1"/><rect x="3" y="19" width="3" height="1"/><rect x="7" y="19" width="1" height="1"/><rect x="9" y="19" width="3" height="1"/><rect x="13" y="19" width="4" height="1"/><rect x="18" y="19" width="1" height="1"/><rect x="22" y="19" width="3" height="1"/><rect x="27" y="19" width="2" height="1"/><rect x="30" y="19" width="1" height="1"/><rect x="2" y="20" width="1" height="1"/><rect x="4" y="20" width="3" height="1"/><rect x="8" y="20" width="2" height="1"/><rect x="11" y="20" width="1" height="1"/><rect x="19" y="20" width="1" height="1"/><rect x="22" y="20" width="1" height="1"/><rect x="25" y="20" width="2" height="1"/><rect x="29" y="20" width="2" height="1"/><rect x="3" y="21" width="5" height="1"/><rect x="9" y="21" width="1" height="1"/><rect x="11" y="21" width="2" height="1"/><rect x="15" y="21" width="2" height="1"/><rect x="19" y="21" width="2" height="1"/><rect x="22" y="21" width="1" height="1"/><rect x="25" y="21" width="1" height="1"/><rect x="27" y="21" width="1" height="1"/><rect x="29" y="21" width="1" height="1"/><rect x="2" y="22" width="1" height="1"/><rect x="5" y="22" width="7" height="1"/><rect x="16" y="22" width="1" height="1"/><rect x="19" y="22" width="8" height="1"/><rect x="10" y="23" width="3" height="1"/><rect x="14" y="23" width="1" height="1"/><rect x="17" y="23" width="2" height="1"/><rect x="21" y="23" width="2" height="1"/><rect x="26" y="23" width="1" height="1"/><rect x="28" y="23" width="3" height="1"/><rect x="2" y="24" width="7" height="1"/><rect x="11" y="24" width="1" height="1"/><rect x="13" y="24" width="1" height="1"/><rect x="15" y="24" width="1" height="1"/><rect x="19" y="24" width="1" height="1"/><rect x="21" y="24" width="2" height="1"/><rect x="24" y="24" width="1" height="1"/><rect x="26" y="24" width="2" height="1"/><rect x="29" y="24" width="2" height="1"/><rect x="2" y="25" width="1" height="1"/><rect x="8" y="25" width="1" height="1"/><rect x="13" y="25" width="2" height="1"/><rect x="17" y="25" width="6" height="1"/><rect x="26" y="25" width="2" height="1"/><rect x="2" y="26" width="1" height="1"/><rect x="4" y="26" width="3" height="1"/><rect x="8" y="26" width="1" height="1"/><rect x="10" y="26" width="5" height="1"/><rect x="17" y="26" width="2" height="1"/><rect x="22" y="26" width="5" height="1"/><rect x="2" y="27" width="1" height="1"/><rect x="4" y="27" width="3" height="1"/><rect x="8" y="27" width="1" height="1"/><rect x="12" y="27" width="2" height="1"/><rect x="15" y="27" width="1" height="1"/><rect x="18" y="27" width="2" height="1"/><rect x="21" y="27" width="1" height="1"/><rect x="23" y="27" width="1" height="1"/><rect x="25" y="27" width="2" height="1"/><rect x="28" y="27" width="3" height="1"/><rect x="2" y="28" width="1" height="1"/><rect x="4" y="28" width="3" height="1"/><rect x="8" y="28" width="1" height="1"/><rect x="10" y="28" width="2" height="1"/><rect x="19" y="28" width="2" height="1"/><rect x="23" y="28" width="1" height="1"/><rect x="25" y="28" width="3" height="1"/><rect x="30" y="28" width="1" height="1"/><rect x="2" y="29" width="1" height="1"/><rect x="8" y="29" width="1" height="1"/><rect x="12" y="29" width="1" height="1"/><rect x="14" y="29" width="3" height="1"/><rect x="18" y="29" width="3" height="1"/><rect x="22" y="29" width="1" height="1"/><rect x="25" y="29" width="2" height="1"/><rect x="29" y="29" width="1" height="1"/><rect x="2" y="30" width="7" height="1"/><rect x="10" y="30" width="3" height="1"/><rect x="15" y="30" width="5" height="1"/><rect x="22" y="30" width="1" height="1"/><rect x="24" y="30" width="2" height="1"/><rect x="29" y="30" width="2" height="1"/></g></svg>
+    <span>สแกนเข้าสื่อ</span>
+  </a>
+  <h1>Validation — โมเดล dock ตรงกับคลังจริงไหม?</h1>
+  <p class="sub">ครั้งที่ 5 · เอาโมเดลคิวรถที่ dock จากครั้งที่ 4 มาพิสูจน์ว่าตรงกับคลังจริง ก่อนเอาไปเสนอผู้จัดการ</p>
+  <p class="sub" style="font-size:.95rem;opacity:.9">💡 หัวใจ: โมเดลที่โค้ดถูกทุกบรรทัด แต่เข้าใจระบบผิด ก็ยังพาไปตัดสินใจผิด</p>
+  <div class="badges">
+    <span class="badge">⏱️ 4 ชม.</span>
+    <span class="badge">🐍 SimPy + 📊 Excel</span>
+    <span class="badge">🚚 เคส: คิวรถที่ dock (ต่อจากครั้งที่ 4)</span>
+    <span class="badge">🔬 ทำ t-test ได้ในหน้านี้</span>
+  </div>
+</header>
+
+<div class="wrap">
+<div id="storageWarn" style="display:none;background:#fdecea;border:2px solid #d9534f;border-radius:12px;padding:14px 16px;margin:0 0 16px;color:#8a2a26;line-height:1.65">
+  <b>⚠️ เบราว์เซอร์นี้บันทึกโน้ตอัตโนมัติไม่ได้ — โน้ตจะหายเมื่อปิดหน้า</b><br>
+  <span style="font-size:.92rem">มักเกิดจากการเปิดไฟล์ในแอป LINE / Facebook / Messenger หรือใช้โหมดไม่ระบุตัวตน · แนะนำให้กด &ldquo;เปิดในเบราว์เซอร์&rdquo; (Chrome หรือ Safari) แล้วเปิดไฟล์นี้ใหม่ และกดปุ่ม <b>⬇️ ดาวน์โหลดโน้ต</b> ท้ายหน้าก่อนปิดทุกครั้ง</span>
+</div>
+<div id="inappWarn" style="display:none;background:#fff8e6;border:2px solid #e9a93f;border-radius:12px;padding:14px 16px;margin:0 0 16px;color:#7a5410;line-height:1.65">
+  <b>📱 คุณกำลังเปิดไฟล์นี้ในเบราว์เซอร์ภายในแอป</b><br>
+  <span style="font-size:.92rem">โน้ตที่จดไว้อาจหายเมื่อปิดแอป · กรุณากดเมนู (⋯) มุมขวาบน แล้วเลือก &ldquo;เปิดในเบราว์เซอร์&rdquo; / &ldquo;Open in Chrome/Safari&rdquo; ก่อนเริ่มจดโน้ต</span>
+</div>
+
+<!-- ===================== S0 INTRO ===================== -->
+<!-- ===================== S0 INTRO ===================== -->
+<section id="s0">
+  <h2>เริ่มต้นคาบเรียน — เช็คชื่อ</h2>
+
+  <!-- Check-in -->
+  <div class="checkin">
+    <h3>✅ เช็คชื่อเข้าเรียน — ครั้งที่ 5</h3>
+    <p style="margin:2px 0 0;color:var(--muted);font-size:.9rem">กรอกอีเมลและเลือกชื่อของคุณ แล้วกดส่ง — ข้อมูลจะถูกส่งเข้า Google Form ของอาจารย์ทันที</p>
+    <div class="ci-row">
+      <div class="ci-field">
+        <label>อีเมล *</label>
+        <input type="email" id="ci_email" placeholder="you@go.buu.ac.th" autocomplete="email">
+      </div>
+      <div class="ci-field">
+        <label>เลือกชื่อ–รหัสนิสิต *</label>
+        <select id="ci_student"><option value="">— เลือก —</option></select>
+      </div>
+    </div>
+    <button class="ci-submit" id="ci_btn" onclick="submitCheckin()">📩 ส่งเช็คชื่อ</button>
+    <div class="ci-msg" id="ci_msg"></div>
+    <iframe name="ci_target" id="ci_target" style="display:none" title="hidden"></iframe>
+    <form id="ci_form" action="https://docs.google.com/forms/d/e/1FAIpQLSfNObVXXAzhWkb-dfZD4dlHmGmGsRQX_zc6ohYz9Zima7q7ZA/formResponse" method="POST" target="ci_target" style="display:none">
+      <input type="hidden" name="emailAddress" id="ci_f_email">
+      <input type="hidden" name="entry.1463252013" id="ci_f_student">
+      <input type="hidden" name="fvv" value="1">
+      <input type="hidden" name="pageHistory" value="0">
+    </form>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--amber)">
+    <h3 style="margin-top:0">🚚 สถานการณ์ — เคสเดิมจากครั้งที่ 4</h3>
+    <p style="font-size:.97rem;margin:8px 0">
+      คลังรับรถบรรทุกเข้ามาขนถ่ายสินค้าประมาณ <strong>60–65 คันต่อกะ</strong> (กะละ 8 ชั่วโมง = 480 นาที) ปัจจุบันมี <strong>ประตูขนถ่าย (dock) 3 ช่อง</strong><br>
+      สัญญากับบริษัทขนส่งระบุว่า ถ้ารถอยู่ในคลังนานเกิน <strong>45 นาที</strong> คลังต้องจ่ายค่าปรับ detention <strong>2,500 บาท/ชั่วโมง</strong> ตามส่วน<br>
+      ครั้งที่ 4 เรา<strong>ตรวจแล้วว่าโค้ดไม่มี bug</strong> — วันนี้ต้องตอบให้ได้ว่า <em>"โมเดลตัวนี้เหมือนคลังจริงพอที่จะเอาไปตัดสินใจได้ไหม"</em>
+    </p>
+    <div class="note warn" style="margin:10px 0 0">
+      <span class="lb">คำถามที่ต้องตอบให้ผู้จัดการ</span>
+      <table class="tbl" style="margin:8px 0 0">
+        <tr><th style="width:90px">ทางเลือก</th><th>ทำอะไร</th><th style="width:190px">ต้นทุน</th></tr>
+        <tr><td><b>A</b></td><td>ไม่ทำอะไร — ใช้ dock 3 ช่องเหมือนเดิม</td><td>0 บาท (แต่จ่ายค่าปรับต่อไป)</td></tr>
+        <tr><td><b>B</b></td><td>จ้างทีมเสริมเปิดช่องที่ 4 ตลอดกะ</td><td>2,400 บาท/วัน · ยกเลิกได้</td></tr>
+        <tr><td><b>C</b></td><td>จ้างทีมเสริมเปิดช่องที่ 4 เฉพาะช่วงบ่าย (นาทีที่ 240 เป็นต้นไป)</td><td>1,200 บาท/วัน · ยกเลิกได้</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <h3>🎯 วัตถุประสงค์การเรียนรู้ — เมื่อจบครั้งที่ 5 นักศึกษาจะ...</h3>
+    <ol style="font-size:.95rem;line-height:1.9;margin:8px 0 4px">
+      <li><strong>อธิบายความต่างของ Verification / Validation / Credibility</strong> และ 3 ประเภทของ validity (หัวข้อ 2)</li>
+      <li><strong>อ่านโมเดล dock ของตัวเองในเชิงสมมติฐาน</strong> — แยกออกว่าโค้ดแต่ละบรรทัดตั้งสมมติฐานอะไรกับคลังจริง (หัวข้อ 3)</li>
+      <li><strong>ทำ Face validity</strong> — รู้ว่าต้องใช้วิธีไหน และถามอะไรกับคนที่ทำงานจริง (หัวข้อ 4–5)</li>
+      <li><strong>ตรวจข้อมูลนำเข้า และทดสอบสมมติฐานด้วย t-test</strong> เทียบ turnaround ของโมเดลกับ log ประตูคลังจริง (หัวข้อ 6–7)</li>
+      <li><strong>ทำ Sensitivity analysis</strong> — ตรวจว่าข้อสรุปทนต่อความไม่แน่นอนแค่ไหน (หัวข้อ 8)</li>
+      <li><strong>บันทึกหลักฐานการตรวจ</strong> ลงเช็กลิสต์ Validation และเขียนรายงานผลอย่างซื่อสัตย์ (หัวข้อ 9–10)</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===================== S1 BRIDGE ===================== -->
+<section id="s1">
+  <h2><span class="num">1</span> เชื่อมจากครั้งที่แล้ว — จาก "ไม่มี bug" สู่ "ตรงกับความจริง"</h2>
+  <p class="lead">ครั้งที่ 4 เราตรวจโค้ด · วันนี้เราตรวจ<em>สมมติฐาน</em> ซึ่งอันตรายกว่ามาก เพราะมันไม่มีทางโผล่เป็น error</p>
+
+  <div class="grid2">
+    <div class="card" style="border-top:4px solid var(--amber)">
+      <h3 style="margin-top:0">⬅️ ครั้งที่ 4 ได้อะไรมาแล้ว</h3>
+      <ul style="font-size:.93rem;margin:6px 0">
+        <li><strong>โมเดล dock ที่ผ่าน Verification แล้ว</strong> — สมดุลเข้า–ออก · trace · assert · extreme test · กฎของ Little</li>
+        <li>KPI โลจิสติกส์: turnaround · waiting · utilization · throughput · คิวค้างสิ้นกะ</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:4px solid var(--teal)">
+      <h3 style="margin-top:0">➡️ วันนี้ (ครั้งที่ 5)</h3>
+      <ul style="font-size:.93rem;margin:6px 0">
+        <li><strong>เคสเดิม โมเดลเดิม</strong> — แต่เปลี่ยนคำถามจาก "โค้ดถูกไหม" เป็น "ตรงกับคลังจริงไหม"</li>
+        <li><strong>Validation</strong>: face validity · data validity · เทียบผลด้วย t-test · sensitivity</li>
+        <li>ตรวจสมมติฐานที่<strong>ซ่อนอยู่ในโค้ดที่เราเขียนเอง</strong> และเทียบผลกับข้อมูลจริง</li>
+        <li><strong>รายงานผล Validation ของกลุ่ม</strong> — บันทึกไปทีละขั้นระหว่างทำ Lab แล้วส่งออกเป็นไฟล์เดียวได้เลย ไม่ต้องเปิดใบงานแยก</li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+<!-- ===================== S2 THREE VALIDITY ===================== -->
+<section id="s2">
+  <h2><span class="num">2</span> Validation คืออะไร — และ 3 ประเภทที่ต้องทำให้ครบ</h2>
+  <p class="lead">Verification ถามว่า "โค้ดตรงแบบไหม" · Validation ถามว่า "แบบตรงกับความจริงไหม" · Credibility ถามว่า "คนที่ต้องใช้เชื่อไหม"</p>
+
+  <div class="card pdf-skip">
+    <div class="stepbtns" id="valBtns"></div>
+    <div class="stepdesc" id="valDesc">กดปุ่มด้านบนเพื่อดูรายละเอียด</div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--purple)">
+    <h3 style="margin-top:0">🧩 3 ประเภทของ Validity ที่ต้องตรวจให้ครบ</h3>
+    <table class="tbl">
+      <tr><th style="width:22%">ประเภท</th><th>ตรวจอะไร</th><th style="width:34%">ตัวอย่างในเคส dock</th></tr>
+      <tr><td><strong>① Conceptual validity</strong><br><span class="en">แนวคิด/ขอบเขต</span></td>
+          <td>โครงสร้างโมเดลสะท้อนระบบจริงไหม · สิ่งที่ตัดทิ้งสำคัญหรือเปล่า</td>
+          <td>โมเดลสมมติรถทุกคันเหมือนกันหมด — คลังจริงมีรถพ่วงที่ขนถ่ายนานกว่าไหม? มีรถด่วนที่ได้คิวก่อนไหม?</td></tr>
+      <tr><td><strong>② Data validity</strong><br><span class="en">ข้อมูลนำเข้า</span></td>
+          <td>ตัวเลขและการแจกแจงที่ใส่เข้าไป มาจากข้อมูลจริงหรือเดาเอา</td>
+          <td>Triangular(12, 20, 34) มาจากจับเวลาจริงกี่คัน? ระยะห่างรถเข้า 10/6 นาที มาจาก log ประตูกี่วัน?</td></tr>
+      <tr><td><strong>③ Operational validity</strong><br><span class="en">ผลลัพธ์</span></td>
+          <td>ผลที่โมเดลให้ ใกล้เคียงกับที่ระบบจริงทำได้ไหม</td>
+          <td>turnaround เฉลี่ยที่โมเดลทำนาย ตรงกับ log ประตูคลังจริงไหม (ทดสอบด้วย t-test)</td></tr>
+    </table>
+    <div class="note warn" style="margin-top:10px">
+      <span class="lb">ลำดับที่ถูกต้อง</span>
+      ตรวจ ① ก่อนเสมอ — ถ้า<strong>แนวคิดผิด</strong> การไปปรับตัวเลข (②) หรือเทียบผล (③) ก็ไม่ช่วยอะไร · โมเดลที่ลืมว่าคลังจริงหยุดพักเที่ยง ต่อให้ป้อนเวลาขนถ่ายแม่นแค่ไหนก็ยังตอบผิด
+    </div>
+  </div>
+
+</section>
+
+<!-- ===================== S3 MODEL ===================== -->
+<section id="s3">
+  <h2><span class="num">3</span> โมเดลที่จะเอามา Validate — อ่านโค้ดใหม่ในฐานะ "รายการสมมติฐาน"</h2>
+  <p class="lead">โมเดลตัวเดียวกับครั้งที่ 4 · ครั้งนั้นเราอ่านมันเพื่อหา bug — <strong>วันนี้อ่านเพื่อหาว่ามันสมมติอะไรกับคลังจริงไว้บ้าง</strong></p>
+
+  <div class="note tip">
+    <span class="lb">📎 ใช้โมเดลของกลุ่มตัวเอง</span>
+    เปิด Colab ของกลุ่มที่ผ่าน Verification จากครั้งที่ 4 ขึ้นมา — <strong>ห้ามเขียนใหม่</strong> เพราะสิ่งที่เราจะตรวจวันนี้คือโมเดลตัวที่จะเอาไปเสนอจริง<br>
+    ถ้ากลุ่มไหนโค้ดหาย ใช้เวอร์ชันมาตรฐานด้านล่างแทนได้
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">🐍 โมเดล dock <span class="en">(เวอร์ชันมาตรฐาน — ตั้งค่าสถานการณ์เริ่มต้น 3 ช่อง)</span></h3>
+<pre><span class="c"># ===== คิวรถบรรทุกที่ประตูขนถ่าย (dock) =====</span>
+<span class="k">import</span> simpy, random
+
+SHIFT      = <span class="s">480</span>    <span class="c"># กะละ 8 ชั่วโมง</span>
+NOON       = <span class="s">240</span>    <span class="c"># เส้นแบ่งเช้า/บ่าย</span>
+IAT_AM     = <span class="s">10</span>     <span class="c"># เช้า: รถเข้าเฉลี่ยทุก 10 นาที</span>
+IAT_PM     = <span class="s">6</span>      <span class="c"># บ่าย: รถเข้าเฉลี่ยทุก 6 นาที (พีค)</span>
+SVC        = (<span class="s">12</span>, <span class="s">20</span>, <span class="s">34</span>)   <span class="c"># เวลาขนถ่าย Triangular(ต่ำสุด, ฐานนิยม, สูงสุด) เฉลี่ย 22</span>
+BASE_DOCKS = <span class="s">3</span>
+EXTRA_FROM = <span class="k">None</span>   <span class="c"># สถานการณ์เริ่มต้น: ไม่มีทีมเสริม</span>
+
+log = []          <span class="c"># เก็บทุกคัน: (มาถึง, เริ่มขนถ่าย, ออก)</span>
+busy = <span class="s">0.0</span>; n_arrived = <span class="s">0</span>
+
+<span class="k">def</span> truck(env, name, dock):
+    <span class="k">global</span> busy
+    arrive = env.now
+    <span class="k">with</span> dock.request() <span class="k">as</span> req:
+        <span class="k">yield</span> req
+        start = env.now
+        s = random.triangular(SVC[<span class="s">0</span>], SVC[<span class="s">2</span>], SVC[<span class="s">1</span>])   <span class="c"># Python รับ (ต่ำสุด, สูงสุด, ฐานนิยม)</span>
+        busy += s
+        <span class="k">yield</span> env.timeout(s)
+    log.append((arrive, start, env.now))     <span class="c"># รอ = start - arrive</span>
+
+<span class="k">def</span> arrivals(env, dock):
+    <span class="k">global</span> n_arrived
+    <span class="k">while</span> <span class="k">True</span>:
+        mean = IAT_AM <span class="k">if</span> env.now &lt; NOON <span class="k">else</span> IAT_PM
+        <span class="k">yield</span> env.timeout(random.expovariate(<span class="s">1</span>/mean))
+        <span class="k">if</span> env.now &gt;= SHIFT: <span class="k">break</span>
+        n_arrived += <span class="s">1</span>
+        env.process(truck(env, n_arrived, dock))
+
+random.seed(<span class="s">42</span>)
+env  = simpy.Environment()
+dock = simpy.Resource(env, capacity=BASE_DOCKS)
+env.process(arrivals(env, dock))
+env.run(until=SHIFT)
+
+ta = [e - a <span class="k">for</span> a, st, e <span class="k">in</span> log]          <span class="c"># turnaround รายคัน (นาที)</span>
+<span class="k">print</span>(<span class="s">f"รถเข้า {n_arrived} · เสร็จ {len(log)} · turnaround เฉลี่ย {sum(ta)/len(ta):.1f} นาที"</span>)</pre>
+    <div class="note warn" style="margin:10px 0 0">
+      <span class="lb">⚠️ จุดที่เพิ่งแก้ — ลำดับอาร์กิวเมนต์ของ <code>random.triangular</code></span>
+      Python รับ <code>triangular(ต่ำสุด, <b>สูงสุด</b>, <b>ฐานนิยม</b>)</code> ไม่ใช่ <code>(ต่ำสุด, ฐานนิยม, สูงสุด)</code> · ถ้าเขียน <code>random.triangular(*SVC)</code> ตรง ๆ โมเดลจะสุ่มเวลาขนถ่ายอยู่ในช่วง <strong>12–25.3 นาที เฉลี่ย 20.8</strong> แทนที่จะเป็น 12–34 เฉลี่ย 22 ตามที่ตั้งใจ<br>
+      👉 เป็น bug ที่<strong>ไม่มี error ฟ้อง ผลลัพธ์ยังดูสมเหตุสมผล</strong> จึงรอดจาก verification มาได้ — ตัวอย่างชั้นดีว่าทำไม "โค้ดรันผ่าน" ไม่เท่ากับ "โค้ดถูก"
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0" class="pdf-skip">
+      <button class="act teal" onclick="window.open('https://colab.research.google.com','_blank')">🚀 เปิด Google Colab</button>
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--red)">
+    <h3 style="margin-top:0">🔍 โค้ดบรรทัดไหน = สมมติฐานอะไร</h3>
+    <p style="font-size:.9rem;color:var(--muted);margin:4px 0 10px">นี่คือหัวใจของ conceptual validity — สมมติฐานไม่ได้อยู่ในเอกสาร มันอยู่ใน<strong>โค้ดที่เราเขียนเอง</strong> และหลายข้อเราใส่ไปโดยไม่รู้ตัว</p>
+    <table class="tbl">
+      <tr><th style="width:38%">บรรทัดในโค้ด</th><th>แปลว่าเราสมมติว่า...</th></tr>
+      <tr><td><code>random.triangular(…)</code></td><td>รถ<strong>ทุกคันเหมือนกันหมด</strong> — ไม่มีรถพ่วงที่ขนถ่ายนานกว่า ไม่มีของที่ต้องตรวจนับพิเศษ</td></tr>
+      <tr><td><code>dock.request()</code> ธรรมดา</td><td>เข้าคิว<strong>มาก่อนได้ก่อน</strong> — ไม่มีรถด่วน ไม่มีการจัดคิวใหม่ตามชนิดสินค้า</td></tr>
+      <tr><td><code>capacity=BASE_DOCKS</code></td><td>ทั้ง 3 ช่อง<strong>ทำงานเท่ากันและว่างตลอดกะ</strong> — ไม่มีช่องเสีย ไม่มีคนพักเที่ยง</td></tr>
+      <tr><td><code>random.expovariate(1/mean)</code></td><td>รถมาแบบ<strong>สุ่มอิสระต่อกัน</strong> — ไม่มีการนัดเวลาล่วงหน้า ไม่มีรถมาเป็นขบวนพร้อมกัน</td></tr>
+      <tr><td><code>IAT_AM ... else IAT_PM</code></td><td>อัตรารถเข้า<strong>เปลี่ยนที่นาทีที่ 240 พอดี</strong> — ของจริงพีคอาจเริ่มเร็ว/ช้ากว่านั้น หรือค่อย ๆ ไต่</td></tr>
+      <tr><td><code>if env.now &gt;= SHIFT: break</code></td><td>รถที่มาไม่ทันกะ<strong>หายไปเฉย ๆ</strong> — ของจริงไปต่อคิวกะถัดไป หรือทำ OT</td></tr>
+      <tr><td>ไม่มีในโค้ดเลย</td><td>ไม่มีเวลาเอกสาร/ตรวจของ · ไม่มีรถเสีย · ไม่มีฝนตก · รถไม่เคยมาแล้วไม่มีของให้ขน</td></tr>
+    </table>
+    <div class="note warn" style="margin-top:10px">
+      <span class="lb">แถวสุดท้ายอันตรายที่สุด</span>
+      สมมติฐานที่<strong>ไม่ปรากฏในโค้ด</strong>คือสิ่งที่หาไม่เจอด้วยการอ่านโค้ด — เจอได้ทางเดียวคือ<strong>ไปดูของจริงหรือถามคนหน้างาน</strong> ซึ่งเป็นเรื่องของหัวข้อ 4–5
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S4 HOW TO VALIDATE ===================== -->
+<section id="s4">
+  <h2><span class="num">4</span> วิธีการทำ Validity — เครื่องมือที่ใช้ควบคู่กับทั้ง 3 ประเภท</h2>
+  <p class="lead"><strong>หัวข้อ 2</strong> บอกว่า <em>"ตรวจอะไร"</em> · หัวข้อนี้บอกว่า <em>"ตรวจด้วยอะไร"</em> — สองอย่างนี้อยู่คนละมิติ ไม่ใช่ขั้นตอนที่ทำต่อกัน</p>
+
+  <div class="card" style="border-top:4px solid var(--purple)">
+    <h3 style="margin-top:0">🛠️ 4 วิธีที่ใช้ในคาบนี้ — วิธีไหนยืนยันประเภทไหน</h3>
+    <table class="tbl">
+      <tr><th style="width:26%">วิธีตรวจ</th><th style="width:14%">ยืนยันประเภท</th><th>จับอะไรได้ที่วิธีอื่นจับไม่ได้</th><th style="width:16%">ต้นทุน</th></tr>
+      <tr><td><strong>① Face validity</strong><br><span class="en">ถามคนที่ทำงานจริง (หัวข้อ 5)</span></td>
+          <td><b>①②③</b></td>
+          <td>สมมติฐานที่หลุด · กิจกรรมที่โมเดล<strong>ลืมใส่ทั้งกิจกรรม</strong> — เป็นวิธีเดียวที่จับปัญหาเชิงแนวคิดได้</td>
+          <td>ถูกและเร็วที่สุด</td></tr>
+      <tr><td><strong>② ตามรอยที่มาข้อมูล + histogram</strong><br><span class="en">(หัวข้อ 6)</span></td>
+          <td><b>②</b></td>
+          <td>ใช้ค่าเฉลี่ยแทนการแจกแจง · ข้อมูลล้าสมัย ปัดเศษ หรือหายไปอย่างมีระบบ</td>
+          <td>กลาง — ต้องขอ log จริง</td></tr>
+      <tr><td><strong>③ t-test เทียบข้อมูลจริง</strong><br><span class="en">(หัวข้อ 7)</span></td>
+          <td><b>③</b></td>
+          <td>ผลโมเดลเบี่ยงจากของจริง<strong>อย่างมีนัยสำคัญ</strong> พร้อมบอกขนาดความต่างด้วยช่วงความเชื่อมั่น</td>
+          <td>แพงที่สุด — ต้องเก็บข้อมูลจริง</td></tr>
+      <tr><td><strong>④ Sensitivity analysis</strong><br><span class="en">(หัวข้อ 8)</span></td>
+          <td><b>① และข้อจำกัด</b></td>
+          <td>ข้อสรุปที่<strong>เปราะ</strong> — พึ่งสมมติฐานที่เรายังไม่มั่นใจ · บอกว่าควรไปเก็บข้อมูลอะไรเพิ่ม</td>
+          <td>ถูก แต่ต้องมีโมเดลก่อน</td></tr>
+    </table>
+  </div>
+
+  <div class="note tip">
+    <span class="lb">ทำ 1 ครั้ง ติ๊กได้หลายช่อง</span>
+    พาหัวหน้าคลังมาดูกราฟหนึ่งรอบ = ได้หลักฐานทั้ง <strong>① Conceptual</strong> (เขาทักว่าสมมติฐานไหนไม่จริง) และ <strong>③ Operational</strong> (เขาบอกว่าตัวเลขเหมือน/ไม่เหมือนของจริง) พร้อมกัน — <strong>นี่คือความหมายของคำว่า "ควบคู่"</strong>
+  </div>
+</section>
+
+<!-- ===================== S5 FACE VALIDITY ===================== -->
+<section id="s5">
+  <h2><span class="num">5</span> Face Validity — ถามคนที่ทำงานจริง</h2>
+  <p class="lead">เครื่องมือ validation ที่ถูกที่สุด เร็วที่สุด และคนมองข้ามบ่อยที่สุด: เดินไปคุยกับหัวหน้ากะและพนักงานขนถ่าย</p>
+
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">🗣️ คำถามที่ต้องถามหัวหน้ากะ / พนักงานขนถ่าย</h3>
+    <ol style="font-size:.94rem;line-height:1.9;margin:6px 0">
+      <li>"รถทุกคันใช้เวลาขนถ่ายพอ ๆ กันไหม หรือรถพ่วงนานกว่ามาก?" — <em>กระทบโครงสร้างโมเดลทั้งหมด</em></li>
+      <li>"ช่วงบ่ายรถเริ่มแน่นตอนกี่โมง และแน่นกว่าเช้าประมาณกี่เท่า?"</li>
+      <li>"เรียงคิวมาก่อนได้ก่อนเสมอ หรือมีรถที่ต้องให้เข้าก่อน?"</li>
+      <li>"ช่วงพักเที่ยง ช่องขนถ่ายหยุดจริงไหม กี่นาที?" — <em>ข้อจำกัดที่โมเดลมักลืม</em></li>
+      <li>"ผมลองประมาณว่ารถอยู่ในคลังเฉลี่ย 39 นาที และมีรถค้างสิ้นกะ 12 คัน ฟังดูสมเหตุสมผลไหม?"</li>
+    </ol>
+    <div class="note tip" style="margin-top:8px">
+      <span class="lb">เทคนิค</span>
+      อย่าถามว่า "โมเดลถูกไหม" (ไม่มีใครตอบได้) — ให้<strong>เอาผลลัพธ์ที่เป็นรูปธรรมไปให้ดู</strong> แล้วถามว่า "แบบนี้เหมือนของจริงไหม" · คนหน้างานจะบอกทันทีว่าตรงไหนผิด
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--red)">
+    <h3 style="margin-top:0">🔍 สมมติฐานของโมเดล dock — ข้อไหน "อันตราย" จริง</h3>
+    <p style="font-size:.9rem;color:var(--muted);margin:4px 0 10px">สมมติฐานทุกข้อผิดจากความจริงทั้งนั้น — ที่ต้องแยกให้ออกคือข้อไหน<strong>ผิดแล้วข้อสรุปพลิก</strong></p>
+    <table class="tbl">
+      <tr><th style="width:38%">สมมติฐานของโมเดล</th><th style="width:14%">อันตราย?</th><th>เพราะอะไร</th></tr>
+      <tr><td>รถทุกคันใช้เวลาขนถ่ายจากการแจกแจงเดียวกัน</td><td><b style="color:var(--red)">⚠️ สูง</b></td><td>ถ้ามีรถพ่วง 20% ที่ใช้เวลา 1.5 เท่า <b>ค่าเฉลี่ยเวลาขนถ่ายขยับขึ้น ~10%</b> → ค่าปรับพุ่งจาก ~40,000 เป็น ~69,000 บาท/กะ (<b>+74%</b>) · แต่ระวังการอ้างเหตุผล: ถ้าเพิ่ม<b>ความแปรปรวน</b>โดยคุมค่าเฉลี่ยให้เท่าเดิมจริง ๆ ผลเปลี่ยนแค่ ~4% — <b>ตัวที่อันตรายในโมเดลนี้คือค่าเฉลี่ยที่ขยับ ไม่ใช่ความแปรปรวน</b> (ดูกล่อง 📐 ด้านล่าง)</td></tr>
+      <tr><td>ช่องขนถ่ายทำงานต่อเนื่องตลอด 480 นาที</td><td><b style="color:var(--red)">⚠️ สูง</b></td><td>ถ้าคลังจริงพักเที่ยงพร้อมกัน 30–45 นาที กำลังผลิตหายไปทั้งก้อนในช่วงที่รถเริ่มแน่นพอดี → คิวสะสมที่โมเดลมองไม่เห็น · ทดลองแล้ว: พักพร้อมกัน 30 นาที ค่าปรับ<b>เพิ่มเท่าตัว</b> (~40,000 → ~80,000 บาท/กะ)</td></tr>
+      <tr><td>รถที่มาไม่ทันหมดกะ หายไปจากระบบ</td><td><b style="color:var(--red)">⚠️ สูง</b></td><td>ของจริงรถค้างต้องทำ OT หรือดันไปกะถัดไป — โมเดลทิ้งรถกลุ่มนี้ <b>~12 คัน (19% ของทั้งกะ)</b> จึงรายงาน turnaround <b>39 นาที ทั้งที่ของจริง 49 นาที</b> และรายงานค่าปรับ ~14,000 ทั้งที่จริง ~40,000 บาท (<b>ต่ำกว่าจริง 66%</b>) — ซ่อนต้นทุนที่แพงที่สุดไว้</td></tr>
+      <tr><td>รถมาแบบสุ่มอิสระ (Exponential)</td><td><b style="color:var(--red)">⚠️ สูง</b></td><td>ถ้ามีการนัดเวลาหรือรถมาเป็นขบวน คิวจะกระจุกกว่าที่โมเดลคิดมาก — ทดลองแล้ว: มาเป็นขบวนละ 2 คัน ค่าปรับ <b>+61%</b> · ขบวนละ 3 คัน <b>+87%</b> คือ<b>แรงพอ ๆ กับการพักเที่ยง</b> · ต้องดู log จริงว่ารถมาแบบไหน</td></tr>
+      <tr><td>พีคเริ่มที่นาทีที่ 240 พอดี</td><td><b style="color:var(--amber)">กลาง</b></td><td><b>ไม่ได้กระทบทุกทางเลือกเท่ากัน</b> — A กับ B ไม่ผูกกับเวลา แต่ <b>ทางเลือก C ผูกกับนาทีที่ 240 ตรง ๆ</b> · ทดลองแล้ว: ถ้าพีคจริงเริ่มนาที 240–280 ต้นทุนรวมของ B กับ C <b>แยกไม่ออก</b> แต่ถ้าพีคจริงเริ่มเร็วกว่านั้น (นาที 200) <b>B ถูกกว่า C อย่างชัดเจน</b> → สมมติฐานนี้เปลี่ยนคำตอบได้</td></tr>
+      <tr><td>ทั้ง 3 ช่องเหมือนกันหมด</td><td>ต่ำ</td><td>ถ้าไม่มีช่องไหนใช้กับรถบางประเภทไม่ได้ ก็ยอมรับได้ในโมเดลรุ่นแรก</td></tr>
+      <tr><td>ไม่มีเวลาเอกสาร/ตรวจนับแยกต่างหาก</td><td>ต่ำ</td><td>ถ้ารวมอยู่ในเวลาขนถ่ายที่จับมาแล้วก็ไม่ต้องแยก — <b>แต่ต้องยืนยันว่าคนจับเวลารวมให้จริง</b></td></tr>
+    </table>
+    <div class="note tip" style="margin-top:10px">
+      <span class="lb">📐 ทำไม "ความแปรปรวน" ถึงสำคัญน้อยกว่าที่คิดในโมเดลตัวนี้ — ดูที่โหลดของช่วงบ่าย</span>
+      ช่วงบ่ายมีรถเข้า ~40 คัน × 22 นาที = <strong>880 dock-นาทีที่ต้องทำ</strong> แต่มีกำลังผลิตแค่ 3 ช่อง × 240 นาที = <strong>720 dock-นาที</strong> → <strong>โหลด 122%</strong><br>
+      ระบบที่โหลด<strong>เกิน 100%</strong> คิวจะสะสมขึ้นเรื่อย ๆ ตาม<strong>กำลังผลิตที่ขาด</strong> ไม่ได้ขึ้นกับความแปรปรวนเป็นหลัก · สมมติฐานที่ขยับ<strong>ค่าเฉลี่ยเวลาขนถ่าย</strong>หรือ<strong>กำลังผลิตที่หายไป</strong> จึงอันตรายที่สุด<br>
+      👉 กลับกัน ถ้าเปิดช่องที่ 4 จนระบบไม่ล้นแล้ว <strong>ลำดับความอันตรายจะเปลี่ยน</strong> — ความแปรปรวนจะกลับมามีน้ำหนักมากขึ้น · <strong>"อันตราย" จึงไม่ใช่คุณสมบัติของสมมติฐานอย่างเดียว แต่ขึ้นกับจุดทำงานของระบบด้วย</strong>
+    </div>
+    <div class="note warn" style="margin-top:10px">
+      <span class="lb">จุดสังเกต — แยกให้ออกว่าอันไหน "เข้าใจระบบผิด" อันไหน "สรุปผลผิด"</span>
+      ข้อ 1 · 2 · 4 เป็น <strong>Conceptual validity</strong> — คือโมเดล<strong>เข้าใจระบบผิด</strong> ไม่ใช่ตัวเลขผิด ·
+      ปัญหาแบบนี้<strong>แก้ด้วยการจูนพารามิเตอร์ไม่ได้เลย</strong> ต้องแก้โครงสร้างโมเดล · และวิธีเดียวที่จะเจอคือ<strong>ไปคุยกับคนหน้างาน</strong><br>
+      ส่วนข้อ <strong>"รถค้างหายจากระบบ"</strong> ไม่ใช่ conceptual validity — เป็นการ<strong>ตัดข้อมูลทิ้งตอนสรุปผล</strong> (censoring) ซึ่ง<strong>แก้ได้ที่โค้ดล้วน ๆ</strong> คือรันต่อจนรถหมดคิวแล้วนับรถค้างแยกออกมา ไม่ต้องแก้ความเข้าใจระบบเลย
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S5 DATA VALIDITY ===================== -->
+<section id="s6">
+  <h2><span class="num">6</span> Data Validity — ข้อมูลนำเข้าหลอกโมเดลได้อย่างไร</h2>
+  <p class="lead">Garbage in, garbage out — แต่ปัญหาคือ "ขยะ" ในข้อมูลโลจิสติกส์มักหน้าตาเหมือนข้อมูลดี ๆ</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">⚠️ กับดักข้อมูลที่พบบ่อยในงาน dock</h3>
+    <table class="tbl">
+      <tr><th style="width:30%">ปัญหา</th><th>เกิดอะไรขึ้น</th><th style="width:26%">วิธีตรวจ</th></tr>
+      <tr><td><strong>ใช้ค่าเฉลี่ยแทนการแจกแจง</strong></td><td>"ขนถ่ายเฉลี่ย 22 นาที" → ใส่ 22 คงที่ทุกคัน · ความแปรปรวนหายหมด <b>คิวจะสั้นกว่าจริงมาก</b> เพราะคิวเกิดจากความแปรปรวน ไม่ใช่จากค่าเฉลี่ย</td><td>ทำ histogram ของเวลาขนถ่ายจริงเสมอ</td></tr>
+      <tr><td><strong>ข้อมูลช่วงเวลาเดียว</strong></td><td>จับเวลาสัปดาห์ปกติ แล้วเอาไปตัดสินใจเรื่องที่กระทบทั้งปี · ลืมช่วงสิ้นเดือนที่รถแน่นกว่าปกติมาก</td><td>เทียบ log หลายช่วงเวลา</td></tr>
+      <tr><td><strong>ข้อมูลถูกปัดเศษมาแล้ว</strong></td><td>ยามบันทึกเวลาเข้า–ออกเป็น 8:00 / 8:15 / 8:30 เพราะกรอกมือ · ความละเอียดหายไปจน fit การแจกแจงไม่ได้</td><td>ดูว่าค่าที่พบกระจุกที่เลขกลม ๆ ไหม</td></tr>
+      <tr><td><strong>ข้อมูลที่หายไป</strong></td><td>log บันทึกเฉพาะรถที่เข้าคลังสำเร็จ · รถที่เห็นคิวยาวแล้ววนกลับมาใหม่ หรือถูกเลื่อนไปวันหลัง ไม่ถูกบันทึก → <b>ภาพที่เห็นดีกว่าความจริง</b></td><td>ถามว่า "มีรถที่ไม่ได้ถูกบันทึกไหม"</td></tr>
+      <tr><td><strong>timestamp ไม่ใช่จุดที่เราคิด</strong></td><td>log ประตูบันทึก "เวลาผ่านป้อม" แต่โมเดลนับ "เวลามาถึงคิว dock" — สองจุดนี้ห่างกันได้หลายนาที ทำให้ turnaround ที่เทียบกันคนละนิยาม</td><td>ไล่ดูว่าแต่ละ timestamp เกิดที่จุดไหนจริง</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===================== S6 T-TEST ===================== -->
+<section id="s7">
+  <h2><span class="num">7</span> Operational Validity — ทดสอบด้วย t-test</h2>
+  <p class="lead">คำถาม: "turnaround ที่โมเดลทำนาย ต่างจาก log ประตูคลังจริงอย่างมีนัยสำคัญไหม" — ครั้งนี้เรา<strong>อยากให้ไม่ต่าง</strong></p>
+
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <div class="note ask">
+      <span class="lb">❓ t-test คืออะไร สำคัญยังไง</span>
+      t-test คือการทดสอบทางสถิติที่บอกว่า<strong>ค่าเฉลี่ยของสองกลุ่มต่างกันจริง หรือต่างกันเพราะความบังเอิญจากการสุ่มตัวอย่าง</strong> · สำคัญเพราะเป็นเครื่องมือหลักที่ใช้เทียบ<strong>ผลจากโมเดล</strong>กับ<strong>ข้อมูลจริง</strong> เพื่อบอกว่าโมเดลที่สร้างขึ้นเชื่อถือได้แค่ไหน
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--purple)">
+    <h3 style="margin-top:0">🔬 ตรรกะที่กลับหัวจากที่เคยเรียน</h3>
+    <div class="grid2">
+      <div>
+        <p style="font-size:.94rem;margin:4px 0"><strong>สมมติฐาน</strong></p>
+        <ul style="font-size:.92rem;margin:4px 0">
+          <li>H₀ : μ<sub>โมเดล</sub> = μ<sub>จริง</sub> (ไม่ต่างกัน)</li>
+          <li>H₁ : μ<sub>โมเดล</sub> ≠ μ<sub>จริง</sub> (ต่างกัน)</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:.94rem;margin:4px 0"><strong>การตีความ</strong></p>
+        <ul style="font-size:.92rem;margin:4px 0">
+          <li><b>p &gt; 0.05</b> → ปฏิเสธ H₀ ไม่ได้ → <span style="color:var(--teal);font-weight:700">โมเดลผ่าน ✅</span></li>
+          <li><b>p ≤ 0.05</b> → ต่างกันอย่างมีนัยสำคัญ → <span style="color:var(--red);font-weight:700">ต้องแก้โมเดล ⚠️</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="note warn" style="margin-top:8px">
+      <span class="lb">อย่าเข้าใจผิด</span>
+      "p &gt; 0.05" <strong>ไม่ได้แปลว่าโมเดลถูก</strong> — แปลว่า "ข้อมูลที่มียังไม่พอจะบอกว่าต่างกัน" ·
+      ถ้าข้อมูลจริงมีแค่ 5 ค่า แทบไม่มีทางเจอความต่างเลยไม่ว่าโมเดลจะแย่แค่ไหน · <strong>ข้อมูลน้อย = การทดสอบอ่อน ไม่ใช่โมเดลดี</strong>
+    </div>
+    <div class="note ask" style="margin-top:8px">
+      <span class="lb">❓ CI (ช่วงความเชื่อมั่น) คืออะไร หมายความว่ายังไง</span>
+      CI ย่อจาก <em>confidence interval</em> คือ<strong>ช่วงตัวเลขที่ "ผลต่างจริง" ระหว่างโมเดลกับของจริง น่าจะอยู่ตรงนั้น</strong> เช่น CI = [−1.3, +9.3] นาที แปลว่าของจริงอาจต่างจากโมเดลได้ตั้งแต่ −1.3 ถึง +9.3 นาที · ถ้าช่วงนี้<strong>คร่อมเลข 0</strong> ก็แปลว่าผลต่างเป็นศูนย์ยังเป็นไปได้ ซึ่งตรงกับ p &gt; 0.05 เสมอ · CI มีประโยชน์เพราะบอก<strong>ขนาด</strong>เป็นนาทีที่เอาไปเทียบกับเกณฑ์งานจริงได้ตรง ๆ ซึ่ง p อย่างเดียวทำไม่ได้
+    </div>
+  </div>
+
+  <div class="card pdf-skip">
+    <h3 style="margin-top:0">🧪 ทดลอง t-test — โมเดล vs log ประตูจริง</h3>
+    <p style="font-size:.92rem;margin:4px 0 8px">ลองเลื่อนค่าดูว่าเมื่อไรที่ t-test จะ "จับได้" ว่าโมเดลเพี้ยน</p>
+    <div class="controls">
+      <div class="ctl"><label>turnaround จริง (นาที/คัน)</label><input type="range" id="tReal" min="20" max="70" step="1" value="38" oninput="updVals()"> <span class="val" id="vReal">38</span></div>
+      <div class="ctl"><label>turnaround ของโมเดล</label><input type="range" id="tModel" min="20" max="70" step="1" value="34" oninput="updVals()"> <span class="val" id="vModel">34</span></div>
+      <div class="ctl"><label>ส่วนเบี่ยงเบนมาตรฐาน</label><input type="range" id="tSd" min="4" max="30" step="1" value="12" oninput="updVals()"> <span class="val" id="vSd">12</span></div>
+      <div class="ctl"><label>จำนวนรถที่มีข้อมูลจริง (คัน)</label><input type="range" id="tN" min="5" max="200" step="5" value="40" oninput="updVals()"> <span class="val" id="vN">40</span></div>
+    </div>
+    <button class="act teal" onclick="runTtest()">▶ ทดสอบ t-test</button>
+    <div class="statgrid" id="ttStats" style="display:none">
+      <div class="stat"><div class="k" id="ttDiff">—</div><div class="l">ผลต่าง (นาที/คัน)</div></div>
+      <div class="stat a"><div class="k" id="ttT">—</div><div class="l">ค่า t</div></div>
+      <div class="stat c"><div class="k" id="ttP">—</div><div class="l">p-value (โดยประมาณ)</div></div>
+      <div class="stat b"><div class="k" id="ttCI">—</div><div class="l">CI 95% ของผลต่าง</div></div>
+    </div>
+    <div class="note tip" id="ttMsg" style="display:none"></div>
+    <div class="note ask" style="margin-top:10px">
+      <span class="lb">ลองทำสิ่งนี้</span>
+      คงค่าไว้ที่ โมเดล 34 · จริง 38 · SD 12 แล้วเลื่อนเฉพาะ <strong>จำนวนข้อมูล</strong> จาก 5 ไป 200 ทีละขั้น — จับตาที่ผลต่างกับ p-value
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <h3 style="margin-top:0">📊 วิธีที่ 1 — ทำ t-test ใน Excel</h3>
+<pre><span class="c">' ข้อมูล: A2:A121 = turnaround จาก log จริง 120 คัน · B2:B1001 = ผลโมเดล</span>
+<span class="c">' ตั้งชื่อเซลล์ไว้ก่อน: vA,vB = VAR.S ของแต่ละกลุ่ม · nA,nB = COUNT ของแต่ละกลุ่ม</span>
+
+p-value  =T.TEST(A2:A121, B2:B1001, <span class="s">2</span>, <span class="s">3</span>)          <span class="c">' 2 = สองหาง · 3 = Welch</span>
+ผลต่าง    =AVERAGE(A2:A121) - AVERAGE(B2:B1001)
+SE       =SQRT(vA/nA + vB/nB)
+df       =(vA/nA+vB/nB)^<span class="s">2</span> / ((vA/nA)^<span class="s">2</span>/(nA-<span class="s">1</span>) + (vB/nB)^<span class="s">2</span>/(nB-<span class="s">1</span>))
+CI ล่าง   =ผลต่าง - T.INV.2T(<span class="s">0.05</span>, df) * SE
+CI บน     =ผลต่าง + T.INV.2T(<span class="s">0.05</span>, df) * SE</pre>
+    <div class="note tip" style="margin-top:8px">
+      <span class="lb">ทางลัด</span>
+      <code>Data → Data Analysis → t-Test: Two-Sample Assuming Unequal Variances</code> ให้ t · df · p ในตารางเดียว ไม่ต้องพิมพ์สูตร — แต่<strong>ไม่ให้ช่วงความเชื่อมั่น</strong> จึงยังต้องคำนวณ 3 บรรทัดล่างเอง
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">🐍 วิธีที่ 2 — ทำ t-test ใน Python</h3>
+    <p style="font-size:.92rem;margin:4px 0 8px">ให้ผลตรงกับสูตร Excel ข้างบนทุกตัวเลข · <code>equal_var=False</code> คือตัวเดียวกับอาร์กิวเมนต์ <code>3</code> ใน <code>T.TEST</code></p>
+<pre><span class="k">from</span> scipy <span class="k">import</span> stats
+
+res = stats.ttest_ind(real_time, model_time, equal_var=<span class="k">False</span>)   <span class="c"># Welch = T.TEST(...,2,3)</span>
+ci  = res.confidence_interval(<span class="s">0.95</span>)
+
+<span class="k">print</span>(<span class="s">f"t = {res.statistic:.3f} · p = {res.pvalue:.4f}"</span>)
+<span class="k">print</span>(<span class="s">f"CI 95% ของผลต่าง = [{ci.low:.2f}, {ci.high:.2f}]"</span>)
+<span class="k">print</span>(<span class="s">"✅ ยังไม่พบว่าต่างกัน"</span> <span class="k">if</span> res.pvalue &gt; <span class="s">0.05</span> <span class="k">else</span> <span class="s">"⚠️ ต่างอย่างมีนัยสำคัญ ต้องแก้โมเดล"</span>)</pre>
+    <div class="note warn" style="margin-top:8px">
+      <span class="lb">อย่าอ่านแค่ p</span>
+      บรรทัด <code>ci</code> มีไว้โดยตั้งใจ — เพราะ p = 0.31 ที่มาจากข้อมูล 5 ใบ กับ p = 0.31 ที่มาจากข้อมูล 500 ใบ มีน้ำหนักต่างกันคนละเรื่อง แต่ตัว p เองไม่บอกเรา · <strong>ช่วงความเชื่อมั่นบอก</strong><br>
+      <span style="font-size:.9em">💡 ถ้า <code>confidence_interval()</code> ใช้ไม่ได้ แปลว่า scipy เก่ากว่า 1.11 — ให้รัน <code>!pip install -U scipy</code> ใน Colab ก่อน</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== S7 SENSITIVITY ===================== -->
+<section id="s8">
+  <h2><span class="num">8</span> Sensitivity — ปิดท้าย Validation ด้วยการทดสอบว่าข้อสรุปทนแค่ไหน</h2>
+  <p class="lead">คำถามที่ผู้บริหารจะถามแน่นอน: "ถ้าสมมติฐานของคุณผิดล่ะ คำตอบจะเปลี่ยนไหม"</p>
+
+  <div class="card" style="border-top:4px solid var(--amber)">
+    <h3 style="margin-top:0">📐 3 คำถาม sensitivity ที่ต้องตอบทุกโครงการ</h3>
+    <p style="font-size:.92rem;color:var(--muted);margin:4px 0 10px">ทุกข้อต้องรัน <strong>หลายรอบ (อย่างน้อย 20 รอบ)</strong> ทั้งสองเงื่อนไข แล้วเทียบ<strong>ค่าเฉลี่ย</strong> — ไม่ใช่รันรอบเดียวแล้วอ่านตัวเลข</p>
+
+    <table class="tbl">
+      <tr><th style="width:4%">#</th><th style="width:26%">คำถาม</th><th style="width:26%">ทำยังไงกับโมเดล dock</th><th>ตัวอย่างสิ่งที่จะเจอ</th></tr>
+      <tr><td class="rowlab">1</td>
+          <td><strong>ถ้าปริมาณงานเพิ่ม/ลด 20% ข้อสรุปยังเหมือนเดิมไหม</strong></td>
+          <td>ปรับ <code>IAT_PM</code> จาก 6 เป็น 5 — <strong>ช่วงบ่าย</strong>รถเข้าถี่ขึ้น 20% (ทั้งกะเพิ่มจริง ~12%: 64 → 71 คัน) · รันชุด seed เดียวกัน 20 รอบ · <strong>สำคัญ: ต้องรันครบทั้ง A/B/C ทั้งสองระดับ</strong> แล้วเทียบ<strong>ต้นทุนรวม</strong> ไม่ใช่ดูแค่เวลารอของ A อย่างเดียว</td>
+          <td><strong>ต้นทุนรวม/กะ (ค่าปรับ + ค่าแรง)</strong>
+            <table class="tbl" style="margin:6px 0">
+              <tr><th style="width:34%">รถเข้าบ่าย</th><th>A: 3 ช่อง</th><th>B: 4 ช่องทั้งกะ</th><th>C: เปิดช่อง 4 ที่ 240</th></tr>
+              <tr><td>ปกติ (IAT_PM=6)</td><td>38,700</td><td>6,800</td><td><b style="color:var(--teal)">6,500</b></td></tr>
+              <tr><td>+20% (IAT_PM=5)</td><td>88,200</td><td><b style="color:var(--teal)">21,500</b></td><td>22,900</td></tr>
+            </table>
+            อ่านผลเป็น 3 ชั้น: ① ข้อสรุปหลัก <strong>"ต้องเปิดช่องที่ 4" ไม่พลิก</strong> — A แพ้ขาดทั้งสองระดับ · ② แต่ <strong>B กับ C สลับกัน</strong> — เดิมแยกไม่ออก พอรถเพิ่ม B ชนะชัดเจน เพราะ C ปล่อยให้เช้าเดิน 3 ช่อง งานค้างถึงบ่ายหนักเกินกว่าจะตามทัน · ③ <strong>จุดที่พลิกจริง</strong> — ที่ระดับนี้ <strong>4 ช่องก็ยังโหลด 110%</strong> ค่าปรับเหลือ ~17,800 ทั้งที่ 5 ช่องเหลือแค่ ~1,900 → ประโยคใน memo ต้องเปลี่ยนจาก "เปิดช่องที่ 4" เป็น <strong>"4 ช่องไม่พอ ต้องพิจารณาช่องที่ 5"</strong><br>
+            👉 <strong>นี่คือความต่างระหว่าง "ตัวเลขเปลี่ยน" กับ "ข้อสรุปพลิก"</strong> — ค่าปรับบานกว่าเท่าตัวยังไม่ใช่การพลิก แต่การที่ทางเลือกที่ดีที่สุดกลายเป็นคนละตัว คือการพลิก</td></tr>
+      <tr><td class="rowlab">2</td>
+          <td><strong>ตัวแปรไหนที่ผลไวที่สุด และเรามั่นใจกับมันแค่ไหน</strong></td>
+          <td>ขยับพารามิเตอร์ในโค้ดหลักทีละตัว (เช่น <code>SVC</code>, <code>IAT_PM</code>) ด้วย seed เดิม · แล้วเอาผลไปเทียบกับคอลัมน์ "ความมั่นใจ" ในตารางข้อมูลนำเข้า (หัวข้อ 9 ขั้นที่ 2)</td>
+          <td>ขอบบนของ <code>SVC</code> 34 → 40 นาที: เวลาขนถ่ายเฉลี่ยขยับแค่ 9% แต่ <strong>turnaround พุ่งจาก ~39 เป็น ~46 นาที (+18%)</strong> · <strong>และต้องทดสอบให้ถึง 50 นาทีด้วย</strong> เพราะข้อมูลจริงในหัวข้อ 9 มีคันที่ใช้เวลา <strong>50.5 นาที</strong> → ที่ขอบบน 50 turnaround กลายเป็น ~56 นาที (<strong>+44%</strong>) และค่าปรับกระโดดเป็น <strong>3 เท่า</strong> · ค่า 34 มาจากการจับเวลาแค่ 40 คัน คือ<strong>ไวมาก + มั่นใจต่ำ</strong> → ต้องไปจับเวลาเพิ่มก่อนตัดสินใจ ไม่ใช่เดาต่อไป</td></tr>
+      <tr><td class="rowlab">3</td>
+          <td><strong>สถานการณ์อะไรจะทำให้ข้อเสนอนี้ผิด</strong></td>
+          <td>เขียนล่วงหน้าเป็น<strong>เงื่อนไขทบทวน</strong> — ถ้าเกิดเหตุการณ์นี้เมื่อไร ต้องกลับมารันใหม่</td>
+          <td>ถ้าลูกค้าต่อรอง<strong>เกณฑ์ค่าปรับจาก 45 เหลือ 40 นาที</strong> — ไม่ต้องแก้โมเดลแม้แต่บรรทัดเดียว แต่รถที่ผิดเกณฑ์ขยับจาก <strong>~30% เป็น ~36%</strong> และค่าปรับจาก <strong>~39,900 เป็น ~45,900 บาท/กะ (+15%)</strong> ทันที · สังเกตว่า <strong>"%รถ" ดูน่าตกใจกว่า "ตัวเงิน"</strong> — ระดับนี้ยังไม่พลิกลำดับ A/B/C แต่ต้องรายงานไว้ เพราะ<strong>เงื่อนไขสัญญาเป็นตัวแปรที่เราคุมไม่ได้</strong></td></tr>
+    </table>
+
+  </div>
+</section>
+
+<!-- ===================== S8 LAB ===================== -->
+<section id="s9">
+  <h2><span class="num">9</span> Lab รวมทั้งห้อง — Validate "คลัง A" ไปพร้อมกัน</h2>
+  <p class="lead">คาบนี้เราไม่แยกกันทำ · <strong>ทั้งห้องใช้ข้อมูลชุดเดียวกัน อาจารย์ทำนำทีละขั้นบนจอ นักศึกษาทำตามใน Colab ของกลุ่ม</strong> — จบแต่ละขั้นหยุดเฉลยพร้อมกันก่อนไปขั้นต่อไป</p>
+
+  <div class="note tip">
+    <span class="lb">📦 ข้อมูล "ของจริง" ที่ใช้ในคาบนี้ — อาจารย์แจกให้ ไม่ต้องออกไปเก็บเอง</span>
+    ในชีวิตจริง Validation ต้องใช้ข้อมูลจากคลังจริง ซึ่งเราเข้าไปเก็บไม่ได้ในคาบเรียน · <strong>อาจารย์จึงเตรียม "คลังเสมือนจริง" ไว้ให้</strong> — คาบนี้ทั้งห้องใช้<strong>คลัง A</strong> ร่วมกัน 3 ไฟล์
+    <table class="tbl" style="margin-top:10px">
+      <tr><th style="width:36%">ไฟล์</th><th style="width:26%">เทียบเท่ากับอะไรในโลกจริง</th><th>ใช้ในขั้นไหน</th></tr>
+      <tr><td><code>บทสัมภาษณ์หัวหน้าคลัง_กลุ่มA.pdf</code></td><td>ลงพื้นที่ไปคุยกับหัวหน้ากะ</td><td><strong>ขั้นที่ 1</strong> — Conceptual / Face validity</td></tr>
+      <tr><td><code>จับเวลาขนถ่าย_กลุ่มA.csv</code></td><td>จับเวลาขนถ่ายหน้างาน 40 คัน</td><td><strong>ขั้นที่ 2</strong> — Data validity</td></tr>
+      <tr><td><code>log_ประตู_กลุ่มA.csv</code></td><td>ขอ log ประตูย้อนหลัง 20 วันทำการ (1,300 คัน)</td><td><strong>ขั้นที่ 2–3</strong> — Data / Operational validity</td></tr>
+    </table>
+    <div style="margin-top:10px">
+      <strong>วิธีโหลดเข้า Colab:</strong> กดปุ่มด้านล่างเพื่อโหลดไฟล์จาก Google Drive → ใน Colab กดไอคอน 📁 ด้านซ้าย → ลากไฟล์ทั้ง 2 CSV เข้าไป → อ่านด้วย <code>pd.read_csv("log_ประตู_กลุ่มA.csv")</code>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px" class="pdf-skip">
+        <button class="act teal" onclick="window.open('https://drive.google.com/drive/folders/1mtvfbYY-aKGoGLI7tSJDcyD3esdAOd9N?usp=sharing','_blank')">📁 เปิดโฟลเดอร์ข้อมูลใน Google Drive</button>
+        <button class="act" onclick="window.open('https://colab.research.google.com','_blank')">🚀 เปิด Google Colab</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="note warn">
+    <span class="lb">📌 ทุกขั้นตรวจบน "สถานการณ์เริ่มต้น" เท่านั้น</span>
+    <strong>3 ช่อง (BASE_DOCKS = 3) · ไม่มีทีมเสริม (EXTRA_FROM = None)</strong> · เช้า 10 นาที/คัน · บ่าย 6 นาที/คัน · กะ 480 นาที · ขนถ่าย Triangular(12, 20, 34)<br>
+    การเปลี่ยนเป็น 4 ช่อง หรือแก้พารามิเตอร์เพื่อทดสอบ เป็นแค่<strong>เครื่องมือตรวจ</strong> — ตรวจเสร็จให้ตั้งค่ากลับมาที่สถานการณ์เริ่มต้นเสมอ ก่อนบันทึกตัวเลข
+  </div>
+
+  <div class="note warn" style="border-left-color:var(--purple)">
+    <span class="lb">⚠️ กติกาของคาบนี้</span>
+    คลัง A <strong>ต่างจากโมเดลอย่างน้อย 1 จุด</strong> และไม่มีใครบอกว่าจุดไหน — งานของเราคือ<strong>หาให้เจอด้วยหลักฐาน</strong> ไม่ใช่จูนตัวเลขจนกราฟทับกัน<br>
+    <strong>ห้ามข้ามไปขั้นถัดไปก่อนเฉลย</strong> — ลำดับของ 3 ขั้นนี้คือหัวใจ ถ้าดูผล t-test ก่อนดู histogram เราจะสรุปผิดทั้งคาบ
+  </div>
+
+  <!-- ========== ขั้นที่ 1 ========== -->
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">ขั้นที่ 1 · Conceptual validity — อ่านบทสัมภาษณ์ แล้วจับผิดสมมติฐาน <span class="tag">ทำพร้อมกัน ~20 นาที</span></h3>
+    <p style="font-size:.92rem;margin:4px 0">เปิด <code>บทสัมภาษณ์หัวหน้าคลัง_กลุ่มA.pdf</code> อ่านให้จบก่อน 1 รอบ · จากนั้น<strong>แต่ละกลุ่มเติมช่องกลางด้วยคำพูดของหัวหน้าคลังเท่านั้น</strong> (ห้ามเดาเอง) แล้วเติมช่องขวาว่ากระทบผลอย่างไร</p>
+    <div class="note tip" style="margin:8px 0 12px">
+      <span class="lb">อ่านบทสัมภาษณ์อย่างไรให้ได้ของ</span>
+      หัวหน้าคลัง<strong>ไม่รู้ว่าโมเดลเราสมมติอะไร</strong> เขาจึงไม่ได้ตั้งใจบอกว่าเราผิดตรงไหน — วิธีอ่านคือ<strong>เอาสมมติฐานทีละข้อไปหาว่ามีประโยคไหนขัดกับมันบ้าง</strong> · ประโยคที่เขาพูดผ่าน ๆ อย่าง <em>"ก็แล้วแต่คันนะ"</em> มักคือจุดที่โมเดลพัง
+    </div>
+    <table class="tbl">
+      <tr><th style="width:34%">สมมติฐานของโมเดล</th><th style="width:33%">หัวหน้าคลังบอกว่าของจริงเป็นอย่างไร</th><th>ถ้าต่างกัน กระทบผลแค่ไหน</th></tr>
+      <tr><td>รถทุกคันใช้เวลาขนถ่ายจากการแจกแจงเดียวกัน</td><td><input data-lab="v1"></td><td><input data-lab="v2"></td></tr>
+      <tr><td>ช่องขนถ่ายทำงานต่อเนื่องตลอด 480 นาที</td><td><input data-lab="v3"></td><td><input data-lab="v4"></td></tr>
+      <tr><td>รถที่มาไม่ทันหมดกะ หายไปจากระบบ</td><td><input data-lab="v5"></td><td><input data-lab="v6"></td></tr>
+      <tr><td>รถมาแบบสุ่มอิสระ เข้าคิวมาก่อนได้ก่อน</td><td><input data-lab="v7"></td><td><input data-lab="v8"></td></tr>
+    </table>
+    <div class="hw-f" style="margin-top:12px">
+      <label>สิ่งที่ "จงใจไม่ใส่" ในโมเดล และเหตุผล <span style="color:var(--red)">*</span></label>
+      <textarea data-dl="excluded" placeholder="เช่น ไม่จำลองเวลายื่นบัตรที่ป้อม เพราะหัวหน้าคลังบอกว่าไม่ถึงนาที · ไม่จำลองของขาดสต็อก เพราะ..."></textarea>
+    </div>
+  </div>
+
+  <!-- ========== ขั้นที่ 2 ========== -->
+  <div class="card" style="border-top:4px solid var(--blue)">
+    <h3 style="margin-top:0">ขั้นที่ 2 · Data validity — เอาข้อมูลจริงมายืนยันข้อสงสัย <span class="tag">ทำพร้อมกัน ~25 นาที</span></h3>
+    <p style="font-size:.92rem;margin:4px 0 10px">รันทีละบล็อก · อาจารย์ฉายผลบนจอแล้วถามทั้งห้องว่า "เห็นอะไร" ก่อนเลื่อนไปบล็อกถัดไป</p>
+<pre><span class="c"># ===== 2.1 เวลาขนถ่ายที่โมเดลใช้ สมเหตุสมผลไหม =====</span>
+<span class="k">import</span> pandas <span class="k">as</span> pd, numpy <span class="k">as</span> np, matplotlib.pyplot <span class="k">as</span> plt
+
+svc = pd.read_csv(<span class="s">"จับเวลาขนถ่าย_กลุ่มA.csv"</span>)
+svc_real = svc[<span class="s">"เวลาขนถ่าย (นาที)"</span>]
+
+plt.hist(svc_real, bins=<span class="s">12</span>)
+plt.title(<span class="s">"unloading time (real, n=40)"</span>); plt.xlabel(<span class="s">"minutes"</span>); plt.show()
+
+<span class="k">print</span>(<span class="s">f"จริง: ต่ำสุด {svc_real.min():.1f} · เฉลี่ย {svc_real.mean():.1f} · สูงสุด {svc_real.max():.1f}"</span>)
+<span class="k">print</span>(<span class="s">f"โมเดลใช้: Triangular{SVC} → ช่วง {SVC[0]}–{SVC[2]} เฉลี่ย {sum(SVC)/3:.1f}"</span>)</pre>
+    <div class="note tip" style="margin:10px 0">
+      <span class="lb">👀 สิ่งที่ทั้งห้องควรเห็นในบล็อก 2.1</span>
+      <strong>ค่าเฉลี่ยจริง 22.9 นาที ≈ โมเดล 22.0 นาที — ตรงกันแทบเป๊ะ</strong> · แต่พอดูรูป จะเห็นข้อมูล<strong>แยกเป็น 2 ก้อนชัดเจน</strong> ก้อนแรก 12–23 นาที (30 คัน) ก้อนที่สอง 34–51 นาที (10 คัน) และ<strong>ไม่มีคันไหนอยู่ระหว่าง 23–34 นาทีเลย</strong><br>
+      👉 ค่าสูงสุดจริง 50.5 นาที <strong>ทะลุขอบบนของ Triangular(12, 20, 34)</strong> ไปไกล — แปลว่าโมเดลสร้างเวลาแบบนี้ไม่ได้เลยแม้แต่ครั้งเดียว
+    </div>
+<pre><span class="c"># ===== 2.2 รูปแบบรถเข้า ตรงกับ IAT_AM / IAT_PM / NOON ไหม =====</span>
+log_real = pd.read_csv(<span class="s">"log_ประตู_กลุ่มA.csv"</span>)
+t = pd.to_datetime(log_real[<span class="s">"เวลาเข้าประตู"</span>], format=<span class="s">"%H:%M"</span>)
+log_real[<span class="s">"นาทีที่เข้า"</span>] = (t.dt.hour-<span class="s">8</span>)*<span class="s">60</span> + t.dt.minute       <span class="c"># 08:00 = นาทีที่ 0</span>
+
+n_day = log_real.groupby(<span class="s">"วันที่"</span>).size()
+<span class="k">print</span>(<span class="s">f"รถเข้าจริงเฉลี่ย {n_day.mean():.1f} คัน/วัน"</span>)
+
+(log_real[<span class="s">"นาทีที่เข้า"</span>]//<span class="s">60</span>).value_counts().sort_index().div(<span class="s">20</span>).plot(kind=<span class="s">"bar"</span>)
+plt.title(<span class="s">"Arrivals per hour"</span>)
+plt.xlabel(<span class="s">"hour of shift (0 = 08:00)"</span>); plt.ylabel(<span class="s">"trucks per day"</span>)
+plt.show()      <span class="c"># ตั้งชื่อแกนเป็นอังกฤษ ไม่งั้น matplotlib จะขึ้นชื่อคอลัมน์ภาษาไทยเป็นสี่เหลี่ยม</span>
+
+<span class="c"># ===== 2.3 ข้อมูลครบไหม =====</span>
+<span class="k">print</span>(log_real[<span class="s">"เวลาออก"</span>].isna().sum(), <span class="s">"แถวไม่มีเวลาออก"</span>)</pre>
+    <div class="note tip" style="margin:10px 0">
+      <span class="lb">👀 สิ่งที่ทั้งห้องควรเห็นในบล็อก 2.2–2.3</span>
+      รถเข้า <strong>65 คัน/วัน</strong> · เช้าราว 6.3 คัน/ชม. (≈ ทุก 9.5 นาที ✓ ตรงกับ IAT_AM = 10) · บ่ายราว 10 คัน/ชม. (≈ ทุก 6 นาที ✓ ตรงกับ IAT_PM = 6) · อัตราเปลี่ยนราวเที่ยงพอดี ✓ · <strong>ไม่มีแถวข้อมูลหาย</strong> ✓<br>
+      👉 <strong>ด่านนี้ผ่านหมด</strong> — สรุปได้ว่าปัญหาของคลัง A ไม่ได้อยู่ที่รูปแบบการมาถึงหรือความครบของข้อมูล แต่<strong>อยู่ที่เวลาขนถ่ายอย่างเดียว</strong> (ตรงกับที่หัวหน้าคลังพูดเรื่องรถพ่วง)
+    </div>
+    <p style="font-size:.92rem;margin:12px 0 4px"><strong>บันทึกที่มาของทุกตัวเลขที่ป้อนเข้าโมเดล</strong> — ต้องตอบได้ว่า "เอามาจากไหน" และ "มั่นใจแค่ไหน" · ตอบว่า "เดาเอา" ได้ ถ้าเขียนอย่างซื่อสัตย์</p>
+    <table class="tbl">
+      <tr><th style="width:28%">ตัวแปรนำเข้า</th><th style="width:28%">การแจกแจง / ค่าที่ใช้</th><th style="width:24%">ที่มา</th><th style="width:20%">ความมั่นใจ</th></tr>
+      <tr><td><input type="text" data-dl="in1" placeholder="เช่น ระยะห่างรถเข้า (เช้า)"></td><td><input type="text" data-dl="in1_d" placeholder="Exponential mean 10 นาที"></td><td><input type="text" data-dl="in1_s" placeholder="log ประตู 20 วัน"></td><td><input type="text" data-dl="in1_c" placeholder="สูง / กลาง / ต่ำ"></td></tr>
+      <tr><td><input type="text" data-dl="in2" placeholder="เช่น ระยะห่างรถเข้า (บ่าย)"></td><td><input type="text" data-dl="in2_d" placeholder="Exponential mean 6 นาที"></td><td><input type="text" data-dl="in2_s" placeholder="log ประตู 20 วัน"></td><td><input type="text" data-dl="in2_c" placeholder=""></td></tr>
+      <tr><td><input type="text" data-dl="in3" placeholder="เช่น เวลาขนถ่าย/คัน"></td><td><input type="text" data-dl="in3_d" placeholder="Triangular(12, 20, 34)"></td><td><input type="text" data-dl="in3_s" placeholder="จับเวลา 40 คัน"></td><td><input type="text" data-dl="in3_c" placeholder=""></td></tr>
+      <tr><td><input type="text" data-dl="in4" placeholder="เช่น สัดส่วนรถพ่วง"></td><td><input type="text" data-dl="in4_d" placeholder="__% ของรถทั้งหมด"></td><td><input type="text" data-dl="in4_s" placeholder="บทสัมภาษณ์ + histogram"></td><td><input type="text" data-dl="in4_c" placeholder=""></td></tr>
+    </table>
+  </div>
+
+  <!-- ========== ขั้นที่ 3 ========== -->
+  <div class="card" style="border-top:4px solid var(--purple)">
+    <h3 style="margin-top:0">ขั้นที่ 3 · Operational validity — เทียบผลกับ log ประตูจริง <span class="tag">ทำพร้อมกัน ~25 นาที</span></h3>
+    <div class="note tip" style="margin:4px 0 10px">
+      <span class="lb">เทียบ "ค่าเฉลี่ยรายวัน" ไม่ใช่ "รายคัน"</span>
+      รถในวันเดียวกันติดคิวเดียวกัน ตัวเลขจึงไม่อิสระต่อกัน — ถ้าเอาไปเข้า t-test รายคัน n จะพองเป็นพันแล้ว p จะเล็กจนไร้ความหมาย<br>
+      วิธีที่ถูกคือ <strong>1 วัน = 1 ข้อมูล</strong> → ของจริงได้ 20 ค่า (log 20 วัน) · โมเดลรัน 20 รอบ (เปลี่ยน seed) ได้อีก 20 ค่า → t-test 20 vs 20
+    </div>
+<pre><span class="c"># ===== 3.1 รันโมเดล 20 รอบ = 20 "วัน" (ห่อโค้ดครั้งที่ 4 เป็นฟังก์ชัน) =====</span>
+<span class="k">def</span> run_one(seed):
+    <span class="k">global</span> log, n_arrived
+    random.seed(seed)
+    log = []; n_arrived = <span class="s">0</span>
+    env  = simpy.Environment()
+    dock = simpy.Resource(env, capacity=BASE_DOCKS)
+    env.process(arrivals(env, dock))
+    env.run()                      <span class="c"># ⚠️ ไม่ใส่ until=SHIFT — ให้รถที่เข้ามาก่อนหมดกะขนถ่ายจนเสร็จ (OT)</span>
+    <span class="k">return</span> pd.DataFrame(log, columns=[<span class="s">"arrive"</span>,<span class="s">"start"</span>,<span class="s">"end"</span>])
+
+model_days = [run_one(<span class="s">42</span>+i) <span class="k">for</span> i <span class="k">in</span> range(<span class="s">20</span>)]
+<span class="k">for</span> d <span class="k">in</span> model_days: d[<span class="s">"ta"</span>] = d[<span class="s">"end"</span>] - d[<span class="s">"arrive"</span>]
+
+<span class="c"># ===== 3.2 turnaround รายวันของ log จริง =====</span>
+tout = pd.to_datetime(log_real[<span class="s">"เวลาออก"</span>], format=<span class="s">"%H:%M"</span>)
+log_real[<span class="s">"ta"</span>] = (tout - t).dt.total_seconds()/<span class="s">60</span>
+
+<span class="c"># ===== 3.3 t-test 2 ชุด: "ช่วงเช้า" และ "ทั้งกะ" =====</span>
+<span class="k">from</span> scipy <span class="k">import</span> stats
+
+<span class="k">def</span> compare(mask_real, mask_model, ชื่อ):
+    real  = log_real[mask_real].groupby(<span class="s">"วันที่"</span>)[<span class="s">"ta"</span>].mean().values
+    model = [d[mask_model(d)][<span class="s">"ta"</span>].mean() <span class="k">for</span> d <span class="k">in</span> model_days]
+    r = stats.ttest_ind(real, model, equal_var=<span class="k">False</span>)
+    <span class="k">print</span>(<span class="s">f"{ชื่อ}: จริง {np.mean(real):.1f} · โมเดล {np.mean(model):.1f} · ต่าง {np.mean(real)-np.mean(model):+.1f} นาที · p = {r.pvalue:.3f}"</span>)
+
+compare(log_real[<span class="s">"นาทีที่เข้า"</span>] &lt; <span class="s">240</span>, <span class="k">lambda</span> d: d[<span class="s">"arrive"</span>] &lt; <span class="s">240</span>, <span class="s">"เฉพาะรถที่เข้าก่อน 12:00"</span>)
+compare(log_real[<span class="s">"นาทีที่เข้า"</span>] &gt;= <span class="s">0</span>,  <span class="k">lambda</span> d: d[<span class="s">"arrive"</span>] &gt;= <span class="s">0</span>,  <span class="s">"ทั้งกะ"</span>)</pre>
+    <div class="note tip" style="margin:10px 0">
+      <span class="lb">ทำไมต้องแยกดู "ช่วงเช้า" ต่างหาก</span>
+      ช่วงบ่ายรถเข้าทุก 6 นาที แต่ 3 ช่องขนถ่ายได้เฉลี่ยคันละ 22 นาที → <strong>งานเข้าเร็วกว่าที่ระบายได้ คิวจึงยาวขึ้นเรื่อย ๆ</strong> ค่าเฉลี่ยทั้งกะเลยแกว่งมากจนแทบตรวจอะไรไม่เจอ · ช่วงเช้าระบบยังนิ่ง ตัวเลขเสถียรกว่ามาก
+    </div>
+    <div class="note warn" style="margin:10px 0;border-left-color:var(--red)">
+      <span class="lb">😲 จุดพลิกของคาบนี้ — สิ่งที่ทั้งห้องจะเห็น</span>
+      <strong>เช้า:</strong> จริง ≈ 28.2 นาที · โมเดล ≈ 25.2 นาที · <strong>p ≈ 0.08 → ไม่ต่างอย่างมีนัยสำคัญ (แต่เฉียด!)</strong><br>
+      <strong>ทั้งกะ:</strong> จริง ≈ 48.1 นาที · โมเดล ≈ 42.3 นาที · <strong>p ≈ 0.16 → ไม่ต่างอย่างมีนัยสำคัญ</strong><br>
+      👉 <strong>t-test ผ่านทั้ง 2 ชุด ทั้งที่เรารู้แน่ ๆ จากขั้นที่ 2 ว่าโมเดลผิด</strong> — ถ้าคาบนี้เราทำแค่ t-test อย่างเดียว เราจะเดินออกจากห้องพร้อมความมั่นใจผิด ๆ · สังเกตด้วยว่าโมเดล<strong>เร็วกว่าจริงทั้ง 2 ชุด</strong> — เบาะแสว่ามีบางอย่างที่โมเดลมองไม่เห็น (รถพ่วงที่ขนถ่ายนานจากขั้นที่ 2 นั่นเอง)<br>
+      <em>(ถ้าใช้ seed 42–61 ตามกำหนดและโค้ดตรงกับด้านบน ตัวเลขจะตรงนี้ · ถ้าโค้ดของกลุ่มต่างไปเล็กน้อย ตัวเลขจะเพี้ยนได้ — ดูที่ข้อสรุป ไม่ใช่ทศนิยม)</em>
+    </div>
+    <p style="font-size:.92rem;margin:12px 0 4px"><strong>บันทึกตัวเลขที่ได้</strong> — ทั้งหมดต้องมาจากสถานการณ์เริ่มต้น (3 ช่อง · ไม่มีทีมเสริม · seed 42–61)</p>
+    <div class="hw-grid">
+      <div class="hw-f"><label>turnaround เฉลี่ยจากโมเดล — ทั้งกะ (เฉลี่ย 20 รอบ)</label><input type="text" data-dl="res_rand" placeholder="เช่น 42.3"></div>
+      <div class="hw-f"><label>turnaround เฉลี่ยจาก log จริง — ทั้งกะ (เฉลี่ย 20 วัน)</label><input type="text" data-dl="res_abc" placeholder="เช่น 48.1"></div>
+      <div class="hw-f"><label>p-value — เฉพาะรถที่เข้าก่อน 12:00</label><input type="text" data-dl="res_pct" placeholder="เช่น 0.08"></div>
+      <div class="hw-f"><label>p-value — ทั้งกะ</label><input type="text" data-dl="res_p" placeholder="เช่น 0.16"></div>
+    </div>
+    <div class="note warn" style="margin-top:12px">
+      <span class="lb">บทเรียนที่ต้องจำจากคาบนี้</span>
+      <strong>ค่าเฉลี่ยตรง + t-test ผ่าน ≠ โมเดลถูก</strong> · โมเดลที่ได้ค่าเฉลี่ยใกล้เคียงด้วย<strong>การแจกแจงที่ผิด</strong> จะทำนาย "ค่ากลาง" ได้ดี แต่ทำนาย<strong>เคสแย่ ๆ ที่หาง</strong> — รถที่รอนานผิดปกติ ค่าปรับ งาน OT — ผิดไปหมด · และเคสที่หางนี่แหละคือสิ่งที่ผู้บริหารเอาไปตั้ง KPI<br>
+      และวิธีที่จับมันได้คือวิธีที่<strong>ถูกที่สุด</strong> (อ่านบทสัมภาษณ์ + วาด histogram) ไม่ใช่วิธีที่แพงที่สุด
+    </div>
+  </div>
+
+</section>
+
+<!-- ===================== S9 CLINIC ===================== -->
+<section id="s10">
+  <h2><span class="num">10</span> ตรวจงานตัวเองก่อนส่ง — สรุปผล Validation ของกลุ่ม</h2>
+  <p class="lead">ปิดท้ายคาบ: แต่ละกลุ่มย้อนกลับไปตรวจงานของตัวเอง ด้วยสายตาของคนที่<strong>ไม่อยากเชื่อโมเดลนี้</strong> แล้วสรุปออกมาเป็นรายงานผล Validation</p>
+
+  <div class="card" style="border-top:4px solid var(--red)">
+    <h3 style="margin-top:0">🔍 4 คำถามที่ต้องตอบตัวเองให้ได้ ก่อนกรอกเช็กลิสต์</h3>
+    <p style="font-size:.9rem;color:var(--muted);margin:4px 0 10px">ตอบเป็นข้อ ๆ ในกลุ่ม — ข้อไหนตอบไม่ได้ ห้ามติ๊กเช็กลิสต์ข้อนั้น</p>
+    <table class="tbl">
+      <tr><th style="width:32%">คำถาม</th><th>ตอบให้ได้ว่า</th></tr>
+      <tr><td><strong>① เจออะไรบ้าง</strong></td>
+          <td>คลัง A ต่างจากโมเดลตรงไหน — และ<strong>หลักฐานชิ้นไหน</strong>ที่ทำให้พูดแบบนั้นได้ (histogram? กราฟรถเข้าต่อชั่วโมง? p-value? ประโยคในบทสัมภาษณ์?)</td></tr>
+      <tr><td><strong>② ตกอะไรไปหรือเปล่า</strong></td>
+          <td>ถ้าตรวจแล้ว<strong>ไม่เจออะไรเลย</strong> ให้กลับไปดูว่ายัง<strong>ไม่ได้ตรวจอะไรบ้าง</strong> — เช่น ยังไม่ได้ดูรูปร่างการแจกแจง ยังไม่ได้ดูจำนวนรถต่อวัน ยังไม่ได้เช็กว่าข้อมูลครบไหม</td></tr>
+      <tr><td><strong>③ ถ้าหัวหน้าคลังมานั่งตรงนี้ เขาจะถามอะไร</strong></td>
+          <td>ตั้งคำถามใส่ตัวเองอย่างน้อย <strong>3 ข้อ</strong> จากคำถาม 5 ข้อในหัวข้อ 5 แล้วตอบให้ครบ · <em>ตอบว่า "เดาเอา" ได้ ถ้าบันทึกไว้อย่างซื่อสัตย์ในตารางข้อมูลนำเข้า (หัวข้อ 9 ขั้นที่ 2)</em></td></tr>
+      <tr><td><strong>④ แก้แล้วข้อสรุปทนไหม</strong></td>
+          <td>ถ้าสมมติฐานที่เรายังไม่มั่นใจที่สุดผิด — ข้อสรุปเรื่อง "ควรเพิ่มช่องที่ 4 ไหม" ยังเหมือนเดิมหรือพลิก (ใช้ผล sensitivity จากหัวข้อ 8)</td></tr>
+    </table>
+    <div class="note warn" style="margin-top:10px">
+      <span class="lb">กับดักของการตรวจงานตัวเอง</span>
+      คนเราหาข้อผิดของตัวเองไม่เจอ เพราะเรา<strong>ตรวจในสิ่งที่เราคิดว่าถูกอยู่แล้ว</strong> — วิธีแก้คือให้สมาชิกคนหนึ่งในกลุ่ม<strong>รับบทคนที่ต้องคัดค้านโมเดลนี้ให้ได้</strong> แล้วบังคับตัวเองว่าต้องหาจุดอ่อนให้ได้อย่างน้อย 2 ข้อ ก่อนจะสรุปว่าโมเดลผ่าน
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">✅ เช็กลิสต์ Validation <span class="tag" id="chkCount">0/7</span></h3>
+    <p style="font-size:.9rem;color:var(--muted);margin:4px 0 12px">
+      เช็กลิสต์แยกเป็น 2 ก้อน เพราะเป็นคนละคำถาม — ก้อนแรกถามว่า <strong>"ตรวจครบทุกด้านหรือยัง"</strong> · ก้อนที่สองถามว่า <strong>"ใช้วิธีอะไรเป็นหลักฐาน"</strong><br>
+      ติ๊กเฉพาะข้อที่ <strong>ทำจริงและมีหลักฐาน</strong> — ไม่ใช่ข้อที่ "น่าจะโอเค"
+    </p>
+
+    <div class="chk-head">🎯 ก้อนที่ 1 · ตรวจครบทุกด้านหรือยัง <span class="tag" id="chkCountA">0/3</span></div>
+    <ul class="chk" id="chkListA">
+      <li><input type="checkbox" data-chk="a1"><span><strong>① Conceptual validity</strong> — เขียนสมมติฐานหลักครบทุกข้อ และรู้ว่าข้อไหนผิดแล้วข้อสรุปพลิก</span></li>
+      <li><input type="checkbox" data-chk="a2"><span><strong>② Data validity</strong> — ทุกตัวเลขนำเข้าบอกที่มาได้ และรู้ว่ามั่นใจกับแต่ละตัวแค่ไหน</span></li>
+      <li><input type="checkbox" data-chk="a3"><span><strong>③ Operational validity</strong> — ผลที่โมเดลให้ ใกล้เคียงกับที่ระบบจริงทำได้ (หรือระบุชัดว่ายังไม่มีข้อมูลมาเทียบ)</span></li>
+    </ul>
+
+    <div class="chk-head" style="margin-top:18px">🛠️ ก้อนที่ 2 · ใช้วิธีอะไรเป็นหลักฐาน <span class="tag" id="chkCountB">0/4</span></div>
+    <ul class="chk" id="chkListB">
+      <li><input type="checkbox" data-chk="b1"><span><strong>Face validity</strong> — เอาสมมติฐานทุกข้อไปเทียบกับบทสัมภาษณ์หัวหน้าคลัง (และให้อาจารย์ดูผลที่เป็นรูปธรรม) แล้วไม่มีข้อไหนขัดกับที่เขาเล่า <span class="en">→ ยืนยัน ① และ ③</span></span></li>
+      <li><input type="checkbox" data-chk="b2"><span><strong>ตามรอยที่มาข้อมูล + histogram</strong> — เปิด log จริง ดูรูปร่างการแจกแจง ไม่ใช้ค่าเฉลี่ยแทนการแจกแจง <span class="en">→ ยืนยัน ②</span></span></li>
+      <li><input type="checkbox" data-chk="b3"><span><strong>t-test เทียบข้อมูลจริง</strong> — เทียบค่าเฉลี่ยรายวันของโมเดล 20 รอบ กับ log ประตูจริง 20 วัน ทั้งช่วงเช้าและทั้งกะ <span class="en">→ ยืนยัน ③</span></span></li>
+      <li><input type="checkbox" data-chk="b4"><span><strong>Sensitivity analysis</strong> — เปลี่ยนสมมติฐานสำคัญแล้วดูว่าข้อสรุปพลิกไหม อย่างน้อย 2 ตัวแปร <span class="en">→ ยืนยัน ①</span></span></li>
+    </ul>
+
+    
+    <div class="note tip" id="chkMsg" style="display:none"><span class="lb">ครบ 7 ข้อ! 🏆</span>กระบวนการ Validation ครบถ้วนแล้ว — ตรวจครบทุกด้าน มีหลักฐานทุกวิธี และ<strong>รู้ชัดว่าโมเดลยังไม่ผ่านตรงไหน</strong> · ครั้งหน้า (ครั้งที่ 6) เราจะแก้โมเดลตามหลักฐานที่เจอวันนี้ รันซ้ำหลายรอบ สร้างช่วงความเชื่อมั่น แล้วตัดสินใจเรื่องช่องที่ 4 อย่างมีหลักฐาน</div>
+  </div>
+
+  <!-- ===== สรุปผลการตรวจ + ส่งออกรายงาน ===== -->
+  <div class="card" style="border-top:4px solid var(--navy)" id="dlBox">
+    <h3 style="margin-top:0">📝 สรุปผลการตรวจของกลุ่ม</h3>
+    <p style="font-size:.92rem;color:var(--muted);margin:4px 0 10px">
+      ช่องนี้คือผลจากการตรวจงานตัวเองข้างบน — เขียนตามที่ตรวจเจอจริง ๆ · <strong>ระบบบันทึกอัตโนมัติในเบราว์เซอร์เครื่องนี้</strong>
+    </p>
+
+    <div class="hw-f">
+      <label>จุดที่โมเดลยัง <b>ไม่ผ่าน</b> หรือยังไม่ได้ตรวจ (ต้องเขียนอย่างซื่อสัตย์) <span style="color:var(--red)">*</span></label>
+      <textarea data-dl="notdone"></textarea>
+    </div>
+
+    <div class="note tip">
+      <span class="lb">เขียนข้อจำกัดเองก่อนที่คนอื่นจะจับได้</span>
+      กลุ่มที่บอกเองว่า "ตรงนี้เรายังไม่ได้ตรวจ" ดูน่าเชื่อถือกว่ากลุ่มที่บอกว่าทุกอย่างเรียบร้อย — เพราะไม่มีโมเดลไหนเรียบร้อยจริง
+    </div>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--teal)">
+    <h3 style="margin-top:0">📤 ส่งออกรายงานผล Validation</h3>
+    <p style="font-size:.92rem;color:var(--muted);margin:4px 0 10px">
+      ระบบจะรวมทุกอย่างที่กรอกไว้ในหัวข้อ 9 และ 10 — สมมติฐาน · ตารางข้อมูลนำเข้า · ตัวเลขผลลัพธ์ · เช็กลิสต์ 9 ข้อ · จุดที่ยังไม่ผ่าน — เป็นไฟล์เดียวสำหรับส่งอาจารย์
+    </p>
+    <div class="dl-grid2">
+      <div class="hw-f"><label>กลุ่มที่</label><input type="text" data-dl="group" placeholder="เช่น กลุ่ม 3"></div>
+      <div class="hw-f"><label>สมาชิกในกลุ่ม</label><input type="text" data-dl="members" placeholder="ชื่อ–รหัส คั่นด้วยจุลภาค"></div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px" class="pdf-skip">
+      <button class="act teal" onclick="exportValidationWord()">📝 ส่งออกเป็นไฟล์ Word (.doc)</button>
+      <button class="act amber" onclick="exportValidationPDF()">🖨️ ส่งออก / พิมพ์เป็น PDF</button>
+      <span class="savemark" id="dlSaved" style="align-self:center">บันทึกอัตโนมัติ</span>
+    </div>
+  </div>
+
+  <div class="note warn">
+    <span class="lb">ข้อควรจำที่สำคัญที่สุดของคาบนี้</span>
+    <strong>ไม่มีโมเดลไหน "valid" 100%</strong> — คำถามที่ถูกต้องคือ <em>"valid พอสำหรับการตัดสินใจครั้งนี้ไหม"</em> ·
+    โมเดลหยาบ ๆ ที่รู้ขีดจำกัดตัวเอง มีประโยชน์กว่าโมเดลละเอียดที่อวดอ้างเกินจริง
+  </div>
+</section>
+
+<!-- ===================== S10 QUIZ ===================== -->
+<section id="s11">
+  <h2 class="pdf-skip"><span class="num">11</span> Quiz ทบทวน 10 ข้อ</h2>
+  <p class="lead pdf-skip">ตอบครบทุกข้อแล้วระบบจะสรุปคะแนนและส่งเข้า Google Form อัตโนมัติ (ต้องเช็คชื่อก่อน)</p>
+
+  <div class="quiz pdf-skip" id="quiz"></div>
+  <div class="scoreband" id="scoreband"></div>
+  <div class="qz-submit-wrap" id="qzSubmitWrap">
+    <button class="act teal" id="qz_btn" onclick="submitQuizScore()">📤 ส่งคะแนนเข้า Google Form</button>
+    <div class="qz-msg" id="qz_msg"></div>
+    <iframe name="qz_target" id="qz_target" style="display:none" title="hidden"></iframe>
+    <form id="qz_form" action="https://docs.google.com/forms/d/e/1FAIpQLSckUVu_AOe9qSlImVmnQ93iUUrz6wlAj8KOxsjNPc-fb3_4sw/formResponse" method="POST" target="qz_target" style="display:none">
+      <input type="hidden" name="entry.1463252013" id="qz_f_student">
+      <input type="hidden" name="entry.1569454509" id="qz_f_score">
+      <input type="hidden" name="fvv" value="1">
+      <input type="hidden" name="pageHistory" value="0">
+    </form>
+  </div>
+
+  <div class="card" style="border-top:4px solid var(--navy);margin-top:26px">
+    <h3 style="margin-top:0">📚 สรุปคาบนี้</h3>
+    <ul style="font-size:.93rem;line-height:1.9">
+      <li><strong>Verification</strong> = โค้ดตรงแบบไหม · <strong>Validation</strong> = แบบตรงความจริงไหม · <strong>Credibility</strong> = คนใช้เชื่อไหม</li>
+      <li><strong>3 validity</strong>: Conceptual (แนวคิด) → Data (ข้อมูลนำเข้า) → Operational (ผลลัพธ์) · <strong>ต้องตรวจตามลำดับนี้</strong></li>
+      <li><strong>Face validity</strong> คือเครื่องมือที่ถูกและเร็วที่สุด — เอาผลที่เป็นรูปธรรมไปให้คนหน้างานดู</li>
+      <li><strong>t-test</strong>: p &gt; 0.05 = ยังไม่พบความต่าง (ไม่ใช่ "โมเดลถูก") · ข้อมูลน้อย = การทดสอบอ่อน</li>
+      <li><strong>Sensitivity</strong>: ถ้าเปลี่ยนสมมติฐานแล้วข้อสรุปพลิก แสดงว่าต้องเก็บข้อมูลเพิ่มก่อนตัดสินใจ</li>
+      <li><strong>ทักษะ Excel ที่ได้</strong>: <code>T.TEST</code> · <code>VAR.S</code>/<code>COUNT</code> · <code>T.INV.2T</code> สำหรับช่วงความเชื่อมั่น · Data Analysis ToolPak</li>
+      <li><strong>ครั้งหน้า (ครั้งที่ 6 — ครั้งสุดท้าย)</strong>: แก้โมเดลตามหลักฐานจากคาบนี้ (แยกรถ 2 ประเภท) · รันซ้ำหลายรอบ · ช่วงความเชื่อมั่น · เปรียบเทียบทางเลือกอย่างมีหลักฐาน · เขียน decision memo เสนอผู้บริหาร</li>
+    </ul>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<div id="pager">
+  <button id="pgPrev" onclick="goPage(-1)">← ก่อนหน้า</button>
+  <div class="pginfo" id="pgInfo"></div>
+  <button id="pgNext" onclick="goPage(1)">ถัดไป →</button>
+</div>
+
+<!-- ===== [PATCH-PDF] กล่องแนะนำวิธีบันทึก PDF ===== -->
+<div id="pdfHint">
+  <div class="box">
+    <h3>📄 บันทึกสื่อการสอนเป็นไฟล์ PDF</h3>
+    <p style="margin:0 0 6px;font-size:.94rem">ระบบจะเปิดหน้าต่างพิมพ์ของเบราว์เซอร์ให้ — ทำตามนี้:</p>
+    <ol>
+      <li>ช่อง <b>ปลายทาง / Destination</b> เลือก <b>“บันทึกเป็น PDF” (Save as PDF)</b></li>
+      <li>เปิด <b>ตัวเลือกเพิ่มเติม → กราฟิกพื้นหลัง (Background graphics)</b> เพื่อให้สีและกล่องโค้ดติดไปด้วย</li>
+      <li>กด <b>บันทึก / Save</b></li>
+    </ol>
+    <p style="margin:0 0 14px;font-size:.88rem;color:var(--muted)">เนื้อหาบรรยาย โค้ดทุกบล็อก ตาราง และโน้ตที่จดไว้ จะถูกรวมไว้ในไฟล์เดียว พร้อมเว้นคอลัมน์ขวาไว้จดโน้ตด้วยลายมือทุกหน้า — ส่วนที่กดโต้ตอบไม่ได้บนกระดาษ (เช็คชื่อ, แผงควบคุม/กราฟที่ต้องกดรัน, เช็กลิสต์ติ๊ก, Quiz) จะไม่ถูกพิมพ์ออกมา</p>
+    <button onclick="doPrint()">🖨️ เปิดหน้าต่างบันทึก PDF</button>
+    <button class="ghost" onclick="closePdfHint()">ยกเลิก</button>
+  </div>
+</div>
+
+<footer>
+  <div>Computer Simulation I · ครั้งที่ 5 จาก 6 — Validation กับโมเดลคิวรถที่ dock · คณะโลจิสติกส์ มหาวิทยาลัยบูรพา</div>
+  <div class="notetools">
+    <button onclick="downloadNotes()">⬇️ ดาวน์โหลดโน้ตทั้งหมด (.txt)</button>
+    <button onclick="clearNotes()">🗑️ ล้างโน้ต</button>
+  </div>
+  <div style="font-size:.8rem;opacity:.85;margin-top:8px;line-height:1.55">
+    💡 โน้ตถูกบันทึกไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น (localStorage) — ถ้าเปลี่ยนเครื่อง เปลี่ยนเบราว์เซอร์ ล้างข้อมูลเบราว์เซอร์ หรือเปิดผ่านแอป LINE/Drive โน้ตอาจหาย<br>
+    <b>ก่อนปิดหน้า ควรกด ⬇️ ดาวน์โหลดโน้ตทั้งหมด (.txt) เก็บไว้ทุกครั้ง</b>
+  </div>
+</footer>
+<script>
+
+/* ============ STORAGE HEALTH + AUTOSAVE FLUSH ============ */
+var LS_OK=(function(){try{var k='__lstest__';localStorage.setItem(k,'1');var v=localStorage.getItem(k);localStorage.removeItem(k);return v==='1';}catch(e){return false;}})();
+var PENDING={};
+function showWarn(id){var el=document.getElementById(id);if(el)el.style.display='block';}
+function lsSet(k,v){try{localStorage.setItem(k,v);return true;}catch(e){LS_OK=false;showWarn('storageWarn');return false;}}
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function flushPending(){for(var k in PENDING){if(Object.prototype.hasOwnProperty.call(PENDING,k))lsSet(k,PENDING[k]);}PENDING={};}
+window.addEventListener('pagehide',flushPending);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')flushPending();});
+window.addEventListener('beforeunload',function(ev){
+  flushPending();
+  if(!LS_OK&&hasAnyNote()){ev.preventDefault();ev.returnValue='';return '';}
+});
+function hasAnyNote(){
+  var found=false;
+  document.querySelectorAll('.notebox textarea, textarea[id^="hw_"]').forEach(function(t){if(t.value&&t.value.trim())found=true;});
+  return found;
+}
+(function(){
+  var ua=navigator.userAgent||'';
+  var inApp=/Line\/|FBAN|FBAV|Instagram|MicroMessenger|KAKAOTALK/i.test(ua);
+  if(!LS_OK)showWarn('storageWarn');
+  else if(inApp)showWarn('inappWarn');
+})();
+
+/* ============ PROGRESS + NAV ============ */
+function updateProgress(){
+  if(document.body.classList.contains('paged')){
+    var pct=(curPage+1)/PAGES.length*100;
+    document.getElementById('progress').style.width=pct+'%';
+  }else{
+    var h=document.documentElement, st=h.scrollTop, sh=h.scrollHeight-h.clientHeight;
+    document.getElementById('progress').style.width=(sh>0?st/sh*100:0)+'%';
+  }
+}
+window.addEventListener('scroll',function(){ if(!document.body.classList.contains('paged'))updateProgress(); });
+
+/* ============ S2: V/V/C ============ */
+var VAL_STEPS=[
+ ['🔧 Verification','<strong>"เราสร้างโมเดลถูกวิธีไหม"</strong> <span class="en">(ครั้งที่ 4)</span> — เทียบ <b>โค้ด ↔ แบบที่ออกแบบ</b> · ตรวจด้วย output check, trace, assert, extreme test, กฎของ Little · ทำได้โดยไม่ต้องมีข้อมูลจริงเลยแม้แต่ค่าเดียว'],
+ ['🌍 Validation','<strong>"เราสร้างโมเดลถูกตัวไหม"</strong> <span class="en">(วันนี้)</span> — เทียบ <b>โมเดล ↔ คลังจริง</b> · ต้องใช้ข้อมูลจริง คนจริง และความเข้าใจระบบจริง · แพงกว่าและช้ากว่า verification มาก แต่ข้ามไม่ได้'],
+ ['🤝 Credibility','<strong>"คนที่ต้องใช้ผล เชื่อเราไหม"</strong> — โมเดลที่ถูกต้องแต่ไม่มีใครเชื่อ ก็ไม่ถูกเอาไปใช้ · สร้างได้ด้วยการให้ผู้ใช้ร่วมตั้งแต่ต้น อธิบายสมมติฐานอย่างโปร่งใส และ<strong>ยอมรับข้อจำกัดของตัวเองก่อนที่คนอื่นจะจับได้</strong>']
+];
+function buildVal(){
+  var box=document.getElementById('valBtns');if(!box)return;
+  VAL_STEPS.forEach(function(c){
+    var b=document.createElement('button');b.textContent=c[0];
+    b.onclick=function(){
+      box.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      document.getElementById('valDesc').innerHTML=c[1];
+    };
+    box.appendChild(b);
+  });
+}
+
+/* ============ S6: T-TEST ============ */
+function updVals(){
+  var r=document.getElementById('tReal');
+  if(!r)return;
+  document.getElementById('vReal').textContent=(+r.value).toFixed(1);
+  document.getElementById('vModel').textContent=(+document.getElementById('tModel').value).toFixed(1);
+  document.getElementById('vSd').textContent=(+document.getElementById('tSd').value).toFixed(1);
+  document.getElementById('vN').textContent=document.getElementById('tN').value;
+}
+/* p-value โดยประมาณจากการแจกแจง t (ใช้ normal approx เมื่อ df ใหญ่) */
+function tCdfApprox(t,df){
+  var x=df/(df+t*t);
+  var a=0.5*ibeta(x,df/2,0.5);
+  return t>0?1-a:a;
+}
+function ibeta(x,a,b){
+  if(x<=0)return 0; if(x>=1)return 1;
+  var lbeta=gammaln(a)+gammaln(b)-gammaln(a+b);
+  var front=Math.exp(Math.log(x)*a+Math.log(1-x)*b-lbeta)/a;
+  var f=1,c=1,d=0,i,m,num;
+  for(i=0;i<=200;i++){
+    m=Math.floor(i/2);
+    if(i===0)num=1;
+    else if(i%2===0)num=(m*(b-m)*x)/((a+2*m-1)*(a+2*m));
+    else num=-((a+m)*(a+b+m)*x)/((a+2*m)*(a+2*m+1));
+    d=1+num*d; if(Math.abs(d)<1e-30)d=1e-30; d=1/d;
+    c=1+num/c; if(Math.abs(c)<1e-30)c=1e-30;
+    f*=c*d;
+    if(Math.abs(1-c*d)<1e-10)break;
+  }
+  return front*(f-1);
+}
+function gammaln(z){
+  var g=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  var x=z,y=z,tmp=x+5.5;tmp-=(x+0.5)*Math.log(tmp);
+  var ser=1.000000000190015;
+  for(var j=0;j<6;j++)ser+=g[j]/++y;
+  return -tmp+Math.log(2.5066282746310005*ser/x);
+}
+function runTtest(){
+  var mReal=+document.getElementById('tReal').value;
+  var mModel=+document.getElementById('tModel').value;
+  var sd=+document.getElementById('tSd').value;
+  var n=+document.getElementById('tN').value;
+  var diff=mReal-mModel;
+  var se=sd*Math.sqrt(2/n);
+  var t=se>0?diff/se:0;
+  var df=2*n-2;
+  var p=2*(1-tCdfApprox(Math.abs(t),df));
+  p=Math.max(0,Math.min(1,p));
+  var tcrit=1.96+2.4/df;
+  var lo=diff-tcrit*se, hi=diff+tcrit*se;
+
+  document.getElementById('ttStats').style.display='grid';
+  document.getElementById('ttDiff').textContent=diff.toFixed(2);
+  document.getElementById('ttT').textContent=t.toFixed(2);
+  document.getElementById('ttP').textContent=(p<0.001?'<0.001':p.toFixed(3));
+  document.getElementById('ttCI').textContent='['+lo.toFixed(2)+', '+hi.toFixed(2)+']';
+
+  var msg=document.getElementById('ttMsg');msg.style.display='block';
+  var pass=p>0.05;
+  msg.className='note '+(pass?'tip':'warn');
+  msg.innerHTML='<span class="lb">'+(pass?'✅ ผ่าน Validation (เบื้องต้น)':'⚠️ ไม่ผ่าน — ต่างอย่างมีนัยสำคัญ')+'</span>'+
+    'จริง '+mReal.toFixed(1)+' นาที vs โมเดล '+mModel.toFixed(1)+' นาที · ต่างกัน '+diff.toFixed(2)+' นาที ('+(mReal?Math.abs(diff/mReal*100).toFixed(0):0)+'%) · p = '+(p<0.001?'<0.001':p.toFixed(3))+
+    '<br>'+(pass
+      ? 'ยังปฏิเสธ H₀ ไม่ได้ → <b>ยังไม่พบหลักฐานว่าโมเดลต่างจากของจริง</b> · แต่ระวัง: ด้วยข้อมูลเพียง '+n+' คัน การทดสอบยัง<b>อ่อน</b> ลองเพิ่ม n ดูว่าผลพลิกไหม'
+      : 'ปฏิเสธ H₀ → โมเดลต่างจากของจริงอย่างมีนัยสำคัญ · <b>อย่าเพิ่งจูนตัวเลข</b> ให้กลับไปถามก่อนว่ามี<b>กิจกรรมอะไรที่โมเดลลืมใส่</b> (conceptual validity)')+
+    '<br><b>ช่วงความเชื่อมั่น 95% ของผลต่าง = ['+lo.toFixed(2)+', '+hi.toFixed(2)+']</b> — '+
+    (lo<=0&&hi>=0?'คร่อม 0 จึงสรุปไม่ได้ว่าต่างกัน':'ไม่คร่อม 0 จึงต่างกันอย่างมีนัยสำคัญ')+
+    ' · ช่วงนี้บอกได้มากกว่า p-value เพราะบอก<b>ขนาดของความต่าง</b>ด้วย';
+}
+
+/* ============ S9: CHECKLIST ============ */
+(function(){
+  var A=document.querySelectorAll('#chkListA input[type=checkbox]');
+  var B=document.querySelectorAll('#chkListB input[type=checkbox]');
+  var TOT=A.length+B.length;
+  function count(list,labelId){
+    var n=0;
+    list.forEach(function(b){
+      b.closest('li').classList.toggle('on',b.checked);
+      if(b.checked)n++;
+    });
+    var el=document.getElementById(labelId);
+    if(el)el.textContent=n+'/'+list.length;
+    return n;
+  }
+  function upd(){
+    var n=count(A,'chkCountA')+count(B,'chkCountB');
+    document.getElementById('chkCount').textContent=n+'/'+TOT;
+    document.getElementById('chkMsg').style.display=(n===TOT)?'block':'none';
+  }
+  [].forEach.call(A,bind); [].forEach.call(B,bind);
+  function bind(b){
+    var key='comsim5_chk_'+b.dataset.chk;
+    try{if(localStorage.getItem(key)==='1')b.checked=true;}catch(e){}
+    b.addEventListener('change',function(){
+      lsSet(key,b.checked?'1':'0');
+      upd();
+    });
+  }
+  upd();
+})();
+
+/* ============ PER-SECTION NOTES ============ */
+var NOTE_PREFIX='comsim5_note_';
+(function(){
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    var id=sec.id;
+    var box=document.createElement('div');box.className='notebox';
+    box.innerHTML='<div class="nhead"><label>📝 โน้ตของฉัน — หัวข้อนี้</label><span class="savemark">ยังไม่บันทึก</span></div><textarea placeholder="จดสิ่งที่ได้เรียนรู้ คำถาม หรือผล validation ของกลุ่ม..."></textarea>';
+    sec.appendChild(box);
+    var ta=box.querySelector('textarea'),mark=box.querySelector('.savemark'),key=NOTE_PREFIX+id;
+    try{var saved=localStorage.getItem(key);if(saved){ta.value=saved;mark.textContent='บันทึกแล้ว ✓';mark.classList.add('ok');}}catch(e){}
+    var tm=null;
+    ta.addEventListener('input',function(){
+      mark.textContent='กำลังพิมพ์...';mark.classList.remove('ok');
+      PENDING[key]=ta.value;
+      clearTimeout(tm);
+      tm=setTimeout(function(){
+        var ok=lsSet(key,ta.value);
+        if(ok){delete PENDING[key];mark.textContent='บันทึกแล้ว ✓';mark.classList.add('ok');}
+        else{mark.textContent='บันทึกไม่ได้ ✗ กรุณาดาวน์โหลดโน้ต';mark.classList.remove('ok');mark.style.color='#d9534f';}
+      },600);
+    });
+  });
+})();
+function downloadNotes(){
+  var out='Computer Simulation I — ครั้งที่ 5 (Validation) — โน้ตของฉัน\nดาวน์โหลดเมื่อ: '+new Date().toLocaleString('th-TH')+'\n\n';
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    var ta=sec.querySelector('.notebox textarea');
+    var title=(sec.querySelector('h2')||{}).textContent||sec.id;
+    if(ta&&ta.value.trim())out+='== '+title.trim()+' ==\n'+ta.value.trim()+'\n\n';
+  });
+  /* รายงานผล Validation */
+  var DL=[['group','กลุ่มที่'],['members','สมาชิกในกลุ่ม'],
+          ['excluded','สิ่งที่จงใจไม่ใส่ในโมเดล'],
+          ['res_rand','turnaround จากโมเดล (ทั้งกะ)'],['res_abc','turnaround จาก log จริง (ทั้งกะ)'],['res_pct','p-value ช่วงเช้า'],['res_p','p-value ทั้งกะ'],
+          ['notdone','จุดที่ยังไม่ผ่าน/ยังไม่ได้ตรวจ']];
+  var dl='';
+  [1,2,3,4].forEach(function(i){
+    var v=dlGet('in'+i); if(!v)return;
+    dl+='- '+v+' | '+dlGet('in'+i+'_d')+' | ที่มา: '+dlGet('in'+i+'_s')+' | มั่นใจ: '+dlGet('in'+i+'_c')+'\n';
+  });
+  if(dl)dl='ข้อมูลนำเข้า\n'+dl+'\n';
+  DL.forEach(function(p){var v=dlGet(p[0]);if(v)dl+=p[1]+':\n'+v+'\n\n';});
+  if(dl)out+='== รายงานผล Validation ครั้งที่ 5 ==\n'+dl;
+  var blob=new Blob([out],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='โน้ต_ComSim_ครั้งที่5.txt';a.click();URL.revokeObjectURL(a.href);
+}
+function clearNotes(){
+  if(!confirm('ล้างโน้ตทุกหัวข้อของครั้งที่ 5?'))return;
+  document.querySelectorAll('.wrap > section').forEach(function(sec){
+    try{localStorage.removeItem(NOTE_PREFIX+sec.id);}catch(e){}
+    var ta=sec.querySelector('.notebox textarea');if(ta)ta.value='';
+    var mk=sec.querySelector('.notebox .savemark');if(mk){mk.textContent='ยังไม่บันทึก';mk.classList.remove('ok');}
+  });
+}
+
+/* ============ DECISION LOG — autosave + export ============ */
+(function(){
+  var mark=document.getElementById('dlSaved');
+  document.querySelectorAll('[data-dl]').forEach(function(el){
+    var key='comsim5_dl_'+el.dataset.dl;
+    var v=lsGet(key); if(v) el.value=v;
+    el.addEventListener('input',function(){
+      lsSet(key,el.value);
+      if(mark){mark.textContent='บันทึกแล้ว ✓';mark.classList.add('ok');}
+    });
+  });
+})();
+function dlGet(k){var el=document.querySelector('[data-dl="'+k+'"]');return el?(el.value||'').trim():'';}
+function dlEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function validationReportHTML(forPdf){
+  /* forPdf = true → เว้นที่ว่างให้เขียนมือ · false (Word) → ใช้เส้นขีดล่าง */
+  var BL = forPdf ? '&nbsp;' : '__________________________________________';
+  function val(k,blank){var v=dlGet(k);return v?dlEsc(v).replace(/\n/g,'<br>'):'<span style="color:#5b6b7b">'+(blank||BL)+'</span>';}
+  var ASSUM=['รถทุกคันใช้เวลาขนถ่ายจากการแจกแจงเดียวกัน','ช่องขนถ่ายทำงานต่อเนื่องตลอด 480 นาที','รถที่มาไม่ทันหมดกะ หายไปจากระบบ','รถมาแบบสุ่มอิสระ เข้าคิวมาก่อนได้ก่อน'];
+  function labVal(k){var el=document.querySelector('[data-lab="'+k+'"]');var v=el?(el.value||'').trim():'';return v?dlEsc(v):'<span style="color:#5b6b7b">'+(forPdf?'&nbsp;':'__________')+'</span>';}
+  var assumRows='';
+  ASSUM.forEach(function(t,i){
+    assumRows+='<tr><td>'+dlEsc(t)+'</td><td>'+labVal('v'+(2*i+1))+'</td><td>'+labVal('v'+(2*i+2))+'</td></tr>';
+  });
+  var rows='';
+  [1,2,3,4].forEach(function(i){
+    rows+='<tr><td>'+val('in'+i,'&nbsp;')+'</td><td>'+val('in'+i+'_d','&nbsp;')+'</td><td>'+val('in'+i+'_s','&nbsp;')+'</td><td>'+val('in'+i+'_c','&nbsp;')+'</td></tr>';
+  });
+  function chkList(sel,title){
+    var h='<p style="margin:10px 0 4px;font-weight:700;color:#0f2c4d">'+title+'</p>';
+    document.querySelectorAll(sel+' > li').forEach(function(li,i){
+      var cb=li.querySelector('input[type=checkbox]'), sp=li.querySelector('span');
+      var txt=sp?sp.textContent.replace(/\s+/g,' ').trim():'';
+      h+='<p style="margin:5px 0">'+(cb&&cb.checked?'☑':'☐')+'&nbsp; '+(i+1)+'. '+dlEsc(txt)+'</p>';
+    });
+    return h;
+  }
+  var chk=chkList('#chkListA','🎯 ตรวจครบทุกด้านหรือยัง')
+         +chkList('#chkListB','🛠️ ใช้วิธีอะไรเป็นหลักฐาน');
+  return ''
+   +'<h2 style="color:#0f2c4d;margin:0 0 4px">รายงานผล Validation — ครั้งที่ 5</h2>'
+   +'<p style="margin:0 0 12px;color:#5b6b7b">เคส: คิวรถบรรทุกที่ dock · Computer Simulation I · คณะโลจิสติกส์ มหาวิทยาลัยบูรพา</p>'
+   +'<p style="min-height:1.6em"><b>กลุ่มที่:</b> '+val('group','____________')+' &nbsp;&nbsp;&nbsp; <b>สมาชิกในกลุ่ม:</b> '+val('members')+'</p>'
+   +'<p style="margin:2px 0 14px;color:#5b6b7b;font-size:.9em">ส่งออกเมื่อ: '+new Date().toLocaleString('th-TH')+'</p>'
+   +'<h3 style="color:#0f2c4d;margin:16px 0 4px">1 · สมมติฐานของโมเดล เทียบกับของจริง</h3>'
+   +'<table border="1" cellspacing="0" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:.92em">'
+   +'<tr style="background:#0f2c4d;color:#fff"><th align="left">สมมติฐานของโมเดล</th><th align="left">ของจริงเป็นอย่างไร</th><th align="left">ถ้าต่างกัน กระทบผลแค่ไหน</th></tr>'
+   +assumRows+'</table>'
+   +'<h3 style="color:#0f2c4d;margin:16px 0 4px">2 · สิ่งที่จงใจไม่ใส่ในโมเดล และเหตุผล</h3>'
+   +'<p style="min-height:4.4em">'+val('excluded')+'</p>'
+   +'<h3 style="color:#0f2c4d;margin:16px 0 4px">3 · ข้อมูลนำเข้า และที่มา</h3>'
+   +'<table border="1" cellspacing="0" cellpadding="6" style="width:100%;border-collapse:collapse;font-size:.92em">'
+   +'<tr style="background:#0f2c4d;color:#fff"><th align="left">ตัวแปรนำเข้า</th><th align="left">การแจกแจง / ค่าที่ใช้</th><th align="left">ที่มา</th><th align="left">ความมั่นใจ</th></tr>'
+   +rows+'</table>'
+   +'<h3 style="color:#0f2c4d;margin:16px 0 4px">4 · ผลลัพธ์จากโมเดล</h3>'
+   +'<p style="min-height:1.6em"><b>turnaround โมเดล:</b> '+val('res_rand','________')+' นาที &nbsp;&nbsp; <b>turnaround จริง:</b> '+val('res_abc','________')+' นาที &nbsp;&nbsp; <b>p-value เช้า:</b> '+val('res_pct','________')+' &nbsp;&nbsp; <b>p-value ทั้งกะ:</b> '+val('res_p','________')+'</p>'
+   +'<h3 style="color:#0f2c4d;margin:18px 0 6px">5 · เช็กลิสต์ Validation</h3>'
+   +'<p style="margin:0 0 6px;color:#5b6b7b;font-size:.92em">ติ๊กเฉพาะข้อที่ทำจริงและมีหลักฐาน</p>'
+   +chk
+   +'<h3 style="color:#0f2c4d;margin:16px 0 4px">6 · จุดที่โมเดลยังไม่ผ่าน หรือยังไม่ได้ตรวจ</h3>'
+   +'<p style="min-height:4.4em">'+val('notdone')+'</p>';
+}
+function exportValidationWord(){
+  var html='<!DOCTYPE html><html><head><meta charset="utf-8"><title>รายงานผล Validation — ครั้งที่ 5</title></head>'
+    +'<body style="font-family:\'TH Sarabun New\',Tahoma,sans-serif;font-size:16pt;line-height:1.6">'
+    + validationReportHTML(false)
+    +'</body></html>';
+  var blob=new Blob(['﻿'+html],{type:'application/msword'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='รายงานผล_Validation_ครั้งที่5.doc';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href);
+}
+function exportValidationPDF(){
+  var win=window.open('','_blank');
+  if(!win){alert('เบราว์เซอร์บล็อกป๊อปอัป กรุณาอนุญาตหน้าต่างป๊อปอัปสำหรับหน้านี้แล้วลองใหม่');return;}
+  win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>รายงานผล Validation — ครั้งที่ 5</title>'
+    +'<style>body{font-family:"Segoe UI","Sarabun",Tahoma,sans-serif;padding:32px;max-width:760px;margin:0 auto;color:#1c2733;line-height:1.7}h2,h3{color:#0f2c4d}table{width:100%}</style>'
+    +'</head><body>'+validationReportHTML(true)
+    +'<'+'script>window.onload=function(){window.print();};<\/script>'
+    +'</body></html>');
+  win.document.close();
+  win.focus();
+}
+
+/* ============ HOMEWORK + LAB AUTOSAVE ============ */
+document.querySelectorAll('input[data-lab]').forEach(function(inp){
+  var key='comsim5_lab_'+inp.dataset.lab;
+  var v=lsGet(key);if(v)inp.value=v;
+  inp.addEventListener('input',function(){lsSet(key,inp.value);});
+});
+
+/* ============ QUIZ ============ */
+var quizData=[
+ {q:'Validation ต่างจาก Verification อย่างไร?',
+  opts:['Verification = โค้ดตรงกับแบบที่ออกแบบไหม · Validation = แบบตรงกับระบบจริงไหม',
+        'Verification = ตรวจตอนกำลังสร้างโมเดล · Validation = ตรวจหลังส่งมอบให้ผู้ใช้แล้ว',
+        'Verification = ตรวจโดยคนที่เขียนโมเดลเอง · Validation = ตรวจโดยผู้เชี่ยวชาญภายนอก',
+        'Verification = ตรวจด้วยวิธีทางสถิติ · Validation = ตรวจด้วยการอ่านโค้ดทีละบรรทัด'],
+  ans:0,fb:'ถูก! เส้นแบ่งอยู่ที่ <b>เทียบกับอะไร</b> ไม่ใช่เทียบเมื่อไรหรือใครเป็นคนเทียบ — Verification เทียบโค้ดกับความตั้งใจของเรา (ไม่ต้องใช้ข้อมูลจริงเลย) · Validation เทียบโมเดลกับโลกจริง (ต้องใช้ข้อมูลจริงและคนจริง) · และทั้งคู่ต้องทำ<b>ควบคู่กันตลอด</b> ไม่ใช่แยกช่วงเวลากัน'},
+
+ {q:'โมเดลสมมติว่ารถทุกคันขนถ่ายด้วยเวลาจากการแจกแจงเดียวกัน แต่คลังจริงมีรถพ่วง 20% ที่ช้ากว่ามาก — นี่เป็นปัญหาด้านใด?',
+  opts:['Conceptual validity — โครงสร้างของโมเดลไม่ตรงกับระบบจริง',
+        'Data validity — ค่าเวลาขนถ่ายที่ป้อนเข้าโมเดลคลาดเคลื่อน',
+        'Operational validity — turnaround ที่โมเดลให้ไม่ตรงกับของจริง',
+        'Verification — โค้ดสุ่มเวลาขนถ่ายทำงานผิดจากที่ออกแบบไว้'],
+  ans:0,fb:'ถูก! ตัวเลือกอื่น "จริงบางส่วน" — turnaround คลาดจริง และค่าเวลาก็ไม่ตรงจริง แต่นั่นเป็น<b>อาการ</b> ไม่ใช่<b>สาเหตุ</b> · สาเหตุคือโมเดลมองว่ามีรถประเภทเดียว จึง<b>แก้ด้วยการจูนค่า Triangular ไม่ได้</b> ต้องแยกประเภทรถในโครงสร้างโมเดล'},
+
+ {q:'ทำ t-test เทียบ turnaround ของโมเดลกับ log ประตูคลังจริง ได้ p = 0.31 ควรตีความอย่างไร?',
+  opts:['ยังปฏิเสธ H₀ ไม่ได้ — ยังไม่พบหลักฐานว่าโมเดลต่างจากของจริง',
+        'ปฏิเสธ H₀ ได้ — โมเดลต่างจากของจริงอย่างมีนัยสำคัญทางสถิติ',
+        'ยอมรับ H₀ ได้เต็มที่ — พิสูจน์แล้วว่าโมเดลกับของจริงเท่ากัน',
+        'โมเดลอธิบายข้อมูลจริงได้ 31% ต้องปรับให้เกิน 95% จึงจะผ่าน'],
+  ans:0,fb:'ถูก! p > 0.05 แปลว่า "ยังไม่พบความต่าง" ไม่ใช่ "ไม่มีความต่าง" และไม่ใช่ "พิสูจน์ว่าเท่ากัน" · ถ้ามี log จริงแค่ไม่กี่คัน การทดสอบจะอ่อนมากจนแทบไม่มีทางเจอความต่าง ไม่ว่าโมเดลจะแย่แค่ไหน · และ p ไม่ใช่สัดส่วนความถูกต้องของโมเดล'},
+
+ {q:'ทำไม "ข้อมูลจริงมีน้อย" จึงเป็นอันตรายเวลาทำ validation ด้วย t-test?',
+  opts:['ข้อมูลน้อยทำให้การทดสอบอ่อน โมเดลแย่ ๆ ก็ยัง "ผ่าน" ได้ง่าย',
+        'ข้อมูลน้อยทำให้ p-value ต่ำเกินจริง โมเดลที่ดีก็ยัง "ไม่ผ่าน"',
+        'ข้อมูลน้อยทำให้ t-test ใช้ไม่ได้ ต้องเปลี่ยนไปใช้ chi-square แทน',
+        'ข้อมูลน้อยทำให้ค่าเฉลี่ยเอนเอียง แต่ p-value ยังเชื่อถือได้ตามเดิม'],
+  ans:0,fb:'ถูก! ยิ่งข้อมูลน้อย standard error ยิ่งใหญ่ p-value ยิ่งสูง → "ผ่าน" ง่ายขึ้น (ไม่ใช่ยากขึ้น) · t-test ออกแบบมาให้ใช้กับกลุ่มตัวอย่างเล็กได้ก็จริง แต่<b>อำนาจการทดสอบ</b>ก็ต่ำตามไปด้วย · จึงควรรายงาน<b>ช่วงความเชื่อมั่นของผลต่าง</b>ควบคู่เสมอ เพราะมันบอกขนาดความต่างที่ยังเป็นไปได้'},
+
+ {q:'ข้อใดคือการทำ Face Validity ที่ถูกวิธี?',
+  opts:['เอากราฟจำนวนรถที่รอตลอดกะไปให้หัวหน้ากะดู แล้วถามว่าเหมือนของจริงไหม',
+        'อธิบายตรรกะของโมเดลและสมการคิวให้หัวหน้ากะฟัง แล้วถามว่าโมเดลนี้ถูกต้องไหม',
+        'ให้เพื่อนต่างกลุ่มไล่อ่านโค้ด SimPy ทีละบรรทัด แล้วยืนยันว่าไม่มีจุดไหนผิด',
+        'รันโมเดลด้วย seed ต่างกัน 100 รอบ แล้วดูว่าค่าเฉลี่ยนิ่งพอจะเชื่อได้ไหม'],
+  ans:0,fb:'ถูก! คนหน้างานตอบคำถามนามธรรมอย่าง "โมเดลถูกไหม" ไม่ได้ ต่อให้เราอธิบายตรรกะให้ฟังก็ตาม — แต่ถ้าเห็นกราฟคิวที่เป็นรูปธรรม เขาจะบอกได้ทันทีว่า "ของจริงบ่ายล้นกว่านี้เยอะ" · ส่วนการอ่านโค้ดและการดูว่าผลนิ่งไหม เป็น <b>Verification</b> ไม่ใช่ validation'},
+
+ {q:'ถ้าเปลี่ยนเวลาขนถ่ายจาก Triangular(12, 20, 34) เป็นค่าคงที่ 22 นาที (ค่าเฉลี่ยเท่าเดิม) ผลจะเป็นอย่างไร?',
+  opts:['คิวจะสั้นลงมาก เพราะคิวเกิดจากความแปรปรวน ไม่ใช่จากค่าเฉลี่ย',
+        'คิวจะยาวขึ้น เพราะไม่มีคันที่ขนถ่ายเร็วมาช่วยระบายคิว',
+        'คิวจะเท่าเดิม เพราะภาระงานเฉลี่ยต่อกะไม่เปลี่ยนแปลง',
+        'คิวจะเท่าเดิม แต่ utilization ของช่องขนถ่ายจะลดลงชัดเจน'],
+  ans:0,fb:'ถูก! นี่คือเหตุผลที่การ "ใช้ค่าเฉลี่ยแทนการแจกแจง" อันตรายมาก — โมเดลจะรายงานคิวสั้นกว่าจริงเยอะ ทำให้สรุปว่า "3 ช่องพอแล้ว" ทั้งที่ของจริงล้น · ส่วน utilization ไม่เปลี่ยน เพราะงานรวมเท่าเดิม'},
+
+ {q:'ในโมเดล dock ปัจจุบัน รถที่มาถึงหลังนาทีที่ 480 จะไม่ถูกสร้างขึ้นเลย ข้อนี้มีผลอย่างไร?',
+  opts:['โมเดลรายงานภาพดีเกินจริง เพราะทิ้งงานค้างที่เป็นต้นทุน OT ออกไป',
+        'ไม่มีผล เพราะรถกลุ่มนั้นอยู่นอกกะที่เราสนใจอยู่แล้ว',
+        'โมเดลรายงานภาพแย่เกินจริง เพราะตัดรถที่จะช่วยเฉลี่ยเวลารอลงออกไป',
+        'มีผลเฉพาะกับ utilization แต่ไม่กระทบ turnaround เฉลี่ย'],
+  ans:0,fb:'ถูก! รถที่ค้างสิ้นกะคือ KPI ที่คนลืมรายงานบ่อยที่สุด และมักเป็น<b>ต้นทุนที่แพงที่สุด</b> (OT หรือดันไปกะถัดไป) · โมเดลที่ทิ้งกลุ่มนี้จะทำให้ข้อเสนอ "ไม่ต้องเพิ่มช่อง" ดูสมเหตุสมผลกว่าความจริง — ต้องเขียนข้อจำกัดนี้ไว้ให้ชัด'},
+
+ {q:'Sensitivity analysis มีไว้ตอบคำถามใด?',
+  opts:['ถ้าสมมติฐานหรือข้อมูลนำเข้าของเราผิด ข้อสรุปจะเปลี่ยนไปไหม',
+        'ผลลัพธ์ของโมเดลแกว่งมากแค่ไหนเมื่อเปลี่ยนค่า seed ในการสุ่ม',
+        'ต้องรันโมเดลกี่รอบ ผลจึงจะนิ่งพอที่จะนำไปสรุปได้อย่างมั่นใจ',
+        'ข้อมูลที่เก็บมามีค่าผิดปกติกี่ตัว และควรตัดทิ้งก่อนใช้หรือไม่'],
+  ans:0,fb:'ถูก! sensitivity ถามถึงความไวต่อ<b>สมมติฐาน</b> ไม่ใช่ความไวต่อ<b>ความสุ่ม</b> (ซึ่งเป็นเรื่องของการรันซ้ำในครั้งที่ 6) · ผลมี 3 แบบ: ข้อสรุปไม่เปลี่ยน (ข้อเสนอแข็งแรง) · เปลี่ยนบางส่วน (ต้องระบุเงื่อนไข) · พลิกทั้งหมด (ต้องเก็บข้อมูลเพิ่มก่อนตัดสินใจ)'},
+
+ {q:'โมเดลทำนาย turnaround เร็วกว่าของจริงอยู่ 25% ควรทำอะไรก่อน?',
+  opts:['หาว่ามีกิจกรรมใดที่โมเดลไม่ได้จำลอง เช่น เวลาเอกสารที่ป้อม พักเที่ยง',
+        'ปรับเวลาขนถ่ายในโมเดลให้นานขึ้น 25% เพื่อให้ค่าเฉลี่ยตรงกับของจริง',
+        'เพิ่มจำนวนกะที่จำลองเป็น 1,000 กะ เพื่อให้ค่าเฉลี่ยของโมเดลแม่นขึ้น',
+        'เปลี่ยน seed ไปเรื่อย ๆ จนได้ชุดที่ค่าเฉลี่ยใกล้เคียงกับของจริงที่สุด'],
+  ans:0,fb:'ถูก! การจูนพารามิเตอร์ให้ตัวเลขตรงกันโดยไม่เข้าใจสาเหตุ เรียกว่า <em>calibration ที่อันตราย</em> — โมเดลจะตรงเฉพาะกรณีที่จูน พอเปลี่ยนเป็น 4 ช่องก็ผิดทันที · ส่วนการเพิ่มจำนวนรอบช่วยลด<b>ความแปรปรวน</b> แต่ไม่ช่วยลด<b>ความเอนเอียง</b>ที่เกิดจากการลืมกิจกรรมทั้งกิจกรรม'},
+
+ {q:'ข้อใดคือท่าทีที่ถูกต้องที่สุดต่อคำถาม "โมเดลนี้ valid ไหม"?',
+  opts:['ไม่มีโมเดลใด valid 100% — ต้องถามว่า valid พอสำหรับการตัดสินใจนี้ไหม',
+        'โมเดลถือว่า valid เมื่อผ่าน t-test แล้ว เพราะมีหลักฐานทางสถิติรองรับ',
+        'โมเดลยิ่งใส่รายละเอียดของระบบจริงมากเท่าไร ก็ยิ่ง valid มากขึ้นเสมอ',
+        'ถ้า verification ผ่านครบทุกข้อ ก็ถือว่าโมเดล valid ไปด้วยโดยปริยาย'],
+  ans:0,fb:'ถูก! โมเดลคือการย่อส่วนความจริง จึง "ผิด" โดยธรรมชาติเสมอ · การผ่าน t-test เป็นเพียงหลักฐานหนึ่งใน validity 3 ประเภท และโมเดลที่ละเอียดขึ้นก็ยิ่งมีสมมติฐานให้ผิดมากขึ้น · <b>โมเดลหยาบที่รู้ขีดจำกัดตัวเอง มีประโยชน์กว่าโมเดลละเอียดที่อวดอ้างเกินจริง</b>'}
+];
+
+var quizScore=0;
+(function(){
+  var box=document.getElementById('quiz');
+  quizData.forEach(function(item,qi){
+    var d=document.createElement('div');d.className='q';
+    var h='<div class="qh">'+(qi+1)+'. '+item.q+'</div>';
+    var order=item.opts.map(function(_,oi){return oi;});
+    for(var k=order.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1));var t=order[k];order[k]=order[j];order[j]=t;}
+    h+='<div class="opts-grid">';
+    order.forEach(function(oi){
+      h+='<button class="opt" data-q="'+qi+'" data-o="'+oi+'">'+item.opts[oi]+'</button>';
+    });
+    h+='</div><div class="fb" id="fb'+qi+'"></div>';
+    d.innerHTML=h;box.appendChild(d);
+  });
+  var answered={};
+  box.addEventListener('click',function(e){
+    var btn=e.target.closest('.opt');if(!btn)return;
+    var qi=+btn.dataset.q, oi=+btn.dataset.o;
+    if(answered[qi])return; answered[qi]=true;
+    var item=quizData[qi];
+    box.querySelectorAll('.opt[data-q="'+qi+'"]').forEach(function(b){ b.disabled=true; if(+b.dataset.o===item.ans)b.classList.add('correct'); });
+    if(oi!==item.ans)btn.classList.add('wrong');
+    var fb=document.getElementById('fb'+qi);fb.classList.add('show');
+    fb.innerHTML=(oi===item.ans?'✅ ':'❌ ')+item.fb;
+    if(Object.keys(answered).length===quizData.length){
+      var correct=0;
+      quizData.forEach(function(it,i){ if(!box.querySelector('.opt[data-q="'+i+'"].wrong'))correct++; });
+      quizScore=correct;
+      var band=document.getElementById('scoreband');band.style.display='block';
+      band.textContent='คะแนน: '+correct+' / '+quizData.length+(correct===quizData.length?' 🎉':'');
+      var wrap=document.getElementById('qzSubmitWrap'); if(wrap) wrap.style.display='block';
+      var sName=(document.getElementById('ci_student')||{}).value||'';
+      if(sName){
+        submitQuizScore(true);
+      }else{
+        var qm=document.getElementById('qz_msg');
+        if(qm){
+          qm.className='qz-msg err';
+          qm.textContent='ℹ️ ยังไม่ได้เช็คชื่อ — กรุณาเลือกชื่อของคุณที่ส่วน "เช็คชื่อเข้าเรียน" (หน้าเริ่มต้น) แล้วกดปุ่มด้านบนเพื่อส่งคะแนน';
+        }
+      }
+    }
+  });
+})();
+
+/* ============ CHECK-IN + QUIZ SCORE → GOOGLE FORM ============ */
+var ROSTER=["67090015 นางสาวบุญสิตา แหวนวงษ์", "67090016 นายโพธิกร ก๋องตาวงศ์", "67090017 นายรัฐภูมิ ส้มดี", "67090018 นางสาววราภรณ์ จิตสุภา", "67090019 นางสาวกมลวรรณ จันทร์งาม", "67090020 นางสาวกันยาพร ขุนอินทอง", "67090021 นางสาวพิมลพัฒน์ ตะดุมพันธ์", "67090022 นางสาวฑิฆัมพร จันทศร", "67090023 นางสาวพัชราภา วงศ์กล้า", "67090024 นายภัทรศักดิ์ เหลืองสิริพาณิช", "67090025 นางสาวศุรัตนาวรรณ สุขจิตต์", "67090026 นางสาวสวรรยา บริหารพงศ์", "67090027 นางสาวกัลยรัตน์ ธงชัย", "67090028 นางสาวฟ้าดาว คันทะจันทร์", "67090029 นางสาวภัทรสุดา บุญอาจ", "67090030 นางสาววิรัลพัชร พัฒนทรัพย์ทวี", "67090099 นางสาวกนิษฐา แสนใจวุฒิ", "67090100 นางสาวกุลิสรา อุดมพืช", "67090101 นายคณิติน วงษ์บุญยัง", "67090102 นายจิรวิช พัฒนศักดิ์โสภณ", "67090103 นายชณิสรณ์ พูลศิริ", "67090104 นางสาวชลธิชา กงจักร์", "67090105 นางสาวณัฏชนน ลาภพูล", "67090106 นางสาวณัฏฐณิชา ทุมอาริยะ", "67090107 นางสาวณัฐกานต์ พุ่มจันทร์", "67090108 นายณัฐปคัลป์ สวัสดิรักษ์", "67090109 นายณัฐภัทร ภู่อุณฑโร", "67090110 นางสาวณัฐริณีย์ หนูวอ", "67090111 นางสาวณิชากานต์ กาวิโล", "67090112 นางสาวณิชากานต์ คนรักษ์", "67090113 นางสาวณิษาชล ลาภอุดมทรัพย์", "67090114 นางสาวดวงฤทัย พุ่มเจริญ", "67090115 นายตุลธร คงสุขโข", "67090116 นายเทพทัต พลอยแหวน", "67090117 นายธนกฤต นารถสมบูรณ์", "67090118 นางสาวธนภรณ์ สังเกตกิจ", "67090119 นายธรรมสรณ์ ศรีประสิทธิ์", "67090120 นายธันยธรณ์ นิยมฤทธิ์", "67090121 นายธีรภัทร ถาวรวัฒนผล", "67090122 นายธีระเทพ ประจง", "67090123 นางสาวนภาภัทร จบสุบิน", "67090124 นางสาวนวภรณ์ ช้างเจิ้น", "67090125 นายปภังค์กร รีรัตน์", "67090126 นางสาวปวันรัตน์ ธนูธรรมมานนท์", "67090127 นางสาวเปรมฤดี ศรีจ้อยวงษ์", "67090128 นายพงศ์เทพ เห็นเจริญสุข", "67090129 นางสาวพลอยณิชชา ศิริลักษณ์ชยกร", "67090130 นายภัทรชนน เกาเล็ก", "67090131 นายภูตะวัน นาจกันยา", "67090132 นางสาวมาริสา สังฆโต", "67090133 นายวรภพ สวัสดี", "67090134 นางสาววรรณวลี ใจทาแก้ว", "67090135 นางสาววริศรา เสงี่ยมวรกุล", "67090136 นางสาววิภาดา อาจชำนาญ", "67090137 นางสาวสุดารัตน์ โมกขาว", "67090138 นางสาวสุภัทชา วัดเล็ก", "67090139 นายสุวภัทร ผาสุขเนตร์", "67090140 นายอนิรุต ทวีภักดิ์", "67090141 นางสาวอรไท หงษ์จันดา", "67090142 นางสาวอุมากร เสาธง", "67090264 นางสาวกนกพัตร์ โกษากุล", "67090265 นางสาวกมลวรรณ วัชราพาณิชย์", "67090266 นางสาวกรวรรณ น้ำเพ็ชร์", "67090267 นางสาวกัญญาณัฐ จันทร์นวล", "67090268 นางสาวกัญญาพัชร รูปสูง", "67090269 นายกิตติวัฒน์ สายแก้ว", "67090270 นางสาวเจนจุฬา คงพัวะ", "67090271 นายเฉลิมชัย อินสุข", "67090272 นางสาวชาคริยา เฉลิมศรีภิญโญรัช", "67090273 นางสาวณภัทร เจียมตน", "67090275 นางสาวณัฐนิชา บุญชะนะ", "67090276 นางสาวนภาวดี สำเภากิจ", "67090278 นางสาวนาเดีย เดชแก้ว", "67090279 นายปฏิภาณ กฤษณะกาฬ", "67090280 นางสาวปภาวี เดชบุญ", "67090281 นายปราบดา จินารัตน์", "67090282 นายปวริศร์ ทิศพรม", "67090283 นายปิยังกูร ธานี", "67090284 นางสาวปุณยวีร์ ปักคำวงษ์สังข์", "67090285 นางสาวพัชริดา เฒ่าเง้า", "67090286 นางสาวพิจิตรา วิชาชาญ", "67090287 นางสาวพิชญาภัค เก็จวลีวรรณ", "67090288 นางสาวภัทรธิดา รัตนปัญญา", "67090289 นางสาวภัทราวดี กานต์กัลปพฤกษ์", "67090290 นายมนตรี บุญช่วย", "67090291 นายศฎาศักย์ศรณ์ อนันท์", "67090292 นางสาวศุทธินี สายสู่", "67090293 นางสาวสิริยากร โสภา", "67090294 นางสาวสุภัสสรา สงวนทรัพย์", "67090295 นางสาวอารียาพร กิขุนทด", "67090310 นางสาวตรีฉัตร ดิษฐลาย"];
+(function(){
+  var sel=document.getElementById('ci_student'); if(!sel)return;
+  ROSTER.forEach(function(name){
+    var o=document.createElement('option'); o.value=name; o.textContent=name; sel.appendChild(o);
+  });
+  try{
+    var prev=localStorage.getItem('comsim5_checkin');
+    if(prev){
+      var msg=document.getElementById('ci_msg');
+      if(msg){ msg.className='ci-msg ok'; msg.textContent='ℹ️ เคยเช็คชื่อจากเครื่องนี้: '+prev; }
+    }
+  }catch(e){}
+})();
+function submitCheckin(){
+  var email=(document.getElementById('ci_email').value||'').trim();
+  var student=document.getElementById('ci_student').value;
+  var msg=document.getElementById('ci_msg');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    msg.className='ci-msg err';
+    msg.textContent='⚠️ กรุณากรอกอีเมลให้ถูกต้อง';
+    return;
+  }
+  if(!student){
+    msg.className='ci-msg err';
+    msg.textContent='⚠️ กรุณาเลือกชื่อ–รหัสนิสิตของคุณ';
+    return;
+  }
+  document.getElementById('ci_f_email').value=email;
+  document.getElementById('ci_f_student').value=student;
+  document.getElementById('ci_form').submit();
+  var btn=document.getElementById('ci_btn');
+  btn.disabled=true;
+  msg.className='ci-msg ok';
+  msg.textContent='✅ ส่งเช็คชื่อแล้ว: '+student;
+  try{ localStorage.setItem('comsim5_checkin', student+' @ '+new Date().toLocaleString('th-TH')); }catch(e){}
+}
+function submitQuizScore(auto){
+  var student=(document.getElementById('ci_student')||{}).value||'';
+  var msg=document.getElementById('qz_msg');
+  if(!student){
+    msg.className='qz-msg err';
+    msg.textContent='⚠️ กรุณาเลือกชื่อของคุณในส่วน "เช็คชื่อเข้าเรียน" (หน้าเริ่มต้น) ก่อนส่งคะแนน';
+    return;
+  }
+  document.getElementById('qz_f_student').value=student;
+  document.getElementById('qz_f_score').value=quizScore;
+  document.getElementById('qz_form').submit();
+  var btn=document.getElementById('qz_btn'); if(btn) btn.disabled=true;
+  msg.className='qz-msg ok';
+  msg.textContent=(auto?'✅ ส่งคะแนนอัตโนมัติแล้ว: ':'✅ ส่งคะแนนแล้ว: ')+student+' — '+quizScore+'/'+quizData.length;
+  try{ localStorage.setItem('comsim5_quiz', student+' : '+quizScore+'/'+quizData.length+' @ '+new Date().toLocaleString('th-TH')); }catch(e){}
+}
+
+/* ============ PAGER ============ */
+var PAGES=[].slice.call(document.querySelectorAll('.wrap > section'));
+var curPage=0;
+function showPage(i){
+  curPage=Math.max(0,Math.min(PAGES.length-1,i));
+  PAGES.forEach(function(s,k){s.classList.toggle('active',k===curPage);});
+  document.getElementById('pgInfo').innerHTML='หน้า <b>'+(curPage+1)+'</b> / '+PAGES.length;
+  document.getElementById('pgPrev').disabled=(curPage===0);
+  document.getElementById('pgNext').disabled=(curPage===PAGES.length-1);
+  var id=PAGES[curPage].id;
+  document.querySelectorAll('nav a').forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+id);});
+  /* แสดง hero (ชื่อเรื่อง + QR) เฉพาะหน้าแรกเท่านั้น */
+  document.body.classList.toggle('notfirst',curPage!==0);
+  updateProgress();
+  window.scrollTo({top:0});
+}
+function goPage(d){ showPage(curPage+d); }
+function gotoSection(id){
+  var i=PAGES.findIndex(function(s){return s.id===id;});
+  if(i>=0) showPage(i);
+  else { var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth'}); }
+}
+document.querySelectorAll('nav a').forEach(function(a){
+  a.addEventListener('click',function(e){
+    if(!document.body.classList.contains('paged'))return;
+    e.preventDefault();
+    var id=a.getAttribute('href').slice(1);
+    var idx=PAGES.findIndex(function(s){return s.id===id;});
+    if(idx>=0)showPage(idx);
+  });
+});
+document.addEventListener('keydown',function(e){
+  if(!document.body.classList.contains('paged'))return;
+  if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='ArrowRight')goPage(1);
+  if(e.key==='ArrowLeft')goPage(-1);
+});
+/* ============ [PATCH-PDF] ส่งออกเนื้อหาเป็น PDF ============ */
+function pdfSyncNotes(){
+  document.querySelectorAll('textarea').forEach(function(ta){
+    var box=ta.parentNode.querySelector(':scope > .printnote');
+    if(!box){box=document.createElement('div');box.className='printnote';ta.parentNode.insertBefore(box,ta.nextSibling);}
+    var v=(ta.value||'').trim();
+    box.textContent = v ? v : '(ยังไม่ได้จดโน้ตในหัวข้อนี้)';
+  });
+}
+function pdfPrepare(){
+  document.querySelectorAll('pre.dim').forEach(function(p){p.classList.remove('dim');});
+  document.querySelectorAll('pre.codehl').forEach(function(p){p.classList.remove('codehl');});
+  pdfSyncNotes();
+}
+function exportPDF(){
+  var el=document.getElementById('pdfHint'); if(el) el.style.display='flex';
+}
+function closePdfHint(){
+  var el=document.getElementById('pdfHint'); if(el) el.style.display='none';
+}
+function doPrint(){
+  closePdfHint();
+  pdfPrepare();
+  setTimeout(function(){window.print();},120);
+}
+window.addEventListener('beforeprint',pdfPrepare);
+document.addEventListener('keydown',function(e){
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='p'){pdfPrepare();}
+});
+
+/* ============ ปุ่มคัดลอกโค้ด (หัวข้อ 9) ============ */
+(function(){
+  var sec=document.getElementById('s9'); if(!sec)return;
+  sec.querySelectorAll('pre').forEach(function(pre){
+    var wrap=document.createElement('div'); wrap.className='prewrap';
+    pre.parentNode.insertBefore(wrap,pre); wrap.appendChild(pre);
+    var b=document.createElement('button');
+    b.className='copybtn pdf-skip'; b.type='button'; b.textContent='📋 คัดลอกโค้ด';
+    b.onclick=function(){
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='✓ คัดลอกแล้ว';b.classList.add('done');
+        setTimeout(function(){b.textContent='📋 คัดลอกโค้ด';b.classList.remove('done');},1600);};
+      var fail=function(){b.textContent='✗ คัดลอกไม่ได้ — กด Ctrl+C';
+        setTimeout(function(){b.textContent='📋 คัดลอกโค้ด';},2200);};
+      if(navigator.clipboard&&window.isSecureContext){
+        navigator.clipboard.writeText(txt).then(ok,function(){legacy();});
+      } else legacy();
+      function legacy(){
+        var t=document.createElement('textarea'); t.value=txt;
+        t.style.position='fixed'; t.style.opacity='0'; document.body.appendChild(t);
+        t.select();
+        try{ document.execCommand('copy')?ok():fail(); }catch(e){ fail(); }
+        document.body.removeChild(t);
+      }
+    };
+    wrap.appendChild(b);
+  });
+})();
+
+/* ============ INIT ============ */
+buildVal();
+updVals();
+showPage(0);
+</script>
+</body>
+</html>
