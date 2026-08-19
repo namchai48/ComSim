@@ -43,6 +43,11 @@
   ul,ol{margin:6px 0 8px;padding-left:1.4em;}
   li{margin:3px 0;}
   code{background:#f0f3f7;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:.87em;}
+  pre.code{background:#0f2c4d;color:#e9f1fa;border-radius:10px;padding:14px 16px;margin:12px 0;
+           overflow-x:auto;font-family:"Consolas","Menlo","Courier New",monospace;font-size:.8rem;line-height:1.6;}
+  pre.code .c{color:#8fbf7a;} pre.code .k{color:#ff9d6b;} pre.code .s{color:#9cd6ff;} pre.code .n2{color:#ffd479;}
+  pre.out{background:#f4f7fa;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:8px;
+          padding:10px 14px;margin:8px 0;font-family:"Consolas","Menlo","Courier New",monospace;font-size:.82rem;line-height:1.6;color:#1c2733;overflow-x:auto;}
   .small{font-size:.85rem;color:var(--muted);}
   h4{color:var(--navy);margin:14px 0 4px;font-size:.98rem;}
   footer{text-align:center;color:var(--muted);font-size:.82rem;padding:18px 0 30px;}
@@ -96,7 +101,7 @@
     <li><code>log_ประตู_คลังX.csv</code> — บันทึกประตู 20 วันทำการ (~1,200–1,300 คัน): วันที่ · ทะเบียน · เวลาเข้าประตู · เวลาเริ่มขนถ่าย · เวลาออก · ช่องที่ · หมายเหตุ</li>
     <li><code>จับเวลาขนถ่าย_คลังX.csv</code> — ผลจับเวลาขนถ่ายจริง 40 คัน (นาที)</li>
     <li><code>บทสัมภาษณ์หัวหน้าคลังX.pdf</code> — บทสัมภาษณ์หัวหน้าคลัง ใช้แทนการลงพื้นที่จริง</li>
-    <li><b>โมเดลมาตรฐานของบริษัท</b> — โค้ด SimPy จากครั้งที่ 4 (3 ช่อง + ช่องเสริมเปิดนาทีที่ 240 · เช้ารถเข้าเฉลี่ยทุก 10 นาที / บ่ายทุก 6 นาที · ขนถ่าย Triangular(12, 20, 34) · กะ 480 นาทีแบบตัดตรง ไม่มี OT) ใช้เป็น<b>จุดตั้งต้น</b> — <b>ทุกกลุ่มต้องตรวจสอบกับบทสัมภาษณ์ว่ากติกา OT ของคลังตนเองสอดคล้องกับโมเดลนี้หรือไม่</b></li>
+    <li><b>โมเดลมาตรฐานของบริษัท</b> — โค้ด SimPy จากครั้งที่ 4 (3 ช่อง + ช่องเสริมเปิดนาทีที่ 240 · เช้ารถเข้าเฉลี่ยทุก 10 นาที / บ่ายทุก 6 นาที · ขนถ่าย Triangular(12, 20, 34) · กะ 480 นาทีแบบตัดตรง ไม่มี OT) ใช้เป็น<b>จุดตั้งต้น</b> — <b>ทุกกลุ่มต้องตรวจสอบกับบทสัมภาษณ์ว่ากติกา OT ของคลังตนเองสอดคล้องกับโมเดลนี้หรือไม่</b> · <b>โค้ดเต็มอยู่ที่ <a href="#appendix-model">ภาคผนวก ก</a> ท้ายเอกสาร</b> คัดลอกไปวางใน Colab แล้วรันได้ทันที</li>
   </ul>
   <div class="amberbox"><b>ข้อควรรู้:</b> โมเดลมาตรฐานถูกสร้างจากคลังต้นแบบ — <b>คลังของคุณอาจเหมือนหรือต่างจากคลังต้นแบบก็ได้</b> หน้าที่ของกลุ่มคือใช้กระบวนการ validation หาหลักฐานว่าโมเดลมาตรฐานใช้กับคลังของคุณได้เลย หรือต้องปรับตรงไหน — <b>ห้ามเดา ห้ามจูนตัวเลขให้ตรงโดยไม่มีเหตุผลเชิงระบบ</b> และถ้าตรวจแล้วไม่พบความต่าง การรายงานว่า "ไม่พบหลักฐานว่าต่าง พร้อมรายการสิ่งที่ตรวจไปแล้ว" คือคำตอบที่ถูกต้องและได้คะแนนเต็มส่วนนั้น</div>
   <p class="small">หนึ่งคลังอาจมี 2 กลุ่มรับผิดชอบ — สองกลุ่มนั้นจะถูกกำหนดให้ศึกษาชุดทางเลือกการปรับปรุงคนละชุด (ดูข้อ 4 ระยะที่ 5)</p>
@@ -250,6 +255,97 @@
     <tr><td>หัวข้อ</td><td>ComSim การค้า - สมาชิกโปรเจค</td></tr>
     <tr><td>เนื้อหา</td><td>รายชื่อสมาชิกกลุ่มไม่เกิน 6 คน (เรียงลำดับรหัสนิสิตมาให้ด้วย)</td></tr>
   </table>
+</div>
+
+<div class="sec" id="appendix-model">
+  <h3><span class="n">ก</span> ภาคผนวก ก — โค้ดโมเดลมาตรฐานของบริษัท (จุดตั้งต้นของทุกกลุ่ม)</h3>
+  <p class="hint">คัดลอกทั้งบล็อกไปวางใน Colab <b>เซลล์เดียว</b> แล้วกดรันได้ทันที · ถ้า Colab แจ้งว่าไม่มี simpy ให้รัน <code>!pip install simpy</code> ก่อนหนึ่งครั้ง</p>
+<pre class="code"><span class="c"># ===== โมเดลมาตรฐานของบริษัท — คิวรถบรรทุกที่ประตูขนถ่าย (dock) =====</span>
+<span class="c"># ใช้เป็น &quot;จุดตั้งต้น&quot; ของโปรเจกต์ · รันได้ทันทีบน Google Colab</span>
+<span class="c"># ถ้า Colab แจ้งว่าไม่มี simpy ให้รัน  !pip install simpy  ก่อน 1 ครั้ง</span>
+
+<span class="k">import</span> simpy, random
+
+<span class="c"># ---------- พารามิเตอร์ (แก้ที่นี่ที่เดียว) ----------</span>
+SHIFT      = <span class="n2">480</span>            <span class="c"># ความยาวกะ (นาที) 08:00-16:00</span>
+NOON       = <span class="n2">240</span>            <span class="c"># เส้นแบ่งเช้า/บ่าย</span>
+IAT_AM     = <span class="n2">10</span>             <span class="c"># เช้า: รถเข้าเฉลี่ยทุก 10 นาที</span>
+IAT_PM     = <span class="n2">6</span>              <span class="c"># บ่าย: รถเข้าเฉลี่ยทุก 6 นาที</span>
+SVC        = (<span class="n2">12</span>, <span class="n2">20</span>, <span class="n2">34</span>)   <span class="c"># เวลาขนถ่าย Triangular(ต่ำสุด, ฐานนิยม, สูงสุด) เฉลี่ย 22</span>
+BASE_DOCKS = <span class="n2">3</span>              <span class="c"># ช่องขนถ่ายหลัก</span>
+EXTRA_FROM = <span class="n2">240</span>            <span class="c"># ช่องเสริม (ช่องที่ 4) เปิดตั้งแต่นาทีนี้ (None = ไม่มีช่องเสริม)</span>
+SEED       = <span class="n2">42</span>
+
+<span class="c"># ---------- ตัวแปรมาตรฐานของวิชา (เซลล์ตรวจใช้ชื่อเหล่านี้) ----------</span>
+log = []            <span class="c"># ทุกคัน: (มาถึง, เริ่มขนถ่าย, ออก)</span>
+busy = <span class="n2">0.0</span>          <span class="c"># นาทีที่ช่องถูกใช้งานจริง</span>
+n_arrived = <span class="n2">0</span>       <span class="c"># จำนวนรถที่เข้าระบบทั้งหมด</span>
+
+<span class="k">def</span> truck(env, name, dock):
+    <span class="k">global</span> busy
+    arrive = env.now
+    <span class="k">with</span> dock.request() <span class="k">as</span> req:
+        <span class="k">yield</span> req                                   <span class="c"># ต่อคิวรอช่องว่าง</span>
+        start = env.now
+        s = random.triangular(SVC[<span class="n2">0</span>], SVC[<span class="n2">2</span>], SVC[<span class="n2">1</span>])   <span class="c"># Python รับ (ต่ำสุด, สูงสุด, ฐานนิยม)</span>
+        busy += s
+        <span class="k">yield</span> env.timeout(s)                        <span class="c"># กำลังขนถ่าย</span>
+    log.append((arrive, start, env.now))
+
+<span class="k">def</span> arrivals(env, dock):
+    <span class="k">global</span> n_arrived
+    <span class="k">while</span> <span class="k">True</span>:
+        mean = IAT_AM <span class="k">if</span> env.now &lt; NOON <span class="k">else</span> IAT_PM
+        <span class="k">yield</span> env.timeout(random.expovariate(<span class="n2">1</span>/mean))
+        <span class="k">if</span> env.now &gt;= SHIFT: <span class="k">break</span>                  <span class="c"># ประตูปิดรับ ไม่รับรถใหม่</span>
+        n_arrived += <span class="n2">1</span>
+        env.process(truck(env, n_arrived, dock))
+
+<span class="k">def</span> extra_team(env, dock):
+    req = dock.request()        <span class="c"># ทริก: จองช่องที่ 4 ไว้ก่อน แล้วปล่อยคืนตอนทีมเสริมมาถึง</span>
+    <span class="k">yield</span> req
+    <span class="k">yield</span> env.timeout(EXTRA_FROM)
+    dock.release(req)
+
+random.seed(SEED)
+env = simpy.Environment()
+n_docks = BASE_DOCKS + (<span class="n2">1</span> <span class="k">if</span> EXTRA_FROM <span class="k">is</span> <span class="k">not</span> <span class="k">None</span> <span class="k">else</span> <span class="n2">0</span>)
+dock = simpy.Resource(env, capacity=n_docks)
+env.process(arrivals(env, dock))
+<span class="k">if</span> EXTRA_FROM <span class="k">is</span> <span class="k">not</span> <span class="k">None</span>: env.process(extra_team(env, dock))
+env.run(until=SHIFT)            <span class="c"># กะปิดตายที่นาทีที่ 480</span>
+
+<span class="c"># ---------- สรุปผล 1 กะ ----------</span>
+dock_min = BASE_DOCKS*SHIFT + (SHIFT - EXTRA_FROM <span class="k">if</span> EXTRA_FROM <span class="k">is</span> <span class="k">not</span> <span class="k">None</span> <span class="k">else</span> <span class="n2">0</span>)
+wait = [s - a <span class="k">for</span> a, s, e <span class="k">in</span> log]
+ta   = [e - a <span class="k">for</span> a, s, e <span class="k">in</span> log]
+<span class="k">print</span>(<span class="s">f&quot;รถเข้าระบบ         {n_arrived} คัน&quot;</span>)
+<span class="k">print</span>(<span class="s">f&quot;ขนถ่ายเสร็จ        {len(log)} คัน  (ยังค้างในระบบ {n_arrived - len(log)} คัน)&quot;</span>)
+<span class="k">print</span>(<span class="s">f&quot;เวลารอเฉลี่ย        {sum(wait)/len(wait):.1f} นาที&quot;</span>)
+<span class="k">print</span>(<span class="s">f&quot;turnaround เฉลี่ย   {sum(ta)/len(ta):.1f} นาที&quot;</span>)
+<span class="k">print</span>(<span class="s">f&quot;Utilization        {busy/dock_min:.1%}   (dock-minutes ที่มีจริง = {dock_min})&quot;</span>)</pre>
+  <h4>ผลที่ต้องได้เมื่อ <code>SEED = 42</code> (ใช้เช็กว่าตั้งต้นถูกต้อง)</h4>
+<pre class="out">รถเข้าระบบ         71 คัน
+ขนถ่ายเสร็จ        68 คัน  (ยังค้างในระบบ 3 คัน)
+เวลารอเฉลี่ย        8.4 นาที
+turnaround เฉลี่ย   30.6 นาที
+Utilization        93.9%   (dock-minutes ที่มีจริง = 1680)</pre>
+  <p class="small">ถ้าตัวเลขของคุณไม่ตรงกับนี้ ให้ตรวจ 2 จุดก่อน: (1) ลำดับอาร์กิวเมนต์ของ <code>random.triangular</code> — Python รับ (ต่ำสุด, <b>สูงสุด</b>, <b>ฐานนิยม</b>) ไม่ใช่ (ต่ำสุด, ฐานนิยม, สูงสุด) &nbsp;(2) ตำแหน่งของ <code>random.seed(42)</code> ต้องอยู่ก่อนสร้าง <code>env</code></p>
+
+  <div class="warnbox"><b>อ่านให้ครบก่อนใช้ต่อ:</b> โค้ดนี้คือ<b>จุดตั้งต้น ไม่ใช่คำตอบ</b> — บรรทัด <code>env.run(until=SHIFT)</code> ทำให้กะปิดตายที่นาทีที่ 480 จึงมี "รถค้างในระบบ" เหลืออยู่ (ผลข้างต้น 3 คัน) ซึ่ง<b>ขัดกับกติกา OT ที่หัวหน้าคลังทุกแห่งยืนยัน</b> ดูวิธีจัดการที่ระยะที่ 3 ข้อสุดท้าย · ตัวเลข Utilization ข้างต้นก็ต้องถูกตรวจด้วยการคำนวณมือในระยะที่ 3 ขั้น ② ก่อนนำไปใช้อ้างอิง</div>
+
+  <div class="note"><b>ชื่อตัวแปรมาตรฐานที่ต้องคงไว้</b> เพื่อให้เซลล์ตรวจ 4 ขั้นของครั้งที่ 4 ใช้ได้ทันที: <code>log</code> (ทุกคัน: มาถึง · เริ่มขนถ่าย · ออก) · <code>n_arrived</code> · <code>busy</code> · <code>dock_min</code> · <code>SHIFT</code> — ถ้าเปลี่ยนโครงสร้างข้อมูลใด ต้องแก้ <code>dock_min</code> ให้ตรงกับทรัพยากรที่มีจริงเสมอ</div>
+
+  <h4>ปุ่มที่ใช้ทดลองทางเลือกในระยะที่ 5</h4>
+  <table class="tbl">
+    <tr><th>ทางเลือก</th><th>แก้อะไรในโค้ด</th></tr>
+    <tr><td>ก · เพิ่มช่องที่ 4 ถาวรทั้งกะ</td><td><code>BASE_DOCKS = 4</code> และ <code>EXTRA_FROM = None</code> (อย่าลืมแก้สูตร <code>dock_min</code>)</td></tr>
+    <tr><td>ข · เลื่อนเวลาเปิดช่องเสริม</td><td><code>EXTRA_FROM = 120</code> (หรือค่าที่กลุ่มเลือก)</td></tr>
+    <tr><td>ค · อุปกรณ์ใหม่ ลดเวลาขนถ่าย 15%</td><td><code>SVC = (10.2, 17, 28.9)</code> หรือคูณ <code>s</code> ด้วย <code>0.85</code></td></tr>
+    <tr><td>ง · ระบบนัดหมายรถ</td><td><code>IAT_AM = 8</code> · <code>IAT_PM = 8</code></td></tr>
+    <tr><td>จ · ทางเลือกที่กลุ่มออกแบบเอง</td><td>นิยามพารามิเตอร์ให้ชัดเจนและแจ้งอาจารย์ก่อน</td></tr>
+  </table>
+  <p class="small">ทุกทางเลือกต้องเทียบกับกรณีฐานด้วย<b>ชุด seed เดียวกัน</b> (common random numbers) และรายงานผลต่างพร้อม CI ตามระยะที่ 5</p>
 </div>
 
 <footer>Computer Simulation I · โปรเจกต์ปิดวิชา (14 วัน) · คณะโลจิสติกส์ · ภาคเรียนที่ 1/2569</footer>
