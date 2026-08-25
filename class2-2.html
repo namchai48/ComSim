@@ -1644,7 +1644,7 @@ function chiSquareTest(data, dist){
   if(dist==='normal'){ params={mean:m,sd:s}; dfParams=2; qfn=function(p){return chiQNormal(p,m,s);}; }
   else if(dist==='exponential'){ var em=Math.max(m,1e-9); params={mean:em}; dfParams=1; qfn=function(p){return chiQExpo(p,em);}; }
   else if(dist==='uniform'){ params={a:mn,b:mx}; dfParams=2; qfn=function(p){return chiQUniform(p,mn,mx);}; }
-  else if(dist==='triangular'){ var c=Math.min(Math.max(3*m-mn-mx,mn),mx); params={a:mn,c:c,b:mx}; dfParams=1; qfn=function(p){return chiQTriangular(p,mn,c,mx);}; }
+  else if(dist==='triangular'){ var c=Math.min(Math.max(3*m-mn-mx,mn),mx); params={a:mn,c:c,b:mx}; dfParams=3; qfn=function(p){return chiQTriangular(p,mn,c,mx);}; }
   else if(dist==='poisson'){ var lam=Math.max(m,1e-9); params={lambda:lam}; dfParams=1; isDiscrete=true; }
 
   var obs=[], exp=[];
