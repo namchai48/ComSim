@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>นัดหมายนำเสนอกลุ่มการจัดการโลจิสติกส์ · Computer Simulation I</title>
+<style>
+  :root{
+    --navy:#0f2c4d; --blue:#1f5f8b; --teal:#2a9d8f; --amber:#e9a93f; --red:#d9534f; --purple:#7b5ea7;
+    --bg:#eef2f6; --card:#fff; --line:#dfe5ec; --ink:#1c2733; --muted:#5b6b7b;
+    --soft:#eef7f5; --warn:#fdecea;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"Segoe UI","Sarabun",Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;}
+  a{color:var(--blue);}
+  header.hero{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:34px 24px 26px;text-align:center;}
+  header.hero h1{margin:0 0 6px;font-size:1.7rem;}
+  header.hero .sub{opacity:.93;font-size:1rem;margin:2px 0;}
+  .badges{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-top:14px;}
+  .badge{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;font-size:.84rem;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 60px;}
+
+  .casebar{background:linear-gradient(135deg,#f0fbf8,#eef3fb);border:2px solid var(--teal);border-radius:14px;padding:16px 20px;margin:18px 0;}
+  .casebar h2{margin:0 0 4px;color:var(--navy);font-size:1.15rem;}
+  .casebar p{margin:6px 0;font-size:.95rem;}
+  .casebar .q{background:#fff;border-left:4px solid var(--amber);border-radius:8px;padding:10px 14px;margin-top:10px;font-size:.97rem;font-weight:600;color:var(--navy);}
+
+  .sec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:14px 0;box-shadow:0 1px 4px rgba(15,44,77,.04);}
+  .sec > h3{margin:0 0 8px;color:var(--blue);font-size:1.1rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .sec > h3 .n{background:var(--teal);color:#fff;min-width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;flex:0 0 auto;}
+  .sec .hint{color:var(--muted);font-size:.9rem;margin:2px 0 10px;}
+  .phase{border-left:5px solid var(--teal);}
+  .phase .tag{display:inline-block;background:var(--soft);color:var(--teal);border:1px solid var(--teal);border-radius:999px;font-size:.76rem;font-weight:700;padding:2px 10px;margin-left:4px;}
+
+  table.tbl{width:100%;border-collapse:collapse;font-size:.9rem;margin:10px 0;background:#fff;}
+  table.tbl th,table.tbl td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top;}
+  table.tbl th{background:var(--navy);color:#fff;font-weight:700;}
+  table.tbl tr:nth-child(even) td{background:#f8fafc;}
+  table.tbl td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  table.tbl tr.break td{background:#fff8ea;color:var(--navy);font-weight:700;text-align:center;}
+  table.tbl tr.break td.num{text-align:center;}
+  .status-ok{display:inline-block;background:var(--soft);color:var(--teal);border:1px solid var(--teal);border-radius:999px;font-size:.78rem;font-weight:700;padding:2px 10px;}
+
+  .note{background:var(--soft);border-left:4px solid var(--teal);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:.92rem;}
+  .warnbox{background:var(--warn);border-left:4px solid var(--red);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:.92rem;}
+  .amberbox{background:#fff8ea;border-left:4px solid var(--amber);border-radius:8px;padding:10px 14px;margin:10px 0;font-size:.92rem;}
+  ul,ol{margin:6px 0 8px;padding-left:1.4em;}
+  li{margin:3px 0;}
+  code{background:#f0f3f7;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:.87em;}
+  .small{font-size:.85rem;color:var(--muted);}
+  h4{color:var(--navy);margin:14px 0 4px;font-size:.98rem;}
+  footer{text-align:center;color:var(--muted);font-size:.82rem;padding:18px 0 30px;}
+  @media print{
+    body{background:#fff;}
+    .sec,.casebar{box-shadow:none;break-inside:avoid;}
+    header.hero{background:var(--navy);-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>นัดหมายนำเสนอโปรเจกต์การจัดการโลจิสติกส์</h1>
+  <p class="sub">Computer Simulation I · คิวนำเสนอโปรเจกต์ปิดวิชา</p>
+  <div class="badges">
+    <span class="badge">20 กลุ่ม</span>
+    <span class="badge">15 นาที/กลุ่ม</span>
+    <span class="badge">13:00–18:30 น. (พัก 2 ครั้ง)</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="casebar">
+    <h2>เกี่ยวกับตารางนี้</h2>
+    <p>คิวนัดหมายนำเสนอโปรเจกต์ปิดวิชา (โปรเจกต์การจัดการโลจิสติกส์) สำหรับทั้ง 20 กลุ่ม แบ่งเวลาให้กลุ่มละ 15 นาที เริ่มตั้งแต่เวลา 13:00 น. เป็นต้นไป โดยแทรกช่วงพัก 15 นาที 2 ครั้ง คือช่วง 15:00–15:15 น. และ 17:00–17:15 น.</p>
+    <div class="q">ตรวจสอบจากแบบฟอร์มส่งงาน (Google Form Responses) แล้ว: ครบทั้ง 20/20 กลุ่มได้ส่งไฟล์งานเรียบร้อย ไม่มีกลุ่มใดค้างส่ง</div>
+  </div>
+
+  <div class="sec">
+    <h3><span class="n">1</span> รายละเอียดการนัดหมาย</h3>
+    <table class="tbl">
+      <tbody>
+        <tr><th>จำนวนกลุ่มที่เข้าคิว</th><td>20 กลุ่ม</td></tr>
+        <tr><th>เวลาต่อกลุ่ม</th><td>15 นาที</td></tr>
+        <tr><th>ช่วงพัก</th><td>15 นาที จำนวน 2 ช่วง (15:00–15:15 น. และ 17:00–17:15 น.)</td></tr>
+        <tr><th>ช่วงเวลาทั้งหมด</th><td>13:00–18:30 น.</td></tr>
+        <tr><th>ลำดับคิว</th><td>เรียงตามเวลาที่ส่งแบบฟอร์ม (Timestamp) จากเช้าไปเย็น</td></tr>
+        <tr><th>ตัวแทนกลุ่ม</th><td>รายชื่อแรกที่ระบุไว้ในแบบฟอร์มส่งงานของแต่ละกลุ่ม</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sec">
+    <h3><span class="n">2</span> สถานะการส่งงาน</h3>
+    <p class="hint">ตรวจสอบจากชีต “ส่งโปรเจคการจัดการ (Responses)” — จับคู่รายชื่อสมาชิกในแต่ละแถวกับผังกลุ่ม 20 กลุ่ม (91 คน) พบว่าส่งงานครบทุกกลุ่ม</p>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>กลุ่ม</th>
+          <th>เวลาที่ส่ง (Timestamp)</th>
+          <th>จำนวนสมาชิก</th>
+          <th>สถานะ</th>
+        </tr>
+      </thead>
+      <tbody id="status-body"></tbody>
+    </table>
+  </div>
+
+  <div class="sec">
+    <h3><span class="n">3</span> ตารางคิวนำเสนอ</h3>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>คิว</th>
+          <th>ช่วงเวลา</th>
+          <th>กลุ่ม</th>
+          <th>ตัวแทนกลุ่ม</th>
+          <th>รหัสนิสิต</th>
+        </tr>
+      </thead>
+      <tbody id="schedule-body"></tbody>
+    </table>
+  </div>
+
+  <div class="sec">
+    <h3><span class="n">4</span> หมายเหตุ</h3>
+    <div class="note">ลำดับคิวเรียงตามเวลาที่แต่ละกลุ่มส่งแบบฟอร์มงาน (Timestamp ใน Google Form Responses) จากก่อนไปหลัง และรายชื่อตัวแทนกลุ่มอ้างอิงจากรายชื่อแรกที่กลุ่มพิมพ์ไว้ในช่อง “รายชื่อสมาชิกกลุ่ม” ของแบบฟอร์ม</div>
+    <div class="amberbox">การจับคู่ “กลุ่มที่” อ้างอิงจากไฟล์ผังกลุ่ม <code>ตรวจเช็คกลุ่มโปรเจค_การจัดการโลจิสติกส์.xlsx</code> (แผ่น “สรุปตามกลุ่ม”) โดยจับคู่รหัสนิสิตในแบบฟอร์มส่งงานกับรายชื่อสมาชิกของแต่ละกลุ่ม ครบทั้ง 20 กลุ่ม ไม่มีกลุ่มซ้ำหรือกลุ่มขาด</div>
+    <div class="warnbox">ตามไฟล์ผังกลุ่มพบนิสิต 3 คนที่ยังไม่ถูกจัดเข้ากลุ่มการจัดการโลจิสติกส์ (รหัส 67090019, 67090030, 67090101) — คาดว่าอยู่หัวข้อ “การค้า” หรือยังไม่ได้แจ้งกลุ่ม ควรตรวจสอบเพิ่มเติมหากเกี่ยวข้อง</div>
+  </div>
+
+</div>
+
+<footer>Computer Simulation I · โปรเจกต์การจัดการโลจิสติกส์</footer>
+
+<script>
+  // status: group, timestamp, memberCount
+  const status = [
+    [1,"9/1/2026 21:32:56",3],
+    [2,"9/2/2026 13:56:04",5],
+    [3,"9/2/2026 17:15:58",6],
+    [4,"9/2/2026 20:39:51",5],
+    [5,"9/2/2026 18:15:39",5],
+    [6,"9/2/2026 23:43:43",5],
+    [7,"9/2/2026 6:58:30",5],
+    [8,"9/2/2026 17:57:37",4],
+    [9,"9/2/2026 23:06:35",4],
+    [10,"9/2/2026 0:27:39",4],
+    [11,"9/2/2026 13:51:13",5],
+    [12,"9/2/2026 11:52:43",5],
+    [13,"9/2/2026 20:45:31",3],
+    [14,"9/2/2026 17:13:17",6],
+    [15,"9/1/2026 20:47:51",5],
+    [16,"9/2/2026 23:51:13",3],
+    [17,"9/1/2026 22:30:19",4],
+    [18,"9/2/2026 19:43:27",3],
+    [19,"8/31/2026 2:19:07",5],
+    [20,"9/2/2026 16:46:07",3],
+  ];
+
+  const statusBody = document.getElementById('status-body');
+  statusBody.innerHTML = status
+    .slice()
+    .sort((a,b)=>a[0]-b[0])
+    .map(([group,ts,n]) => `
+    <tr>
+      <td>กลุ่ม ${group}</td>
+      <td>${ts}</td>
+      <td class="num">${n}</td>
+      <td><span class="status-ok">ส่งแล้ว</span></td>
+    </tr>
+  `).join('');
+
+  // order, start, end, group, id, name  (blank group => break row)
+  const schedule = [
+    [1,"13:00","13:15",19,"67090105","นางสาวณัฏชนน ลาภพูล"],
+    [2,"13:15","13:30",15,"67090022","นางสาวฑิฆัมพร จันทศร"],
+    [3,"13:30","13:45",1,"67090099","นางสาวกนิษฐา แสนใจวุฒิ"],
+    [4,"13:45","14:00",17,"67090023","นางสาวพัชราภา วงศ์กล้า"],
+    [5,"14:00","14:15",10,"67090021","นางสาวพิมลพัฒน์ ตะดุมพันธ์"],
+    [6,"14:15","14:30",7,"67090017","นายรัฐภูมิ ส้มดี"],
+    [7,"14:30","14:45",12,"67090018","นางสาววราภรณ์ จิตสุภา"],
+    [8,"14:45","15:00",11,"67090100","นางสาวกุลิสรา อุดมพืช"],
+    [null,"15:00","15:15",null,null,"พักเบรก 15 นาที"],
+    [9,"15:15","15:30",2,"67090016","นายโพธิกร ก๋องตาวงศ์"],
+    [10,"15:30","15:45",20,"67090028","นางสาวฟ้าดาว คันทะจันทร์"],
+    [11,"15:45","16:00",14,"67090123","นางสาวนภาภัทร จบสุบิน"],
+    [12,"16:00","16:15",3,"67090125","นายปภังค์กร รีรัตน์"],
+    [13,"16:15","16:30",8,"67090027","นางสาวกัลยรัตน์ ธงชัย"],
+    [14,"16:30","16:45",5,"67090015","นางสาวบุญสิตา แหวนวงษ์"],
+    [15,"16:45","17:00",18,"67090111","นางสาวณิชากานต์ กาวิโล"],
+    [null,"17:00","17:15",null,null,"พักเบรก 15 นาที"],
+    [16,"17:15","17:30",4,"67090029","นางสาวภัทรสุดา บุญอาจ"],
+    [17,"17:30","17:45",13,"67090124","นางสาวนวภรณ์ ช้างเจิ้น"],
+    [18,"17:45","18:00",9,"67090103","นายชณิสรณ์ พูลศิริ"],
+    [19,"18:00","18:15",6,"67090266","นางสาวกรวรรณ น้ำเพ็ชร์"],
+    [20,"18:15","18:30",16,"67090269","นายกิตติวัฒน์ สายแก้ว"],
+  ];
+
+  const tbody = document.getElementById('schedule-body');
+  tbody.innerHTML = schedule.map(([order,start,end,group,id,name]) => {
+    if(group === null){
+      return `<tr class="break"><td colspan="5">${start}–${end} น. — ${name}</td></tr>`;
+    }
+    return `
+    <tr>
+      <td class="num">${order}</td>
+      <td>${start}–${end} น.</td>
+      <td>กลุ่ม ${group}</td>
+      <td>${name}</td>
+      <td>${id}</td>
+    </tr>
+  `;
+  }).join('');
+</script>
+
+</body>
+</html>
